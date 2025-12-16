@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cerebrus Word Processor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        /* CSS Styles for a minimalist and responsive design */
+        body {
+            font-family: 'Arial', sans-serif; /* More professional font */
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa; /* Lighter background */
+            color: #212529; /* Darker text for better readability */
+            line-height: 1.7; /* Improved line height */
+        }
+
+        .container {
+            max-width: 900px; /* Wider container */
+            margin: 30px auto; /* More top/bottom margin */
+            padding: 30px; /* More padding */
+            background-color: #fff;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1); /* Softer shadow */
+            border-radius: 8px; /* Rounded corners */
+        }
+
+        #toolbar {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f1f3f5; /* Lighter toolbar background */
+            border-bottom: 1px solid #dee2e6;
+            display: flex; /* Use flexbox for better button alignment */
+            flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+            gap: 8px; /* Space between buttons */
+        }
+
+        #editor {
+            min-height: 400px; /* Increased height */
+            padding: 15px;
+            border: 1px solid #ced4da;
+            outline: none;
+            border-radius: 6px;
+            font-size: 16px; /* More readable font size */
+            line-height: 1.6;
+        }
+
+        button {
+            padding: 10px 16px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.2s ease; /* Smooth hover transition */
+            font-size: 14px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                margin: 15px;
+                padding: 15px;
+            }
+
+            #toolbar {
+                padding: 10px;
+            }
+
+            button {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+        }
+
+        /* Style for the file input */
+        #fileInput {
+            display: none; /* Hide the actual file input */
+        }
+
+        .file-button {
+            padding: 10px 16px;
+            border: none;
+            background-color: #28a745; /* Green color */
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.2s ease;
+            font-size: 14px;
+        }
+
+        .file-button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Cerebrus Word Processor</h1>
+
+        <div id="toolbar">
+            <button onclick="formatText('bold')"><i class="fas fa-bold"></i> Bold</button>
+            <button onclick="formatText('italic')"><i class="fas fa-italic"></i> Italic</button>
+            <button onclick="formatText('underline')"><i class="fas fa-underline"></i> Underline</button>
+            <button onclick="formatText('justifyLeft')"><i class="fas fa-align-left"></i> Left</button>
+            <button onclick="formatText('justifyCenter')"><i class="fas fa-align-center"></i> Center</button>
+            <button onclick="formatText('justifyRight')"><i class="fas fa-align-right"></i> Right</button>
+            <button onclick="formatText('insertUnorderedList')"><i class="fas fa-list-ul"></i> List</button>
+            <button onclick="createLink()"><i class="fas fa-link"></i> Link</button>
+            <button onclick="formatText('unlink')"><i class="fas fa-unlink"></i> Unlink</button>
+            <button onclick="insertImage()"><i class="fas fa-image"></i> Image</button>
+            <input type="file" id="fileInput" accept=".txt,.html,.docx" onchange="loadFile(this)">
+            <label for="fileInput" class="file-button"><i class="fas fa-folder-open"></i> Open File</label>
+            <button onclick="saveFile()"><i class="fas fa-save"></i> Save</button>
+        </div>
+
+        <div id="editor" contenteditable="true">
+            <!-- Initial content can be placed here -->
+            Start typing here...
+        </div>
+    </div>
+
+    <script>
+        // JavaScript functions for text formatting
+        function formatText(command, value = null) {
+            document.execCommand(command, false, value);
+            document.getElementById('editor').focus(); // Keep focus on the editor after formatting
+        }
+
+        function createLink() {
+            let url = prompt("Enter the URL:");
+            if (url) {
+                formatText('createLink', url);
+            }
+        }
+
+        function insertImage() {
+            let imageUrl = prompt("Enter the image URL:");
+            if (imageUrl) {
+                formatText('insertImage', imageUrl);
+            }
+        }
+
+        function saveFile() {
+            const content = document.getElementById('editor').innerHTML;
+            const blob = new Blob([content], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'document.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function loadFile(input) {
+            let file = input.files[0];
+
+            if (file) {
+                let reader = new FileReader();
+
+                reader.onload = function(e) {
+                    document.getElementById('editor').innerHTML = e.target.result;
+                }
+
+                reader.onerror = function() {
+                    alert("Error reading file!");
+                };
+
+                reader.readAsText(file);
+            }
+        }
+    </script>
+
+</body>
+</html>

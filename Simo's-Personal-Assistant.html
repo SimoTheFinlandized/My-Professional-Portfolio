@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simo's Personal Assistant SPA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        section {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        h2 {
+            margin-top: 0;
+        }
+        textarea, input, button {
+            display: block;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Simo's Personal Assistant</h1>
+
+    <!-- Notes Section -->
+    <section id="notes-section">
+        <h2>Notes</h2>
+        <textarea id="notes" rows="5" cols="30" placeholder="Write your notes here..."></textarea>
+    </section>
+
+    <!-- To-Do List Section -->
+    <section id="todo-section">
+        <h2>To-Do List</h2>
+        <input type="text" id="todo-input" placeholder="Enter a task">
+        <button id="add-todo">Add to To-Do List</button>
+        <ul id="todo-list"></ul>
+    </section>
+
+    <!-- Clock Section -->
+    <section id="clock-section">
+        <h2>Clock</h2>
+        <p id="clock"></p>
+    </section>
+
+    <!-- Calendar Section -->
+    <section id="calendar-section">
+        <h2>Calendar</h2>
+        <p>Feature coming soon...</p>
+    </section>
+
+    <!-- Address Book Section -->
+    <section id="address-book-section">
+        <h2>Address Book</h2>
+        <ul id="address-book">
+            <!-- Contacts will be dynamically added here -->
+        </ul>
+        <input type="text" id="contact-name" placeholder="Contact Name">
+        <input type="text" id="contact-info" placeholder="Contact Info">
+        <button id="add-contact">Add Contact</button>
+    </section>
+
+    <script>
+        // Notes Section
+        const notes = document.getElementById('notes');
+
+        // To-Do List Section
+        const todoInput = document.getElementById('todo-input');
+        const todoList = document.getElementById('todo-list');
+        const addTodoButton = document.getElementById('add-todo');
+        addTodoButton.addEventListener('click', () => {
+            if (todoInput.value.trim() !== "") {
+                const li = document.createElement('li');
+                li.textContent = todoInput.value;
+                todoList.appendChild(li);
+                todoInput.value = "";
+            }
+        });
+
+        // Clock Section
+        const clockDisplay = document.getElementById('clock');
+        function updateClock() {
+            const now = new Date();
+            clockDisplay.textContent = now.toLocaleTimeString();
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Address Book Section
+        const addressBook = document.getElementById('address-book');
+        const contactName = document.getElementById('contact-name');
+        const contactInfo = document.getElementById('contact-info');
+        const addContactButton = document.getElementById('add-contact');
+        addContactButton.addEventListener('click', () => {
+            if (contactName.value.trim() !== "" && contactInfo.value.trim() !== "") {
+                const li = document.createElement('li');
+                li.textContent = `${contactName.value}: ${contactInfo.value}`;
+                addressBook.appendChild(li);
+                contactName.value = "";
+                contactInfo.value = "";
+            }
+        });
+    </script>
+</body>
+</html>
+

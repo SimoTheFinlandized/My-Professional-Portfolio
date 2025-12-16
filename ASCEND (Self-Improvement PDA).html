@@ -1,0 +1,3037 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASCEND - Self-Improvement PDA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&amp;family=Playfair+Display:wght@600;700&amp;display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0d0d0d;
+            --bg-secondary: #161616;
+            --bg-card: #1a1a1a;
+            --bg-elevated: #222222;
+            --accent-gold: #d4a574;
+            --accent-gold-dim: #a67c52;
+            --accent-emerald: #4ade80;
+            --accent-rose: #fb7185;
+            --accent-violet: #a78bfa;
+            --accent-sky: #38bdf8;
+            --accent-amber: #fbbf24;
+            --text-primary: #fafafa;
+            --text-secondary: #a3a3a3;
+            --text-muted: #525252;
+            --border: #2a2a2a;
+            --border-light: #333333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23noise)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .app-container {
+            max-width: 500px;
+            margin: 0 auto;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+        }
+
+        .header {
+            padding: 25px 20px;
+            background: linear-gradient(135deg, var(--bg-card), var(--bg-secondary));
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-gold), #f5d4b3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 3px;
+        }
+
+        .date-display {
+            text-align: right;
+        }
+
+        .date-display .day {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .date-display .date {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--accent-gold);
+        }
+
+        .greeting {
+            font-size: 1.5rem;
+            font-weight: 300;
+            color: var(--text-primary);
+        }
+
+        .greeting span {
+            font-weight: 600;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 5px;
+            padding: 15px 20px;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .nav-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .nav-tab {
+            padding: 10px 18px;
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 25px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+            font-family: inherit;
+        }
+
+        .nav-tab:hover {
+            color: var(--text-primary);
+            background: var(--bg-elevated);
+        }
+
+        .nav-tab.active {
+            background: var(--accent-gold);
+            color: var(--bg-primary);
+            border-color: var(--accent-gold);
+        }
+
+        .main-content {
+            padding: 20px;
+            padding-bottom: 100px;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title .icon {
+            font-size: 1.2rem;
+        }
+
+        .quote-card {
+            background: linear-gradient(135deg, rgba(212, 165, 116, 0.1), rgba(212, 165, 116, 0.05));
+            border-color: rgba(212, 165, 116, 0.2);
+            text-align: center;
+            padding: 30px 25px;
+        }
+
+        .quote-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            font-style: italic;
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .quote-author {
+            color: var(--accent-gold);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-value.gold { color: var(--accent-gold); }
+        .stat-value.emerald { color: var(--accent-emerald); }
+        .stat-value.violet { color: var(--accent-violet); }
+        .stat-value.sky { color: var(--accent-sky); }
+        .stat-value.rose { color: var(--accent-rose); }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Habit Tracker */
+        .habit-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .habit-item:last-child {
+            border-bottom: none;
+        }
+
+        .habit-check {
+            width: 28px;
+            height: 28px;
+            border: 2px solid var(--border-light);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .habit-check:hover {
+            border-color: var(--accent-emerald);
+        }
+
+        .habit-check.completed {
+            background: var(--accent-emerald);
+            border-color: var(--accent-emerald);
+        }
+
+        .habit-check.completed::after {
+            content: '✓';
+            color: var(--bg-primary);
+            font-weight: 700;
+        }
+
+        .habit-info {
+            flex: 1;
+        }
+
+        .habit-name {
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 3px;
+        }
+
+        .habit-streak {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .habit-streak span {
+            color: var(--accent-gold);
+            font-weight: 600;
+        }
+
+        .habit-time {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .habit-delete {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 5px;
+            opacity: 0;
+            transition: all 0.3s;
+        }
+
+        .habit-item:hover .habit-delete {
+            opacity: 1;
+        }
+
+        .habit-delete:hover {
+            color: var(--accent-rose);
+        }
+
+        /* Goals with Milestones */
+        .goal-item {
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .goal-item:last-child {
+            border-bottom: none;
+        }
+
+        .goal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .goal-title {
+            font-weight: 500;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        .goal-title:hover {
+            color: var(--accent-gold);
+        }
+
+        .goal-progress-text {
+            font-size: 0.85rem;
+            color: var(--accent-gold);
+            font-weight: 600;
+        }
+
+        .goal-bar {
+            height: 8px;
+            background: var(--bg-elevated);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .goal-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-gold), var(--accent-gold-dim));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .goal-deadline {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        .goal-milestones {
+            margin-top: 12px;
+            padding-left: 15px;
+            border-left: 2px solid var(--border);
+            display: none;
+        }
+
+        .goal-milestones.expanded {
+            display: block;
+        }
+
+        .milestone-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            font-size: 0.9rem;
+        }
+
+        .milestone-check {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-light);
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .milestone-check.completed {
+            background: var(--accent-gold);
+            border-color: var(--accent-gold);
+        }
+
+        .milestone-check.completed::after {
+            content: '✓';
+            color: var(--bg-primary);
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .milestone-text {
+            flex: 1;
+            color: var(--text-secondary);
+        }
+
+        .milestone-text.completed {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
+        .add-milestone-btn {
+            background: none;
+            border: none;
+            color: var(--accent-gold);
+            cursor: pointer;
+            font-size: 0.85rem;
+            padding: 5px 0;
+            margin-top: 5px;
+        }
+
+        .goal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .goal-action-btn {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .goal-action-btn:hover {
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+        }
+
+        /* Journal Calendar */
+        .journal-calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+
+        .calendar-day-name {
+            text-align: center;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            padding: 5px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            background: var(--bg-elevated);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .calendar-day:hover {
+            background: var(--bg-card);
+            border: 1px solid var(--accent-gold);
+        }
+
+        .calendar-day.has-entry {
+            background: rgba(212, 165, 116, 0.2);
+            color: var(--accent-gold);
+        }
+
+        .calendar-day.today {
+            border: 2px solid var(--accent-gold);
+        }
+
+        .calendar-day.selected {
+            background: var(--accent-gold);
+            color: var(--bg-primary);
+        }
+
+        .calendar-mood {
+            font-size: 0.6rem;
+            margin-top: 2px;
+        }
+
+        .journal-prompt {
+            background: var(--bg-elevated);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .journal-prompt-label {
+            font-size: 0.8rem;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .journal-prompt-text {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .journal-textarea {
+            width: 100%;
+            min-height: 200px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            color: var(--text-primary);
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            line-height: 1.8;
+        }
+
+        .journal-textarea:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+        }
+
+        .journal-textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        .journal-entry-display {
+            background: var(--bg-elevated);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .journal-entry-date {
+            font-size: 0.8rem;
+            color: var(--accent-gold);
+            margin-bottom: 10px;
+        }
+
+        .journal-entry-content {
+            color: var(--text-primary);
+            white-space: pre-wrap;
+        }
+
+        /* Mood Tracker */
+        .mood-selector {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .mood-option {
+            flex: 1;
+            padding: 15px;
+            background: var(--bg-elevated);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .mood-option:hover {
+            transform: translateY(-2px);
+        }
+
+        .mood-option.selected {
+            border-color: var(--accent-gold);
+            background: rgba(212, 165, 116, 0.1);
+        }
+
+        .mood-emoji {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+
+        .mood-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .mood-history {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .mood-day {
+            width: 40px;
+            height: 40px;
+            background: var(--bg-elevated);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .mood-day .emoji {
+            font-size: 1.2rem;
+        }
+
+        /* Focus Timer */
+        .timer-display {
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        .timer-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: conic-gradient(var(--accent-gold) var(--progress, 0%), var(--bg-elevated) 0%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+
+        .timer-circle::before {
+            content: '';
+            position: absolute;
+            inset: 8px;
+            background: var(--bg-card);
+            border-radius: 50%;
+        }
+
+        .timer-time {
+            position: relative;
+            z-index: 1;
+            font-size: 3rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        .timer-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .timer-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .timer-btn.primary {
+            background: var(--accent-gold);
+            color: var(--bg-primary);
+        }
+
+        .timer-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(212, 165, 116, 0.3);
+        }
+
+        .timer-btn.secondary {
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .timer-presets {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .preset-btn {
+            padding: 8px 16px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .preset-btn:hover, .preset-btn.active {
+            background: rgba(212, 165, 116, 0.1);
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+        }
+
+        .custom-presets-container {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+        }
+
+        .custom-preset-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: var(--bg-elevated);
+            border-radius: 10px;
+            margin-bottom: 8px;
+        }
+
+        .custom-preset-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .custom-preset-icon {
+            font-size: 1.2rem;
+        }
+
+        .custom-preset-name {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .custom-preset-duration {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* Tasks */
+        .task-input-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .task-input {
+            flex: 1;
+            padding: 12px 16px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 16px;
+            font-family: inherit;
+        }
+
+        .task-input:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+        }
+
+        .task-add-btn {
+            padding: 12px 20px;
+            background: var(--accent-gold);
+            border: none;
+            border-radius: 10px;
+            color: var(--bg-primary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .task-add-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg-elevated);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+
+        .task-item.completed {
+            opacity: 0.5;
+        }
+
+        .task-item.completed .task-text {
+            text-decoration: line-through;
+        }
+
+        .task-check {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--border-light);
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .task-check.completed {
+            background: var(--accent-emerald);
+            border-color: var(--accent-emerald);
+        }
+
+        .task-check.completed::after {
+            content: '✓';
+            color: var(--bg-primary);
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .task-text {
+            flex: 1;
+            color: var(--text-primary);
+        }
+
+        .task-delete {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 5px;
+            opacity: 0;
+            transition: all 0.3s;
+        }
+
+        .task-item:hover .task-delete {
+            opacity: 1;
+        }
+
+        .task-delete:hover {
+            color: var(--accent-rose);
+        }
+
+        /* Routines */
+        .routine-section {
+            margin-bottom: 20px;
+        }
+
+        .routine-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .routine-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .routine-progress {
+            font-size: 0.85rem;
+            color: var(--accent-gold);
+        }
+
+        .routine-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg-elevated);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            transition: all 0.3s;
+        }
+
+        .routine-item.completed {
+            opacity: 0.6;
+        }
+
+        .routine-item.completed .routine-text {
+            text-decoration: line-through;
+        }
+
+        /* Gratitude */
+        .gratitude-card {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(251, 191, 36, 0.05));
+            border-color: rgba(251, 191, 36, 0.2);
+        }
+
+        .gratitude-items {
+            margin-top: 15px;
+        }
+
+        .gratitude-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .gratitude-input {
+            flex: 1;
+            padding: 12px 16px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 16px;
+            font-family: inherit;
+        }
+
+        .gratitude-input:focus {
+            outline: none;
+            border-color: var(--accent-amber);
+        }
+
+        .affirmation-card {
+            background: linear-gradient(135deg, rgba(167, 139, 250, 0.1), rgba(167, 139, 250, 0.05));
+            border-color: rgba(167, 139, 250, 0.2);
+            text-align: center;
+            padding: 30px;
+        }
+
+        .affirmation-text {
+            font-size: 1.4rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .affirmation-btn {
+            background: var(--accent-violet);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .affirmation-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(167, 139, 250, 0.3);
+        }
+
+        .custom-affirmations {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+        }
+
+        .custom-affirmation-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: var(--bg-elevated);
+            border-radius: 10px;
+            margin-bottom: 8px;
+        }
+
+        /* Insights */
+        .insight-item {
+            display: flex;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .insight-item:last-child {
+            border-bottom: none;
+        }
+
+        .insight-icon {
+            width: 45px;
+            height: 45px;
+            background: var(--bg-elevated);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .insight-content {
+            flex: 1;
+        }
+
+        .insight-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 3px;
+        }
+
+        .insight-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Analytics */
+        .chart-container {
+            position: relative;
+            height: 200px;
+            margin: 15px 0;
+        }
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .analytics-card {
+            background: var(--bg-elevated);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .analytics-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .analytics-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .analytics-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .analytics-tab {
+            flex: 1;
+            padding: 10px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .analytics-tab.active {
+            background: var(--accent-gold);
+            color: var(--bg-primary);
+            border-color: var(--accent-gold);
+        }
+
+        /* Achievements */
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .achievement-item {
+            background: var(--bg-elevated);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .achievement-item.unlocked {
+            background: linear-gradient(135deg, rgba(212, 165, 116, 0.2), rgba(212, 165, 116, 0.1));
+            border: 1px solid rgba(212, 165, 116, 0.3);
+        }
+
+        .achievement-item.locked {
+            opacity: 0.5;
+        }
+
+        .achievement-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .achievement-name {
+            font-size: 0.75rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .achievement-desc {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Add Button */
+        .add-btn {
+            background: none;
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 15px;
+            width: 100%;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            margin-top: 10px;
+        }
+
+        .add-btn:hover {
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+        }
+
+        /* Data Management */
+        .data-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .data-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .data-btn.export {
+            background: var(--accent-sky);
+            border: none;
+            color: var(--bg-primary);
+        }
+
+        .data-btn.import {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        .data-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+            transform: translateY(20px);
+            transition: transform 0.3s;
+        }
+
+        .modal-overlay.active .modal {
+            transform: translateY(0);
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 16px;
+            font-family: inherit;
+            margin-bottom: 15px;
+        }
+
+        .modal-input:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+
+        .modal-btn.cancel {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        .modal-btn.confirm {
+            background: var(--accent-gold);
+            border: none;
+            color: var(--bg-primary);
+        }
+
+        .hidden-input {
+            display: none;
+        }
+
+        @media (max-width: 500px) {
+            .stats-row {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .mood-selector {
+                flex-wrap: wrap;
+            }
+
+            .mood-option {
+                flex: 1 1 calc(33% - 10px);
+            }
+
+            .achievements-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <div class="header-top">
+                <div class="logo">ASCEND</div>
+                <div class="date-display">
+                    <div class="day" id="dayName">Monday</div>
+                    <div class="date" id="currentDate">Jan 1, 2025</div>
+                </div>
+            </div>
+            <div class="greeting">Good morning, <span id="userName">Achiever</span></div>
+        </header>
+
+        <nav class="nav-tabs">
+            <button class="nav-tab active" data-section="dashboard">Dashboard</button>
+            <button class="nav-tab" data-section="habits">Habits</button>
+            <button class="nav-tab" data-section="goals">Goals</button>
+            <button class="nav-tab" data-section="tasks">Tasks</button>
+            <button class="nav-tab" data-section="routines">Routines</button>
+            <button class="nav-tab" data-section="journal">Journal</button>
+            <button class="nav-tab" data-section="focus">Focus</button>
+            <button class="nav-tab" data-section="gratitude">Gratitude</button>
+            <button class="nav-tab" data-section="mood">Mood</button>
+            <button class="nav-tab" data-section="analytics">Analytics</button>
+            <button class="nav-tab" data-section="settings">Settings</button>
+        </nav>
+
+        <main class="main-content">
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="section active">
+                <div class="quote-card card">
+                    <div class="quote-text" id="quoteText">"The only way to do great work is to love what you do."</div>
+                    <div class="quote-author" id="quoteAuthor">— Steve Jobs</div>
+                </div>
+
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-value gold" id="statStreak">0</div>
+                        <div class="stat-label">Day Streak</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value emerald" id="statHabits">0/0</div>
+                        <div class="stat-label">Habits</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value violet" id="statTasks">0</div>
+                        <div class="stat-label">Tasks Done</div>
+                    </div>
+                </div>
+
+                <div class="card affirmation-card">
+                    <div class="affirmation-text" id="affirmationText">I am capable of achieving anything I set my mind to.</div>
+                    <button class="affirmation-btn" onclick="newAffirmation()">✨ New Affirmation</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><span class="icon">🏆</span> Achievements</div>
+                    </div>
+                    <div class="achievements-grid" id="achievementsPreview">
+                        <!-- Achievements preview -->
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><span class="icon">💡</span> Today's Insights</div>
+                    </div>
+                    <div id="insightsList">
+                        <!-- Dynamic insights -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Habits Section -->
+            <section id="habits" class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><span class="icon">⚡</span> Daily Habits</div>
+                    </div>
+                    <div id="habitsList">
+                        <!-- Habits will be rendered here -->
+                    </div>
+                    <button class="add-btn" onclick="openHabitModal()">+ Add New Habit</button>
+                </div>
+            </section>
+
+            <!-- Goals Section -->
+            <section id="goals" class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><span class="icon">🎯</span> Active Goals</div>
+                    </div>
+                    <div id="goalsList">
+                        <!-- Goals will be rendered here -->
+                    </div>
+                    <button class="add-btn" onclick="openGoalModal()">+ Add New Goal</button>
+                </div>
+            </section>
+
+            <!-- Tasks Section -->
+            <section id="tasks" class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><span class="icon">✅</span> Today's Tasks</div>
+                    </div>
+                    <div class="task-input-row">
+                        <input type="text" class="task-input" id="taskInput" placeholder="Add a new task...">
+                        <button class="task-add-btn" onclick="addTask()">Add</button>
+                    </div>
+                    <div id="tasksList">
+                        <!-- Tasks will be rendered here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Routines Section -->
+            <section id="routines" class="section">
+                <div class="card">
+                    <div class="routine-section">
+                        <div class="routine-header">
+                            <div class="routine-title">🌅 Morning Routine</div>
+                            <div class="routine-progress" id="morningProgress">0/0</div>
+                        </div>
+                        <div id="morningRoutineList">
+                            <!-- Morning routine items -->
+                        </div>
+                        <button class="add-btn" onclick="openRoutineModal('morning')">+ Add Morning Task</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="routine-section">
+                        <div class="routine-header">
+                            <div class="routine-title">🌙 Evening Routine</div>
+                            <div class="routine-progress" id="eveningProgress">0/0</div>
+                        </div>
+                        <div id="eveningRoutineList">
+                            <!-- Evening routine items -->
+                        </div>
+                        <button class="add-btn" onclick="openRoutineModal('evening')">+ Add Evening Task</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Journal Section -->
+            <section id="journal" class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><span class="icon">📅</span> Journal Calendar</div>
+                    </div>
+                    <div class="journal-calendar" id="journalCalendar">
+                        <!-- Calendar will be rendered here -->
+                    </div>
+                </div>
+
+                <div id="journalEntryView" style="display: none;">
+                    <div class="journal-entry-display">
+                        <div class="journal-entry-date" id="selectedEntryDate"></div>
+                        <div class="journal-entry-content" id="selectedEntryContent"></div>
+                    </div>
+                    <button class="task-add-btn" style="width: 100%; margin-bottom: 15px;" onclick="showJournalEditor()">Edit Entry</button>
+                </div>
+
+                <div id="journalEditor">
+                    <div class="journal-prompt">
+                        <div class="journal-prompt-label">Today's Prompt</div>
+                        <div class="journal-prompt-text" id="journalPrompt">What are three things you're grateful for today?</div>
+                    </div>
+                    <div class="card">
+                        <textarea class="journal-textarea" id="journalEntry" placeholder="Start writing your thoughts..."></textarea>
+                        <button class="task-add-btn" style="margin-top: 15px; width: 100%;" onclick="saveJournal()">Save Entry</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Focus Timer Section -->
+            <section id="focus" class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><span class="icon">🎯</span> Focus Timer</div>
+                    </div>
+                    <div class="timer-display">
+                        <div class="timer-circle" id="timerCircle">
+                            <div class="timer-time" id="timerDisplay">25:00</div>
+                        </div>
+                        <div style="margin-bottom: 15px; color: var(--text-secondary);" id="currentPresetName">Pomodoro</div>
+                        <div class="timer-controls">
+                            <button class="timer-btn primary" id="timerStartBtn" onclick="toggleTimer()">Start</button>
+                            <button class="timer-btn secondary" onclick="resetTimer()">Reset</button>
+                        </div>
+                        <div class="timer-presets" id="timerPresets">
+                            <!-- Presets rendered here -->
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <div style="color: var(--text-secondary); font-size: 0.9rem;">Sessions completed today</div>
+                        <div style="font-size: 2rem; font-weight: 700; color: var(--accent-gold);" id="sessionsCount">0</div>
+                    </div>
+
+                    <div class="custom-presets-container">
+                        <div class="card-header">
+                            <div class="card-title"><span class="icon">⚙️</span> Custom Presets</div>
+                        </div>
+                        <div id="customPresetsList">
+                            <!-- Custom presets -->
+                        </div>
+                        <button class="add-btn" onclick="openPresetModal()">+ Add Custom Preset</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Gratitude Section -->
+            <section id="gratitude" class="section">
+                <div class="card gratitude-card">
+                    <div class="card-header">
+                        <div class="card-title"><span class="icon">🙏</span> Today's Gratitude</div>
+                    </div>
+                    <div class="gratitude-items">
+                        <div class="gratitude-item">
+                            <span style="font-size: 1.2rem;">1.</span>
+                            <input type="text" class="gratitude-input" id="gratitude1" placeholder="I'm grateful for...">
+                        </div>
+                        <div class="gratitude-item">
+                            <span style="font-size: 1.2rem;">2.</span>
+                            <input type="text" class="gratitude-input" id="gratitude2" placeholder="I'm grateful for...">
+                        </div>
+                        <div class="gratitude-item">
+                            <span style="font-size: 1.2rem;">3.</span>
+                            <input type="text" class="gratitude-input" id="gratitude3" placeholder="I'm grateful for...">
+                        </div>
+                    </div>
+                    <button class="task-add-btn" style="margin-top: 15px; width: 100%;" onclick="saveGratitude()">Save Gratitude</button>
+                </div>
+
+                <div class="card affirmation-card">
+                    <div class="affirmation-text" id="affirmationText2">Every day I am becoming a better version of myself.</div>
+                    <button class="affirmation-btn" onclick="newAffirmation()">✨ New Affirmation</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><span class="icon">💜</span> My Affirmations</div>
+                    </div>
+                    <div id="customAffirmationsList">
+                        <!-- Custom affirmations -->
+                    </div>
+                    <button class="add-btn" onclick="openAffirmationModal()">+ Add Custom Affirmation</button>
+                </div>
+            </section>
+
+            <!-- Mood Section -->
+            <section id="mood" class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><span class="icon">😊</span> How are you feeling?</div>
+                    </div>
+                    <div class="mood-selector" id="moodSelector">
+                        <div class="mood-option" data-mood="great" onclick="selectMood('great')">
+                            <div class="mood-emoji">😄</div>
+                            <div class="mood-label">Great</div>
+                        </div>
+                        <div class="mood-option" data-mood="good" onclick="selectMood('good')">
+                            <div class="mood-emoji">🙂</div>
+                            <div class="mood-label">Good</div>
+                        </div>
+                        <div class="mood-option" data-mood="okay" onclick="selectMood('okay')">
+                            <div class="mood-emoji">😐</div>
+                            <div class="mood-label">Okay</div>
+                        </div>
+                        <div class="mood-option" data-mood="low" onclick="selectMood('low')">
+                            <div class="mood-emoji">😔</div>
+                            <div class="mood-label">Low</div>
+                        </div>
+                        <div class="mood-option" data-mood="bad" onclick="selectMood('bad')">
+                            <div class="mood-emoji">😢</div>
+                            <div class="mood-label">Bad</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><span class="icon">📅</span> This Week</div>
+                    </div>
+                    <div class="mood-history" id="moodHistory">
+                        <!-- Mood history will be rendered here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analytics Section -->
+            <section id="analytics" class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><span class="icon">📊</span> Your Progress</div>
+                    </div>
+                    <div class="analytics-tabs">
+                        <button class="analytics-tab active" onclick="setAnalyticsPeriod('week')">Week</button>
+                        <button class="analytics-tab" onclick="setAnalyticsPeriod('month')">Month</button>
+                    </div>
+                    <div class="analytics-grid">
+                        <div class="analytics-card">
+                            <div class="analytics-value" style="color: var(--accent-gold);" id="analyticsStreak">0</div>
+                            <div class="analytics-label">Current Streak</div>
+                        </div>
+                        <div class="analytics-card">
+                            <div class="analytics-value" style="color: var(--accent-emerald);" id="analyticsHabitRate">0%</div>
+                            <div class="analytics-label">Habit Completion</div>
+                        </div>
+                        <div class="analytics-card">
+                            <div class="analytics-value" style="color: var(--accent-violet);" id="analyticsTasks">0</div>
+                            <div class="analytics-label">Tasks Completed</div>
+                        </div>
+                        <div class="analytics-card">
+                            <div class="analytics-value" style="color: var(--accent-sky);" id="analyticsFocus">0</div>
+                            <div class="analytics-label">Focus Sessions</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><span class="icon">📈</span> Habit Completion</div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="habitChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><span class="icon">😊</span> Mood Trends</div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="moodChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><span class="icon">🏆</span> All Achievements</div>
+                    </div>
+                    <div class="achievements-grid" id="allAchievements">
+                        <!-- All achievements -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section id="settings" class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><span class="icon">💾</span> Data Management</div>
+                    </div>
+                    <p style="color: var(--text-secondary); margin-bottom: 15px; font-size: 0.9rem;">
+                        Export your data as a backup or import previously saved data.
+                    </p>
+                    <div class="data-actions">
+                        <button class="data-btn export" onclick="exportData()">
+                            📤 Export Data
+                        </button>
+                        <button class="data-btn import" onclick="document.getElementById('importInput').click()">
+                            📥 Import Data
+                        </button>
+                        <input type="file" id="importInput" class="hidden-input" accept=".json" onchange="importData(event)">
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title"><span class="icon">🔄</span> Reset Data</div>
+                    </div>
+                    <p style="color: var(--text-secondary); margin-bottom: 15px; font-size: 0.9rem;">
+                        Clear all your data and start fresh. This cannot be undone.
+                    </p>
+                    <button class="data-btn" style="background: var(--accent-rose); border: none; color: white;" onclick="confirmResetData()">
+                        🗑️ Reset All Data
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-title" id="modalTitle">Add New Item</div>
+            <div id="modalContent">
+                <input type="text" class="modal-input" id="modalInput" placeholder="Enter name...">
+                <input type="text" class="modal-input" id="modalInput2" placeholder="Additional info..." style="display: none;">
+                <input type="number" class="modal-input" id="modalInput3" placeholder="Number..." style="display: none;">
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" onclick="closeModal()">Cancel</button>
+                <button class="modal-btn confirm" id="modalConfirm" onclick="confirmModal()">Add</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Dialog -->
+    <div class="modal-overlay" id="confirmOverlay" onclick="closeConfirm(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-title" id="confirmTitle">Confirm Action</div>
+            <p style="color: var(--text-secondary); margin-bottom: 20px;" id="confirmMessage">Are you sure?</p>
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" onclick="closeConfirm()">Cancel</button>
+                <button class="modal-btn confirm" style="background: var(--accent-rose);" id="confirmBtn" onclick="executeConfirm()">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== DATABASE (IndexedDB) ====================
+        const DB_NAME = 'AscendDB';
+        const DB_VERSION = 1;
+        let db = null;
+
+        function openDatabase() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => {
+                    db = request.result;
+                    resolve(db);
+                };
+
+                request.onupgradeneeded = (event) => {
+                    const database = event.target.result;
+                    if (!database.objectStoreNames.contains('appData')) {
+                        database.createObjectStore('appData', { keyPath: 'id' });
+                    }
+                };
+            });
+        }
+
+        async function saveToDatabase() {
+            if (!db) return;
+            const transaction = db.transaction(['appData'], 'readwrite');
+            const store = transaction.objectStore('appData');
+            await store.put({ id: 'main', data: appData });
+        }
+
+        async function loadFromDatabase() {
+            if (!db) return null;
+            return new Promise((resolve) => {
+                const transaction = db.transaction(['appData'], 'readonly');
+                const store = transaction.objectStore('appData');
+                const request = store.get('main');
+                request.onsuccess = () => resolve(request.result?.data || null);
+                request.onerror = () => resolve(null);
+            });
+        }
+
+        // ==================== DATA ====================
+        const defaultData = {
+            habits: [],
+            goals: [],
+            tasks: [],
+            routines: {
+                morning: [],
+                evening: []
+            },
+            journal: {},
+            gratitude: {},
+            customAffirmations: [],
+            customPresets: [
+                { id: 1, name: 'Deep Work', duration: 90, icon: '🧠' },
+                { id: 2, name: 'Reading', duration: 30, icon: '📚' },
+                { id: 3, name: 'Meditation', duration: 10, icon: '🧘' }
+            ],
+            mood: {
+                today: null,
+                history: {}
+            },
+            streak: 0,
+            lastActiveDate: null,
+            focusSessions: 0,
+            totalFocusSessions: 0,
+            totalTasksCompleted: 0,
+            achievements: {
+                firstHabit: false,
+                streak7: false,
+                streak30: false,
+                tasks10: false,
+                tasks50: false,
+                focus10: false,
+                allHabits: false,
+                journalWeek: false,
+                earlyBird: false
+            },
+            analyticsHistory: {
+                habitCompletion: [],
+                moodHistory: [],
+                tasksCompleted: [],
+                focusSessions: []
+            }
+        };
+
+        let appData = JSON.parse(JSON.stringify(defaultData));
+
+        const quotes = [
+            { text: "The only way to do great work is to love what you do.", author: "Steve Jobs" },
+            { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+            { text: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill" },
+            { text: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt" },
+            { text: "It does not matter how slowly you go as long as you do not stop.", author: "Confucius" },
+            { text: "The only limit to our realization of tomorrow is our doubts of today.", author: "Franklin D. Roosevelt" },
+            { text: "What lies behind us and what lies before us are tiny matters compared to what lies within us.", author: "Ralph Waldo Emerson" }
+        ];
+
+        const defaultAffirmations = [
+            "I am capable of achieving anything I set my mind to.",
+            "Every day I am becoming a better version of myself.",
+            "I have the power to create positive change in my life.",
+            "I am worthy of success, love, and happiness.",
+            "My potential is limitless and I am constantly growing.",
+            "I embrace challenges as opportunities for growth.",
+            "I am grateful for all that I have and all that is coming.",
+            "I trust in my ability to overcome any obstacle.",
+            "I radiate confidence, positivity, and strength.",
+            "Today I choose progress over perfection."
+        ];
+
+        const journalPrompts = [
+            "What are three things you're grateful for today?",
+            "What's one challenge you faced today and how did you handle it?",
+            "Describe a moment that made you smile today.",
+            "What's one thing you learned about yourself recently?",
+            "What would make tomorrow even better than today?",
+            "Write about someone who inspires you and why.",
+            "What's a fear you'd like to overcome?",
+            "Describe your ideal day from start to finish.",
+            "What accomplishment are you most proud of?",
+            "What's one habit you'd like to develop?"
+        ];
+
+        const moodEmojis = {
+            great: '😄',
+            good: '🙂',
+            okay: '😐',
+            low: '😔',
+            bad: '😢'
+        };
+
+        const moodValues = { great: 5, good: 4, okay: 3, low: 2, bad: 1 };
+
+        const achievements = [
+            { id: 'firstHabit', name: 'First Step', desc: 'Complete your first habit', icon: '🌱' },
+            { id: 'streak7', name: 'Week Warrior', desc: '7-day streak', icon: '🔥' },
+            { id: 'streak30', name: 'Monthly Master', desc: '30-day streak', icon: '⚡' },
+            { id: 'tasks10', name: 'Task Tackler', desc: 'Complete 10 tasks', icon: '✅' },
+            { id: 'tasks50', name: 'Productivity Pro', desc: 'Complete 50 tasks', icon: '🏆' },
+            { id: 'focus10', name: 'Focus Fighter', desc: '10 focus sessions', icon: '🎯' },
+            { id: 'allHabits', name: 'Perfect Day', desc: 'Complete all habits', icon: '⭐' },
+            { id: 'journalWeek', name: 'Reflector', desc: 'Journal for 7 days', icon: '📝' },
+            { id: 'earlyBird', name: 'Early Bird', desc: 'Complete morning routine', icon: '🌅' }
+        ];
+
+        let modalMode = null;
+        let timerInterval = null;
+        let timerSeconds = 25 * 60;
+        let timerRunning = false;
+        let timerTotal = 25 * 60;
+        let currentPresetName = 'Pomodoro';
+        let selectedJournalDate = null;
+        let confirmCallback = null;
+        let habitChart = null;
+        let moodChart = null;
+        let analyticsPeriod = 'week';
+
+        // ==================== INITIALIZATION ====================
+        async function init() {
+            try {
+                await openDatabase();
+                const savedData = await loadFromDatabase();
+                if (savedData) {
+                    appData = { ...defaultData, ...savedData };
+                }
+            } catch (e) {
+                console.log('IndexedDB not available, using memory storage');
+            }
+
+            checkDailyReset();
+            updateDateTime();
+            setInterval(updateDateTime, 60000);
+            renderAll();
+            setRandomQuote();
+            setRandomPrompt();
+            setupNavigation();
+            setupTaskInput();
+            setupGratitudeInputs();
+            initCharts();
+            updateAnalytics();
+            checkAchievements();
+        }
+
+        function checkDailyReset() {
+            const today = getDateString(new Date());
+            if (appData.lastActiveDate && appData.lastActiveDate !== today) {
+                // Reset daily items
+                appData.habits.forEach(h => h.completed = false);
+                appData.routines.morning.forEach(r => r.completed = false);
+                appData.routines.evening.forEach(r => r.completed = false);
+                appData.focusSessions = 0;
+
+                // Update streak
+                const yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+                if (appData.lastActiveDate === getDateString(yesterday)) {
+                    // Check if all habits were completed yesterday
+                    const allCompleted = appData.habits.length > 0 &&
+                        appData.habits.every(h => h.completedDates && h.completedDates.includes(appData.lastActiveDate));
+                    if (allCompleted) {
+                        appData.streak++;
+                    } else {
+                        appData.streak = 0;
+                    }
+                } else {
+                    appData.streak = 0;
+                }
+            }
+            appData.lastActiveDate = today;
+            saveToDatabase();
+        }
+
+        function getDateString(date) {
+            return date.toISOString().split('T')[0];
+        }
+
+        function renderAll() {
+            renderHabits();
+            renderGoals();
+            renderTasks();
+            renderRoutines();
+            renderMoodHistory();
+            renderJournalCalendar();
+            renderCustomPresets();
+            renderCustomAffirmations();
+            renderAchievements();
+            renderInsights();
+            updateStats();
+            loadTodayGratitude();
+            loadTodayMood();
+        }
+
+        function updateDateTime() {
+            const now = new Date();
+            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+            document.getElementById('dayName').textContent = days[now.getDay()];
+            document.getElementById('currentDate').textContent = `${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+
+            const hour = now.getHours();
+            let greeting = 'Good morning';
+            if (hour >= 12 && hour < 17) greeting = 'Good afternoon';
+            else if (hour >= 17) greeting = 'Good evening';
+
+            document.querySelector('.greeting').innerHTML = `${greeting}, <span id="userName">Achiever</span>`;
+        }
+
+        function setupNavigation() {
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.getElementById(tab.dataset.section).classList.add('active');
+                });
+            });
+        }
+
+        function setupTaskInput() {
+            document.getElementById('taskInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addTask();
+            });
+        }
+
+        function setupGratitudeInputs() {
+            for (let i = 1; i <= 3; i++) {
+                document.getElementById(`gratitude${i}`).addEventListener('change', saveGratitude);
+            }
+        }
+
+        // ==================== HABITS ====================
+        function renderHabits() {
+            const container = document.getElementById('habitsList');
+            const today = getDateString(new Date());
+
+            container.innerHTML = appData.habits.map(habit => {
+                const isCompletedToday = habit.completedDates && habit.completedDates.includes(today);
+                return `
+                <div class="habit-item">
+                    <div class="habit-check ${isCompletedToday ? 'completed' : ''}" onclick="toggleHabit(${habit.id})"></div>
+                    <div class="habit-info">
+                        <div class="habit-name">${habit.name}</div>
+                        <div class="habit-streak">🔥 <span>${habit.streak || 0}</span> day streak</div>
+                    </div>
+                    <div class="habit-time">${habit.time}</div>
+                    <button class="habit-delete" onclick="deleteHabit(${habit.id})">×</button>
+                </div>
+            `}).join('');
+        }
+
+        function toggleHabit(id) {
+            const habit = appData.habits.find(h => h.id === id);
+            if (habit) {
+                const today = getDateString(new Date());
+                if (!habit.completedDates) habit.completedDates = [];
+
+                const index = habit.completedDates.indexOf(today);
+                if (index > -1) {
+                    habit.completedDates.splice(index, 1);
+                    habit.streak = Math.max(0, (habit.streak || 0) - 1);
+                } else {
+                    habit.completedDates.push(today);
+                    habit.streak = (habit.streak || 0) + 1;
+                }
+
+                renderHabits();
+                updateStats();
+                checkAchievements();
+                saveToDatabase();
+            }
+        }
+
+        function deleteHabit(id) {
+            showConfirmDialog('Delete this habit?', () => {
+                appData.habits = appData.habits.filter(h => h.id !== id);
+                renderHabits();
+                updateStats();
+                saveToDatabase();
+            });
+        }
+
+        function openHabitModal() {
+            modalMode = 'habit';
+            document.getElementById('modalTitle').textContent = 'Add New Habit';
+            document.getElementById('modalInput').placeholder = 'Habit name...';
+            document.getElementById('modalInput2').style.display = 'block';
+            document.getElementById('modalInput2').placeholder = 'Time (e.g., 7:00 AM)';
+            document.getElementById('modalInput3').style.display = 'none';
+            document.getElementById('modalOverlay').classList.add('active');
+            document.getElementById('modalInput').focus();
+        }
+
+        // ==================== GOALS WITH MILESTONES ====================
+        function renderGoals() {
+            const container = document.getElementById('goalsList');
+            container.innerHTML = appData.goals.map(goal => {
+                const completedMilestones = (goal.milestones || []).filter(m => m.completed).length;
+                const totalMilestones = (goal.milestones || []).length;
+                const progress = totalMilestones > 0
+                    ? Math.round((completedMilestones / totalMilestones) * 100)
+                    : goal.progress || 0;
+
+                return `
+                <div class="goal-item">
+                    <div class="goal-header">
+                        <div class="goal-title" onclick="toggleGoalMilestones(${goal.id})">${goal.name} ${totalMilestones > 0 ? '▼' : ''}</div>
+                        <div class="goal-progress-text">${progress}%</div>
+                    </div>
+                    <div class="goal-bar">
+                        <div class="goal-fill" style="width: ${progress}%"></div>
+                    </div>
+                    <div class="goal-deadline">📅 Target: ${goal.deadline}</div>
+                    <div class="goal-milestones" id="milestones-${goal.id}">
+                        ${(goal.milestones || []).map((m, idx) => `
+                            <div class="milestone-item">
+                                <div class="milestone-check ${m.completed ? 'completed' : ''}" onclick="toggleMilestone(${goal.id}, ${idx})"></div>
+                                <div class="milestone-text ${m.completed ? 'completed' : ''}">${m.text}</div>
+                            </div>
+                        `).join('')}
+                        <button class="add-milestone-btn" onclick="openMilestoneModal(${goal.id})">+ Add Milestone</button>
+                    </div>
+                    <div class="goal-actions">
+                        <button class="goal-action-btn" onclick="adjustGoalProgress(${goal.id}, -10)">-10%</button>
+                        <button class="goal-action-btn" onclick="adjustGoalProgress(${goal.id}, 10)">+10%</button>
+                        <button class="goal-action-btn" onclick="deleteGoal(${goal.id})">Delete</button>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        function toggleGoalMilestones(id) {
+            const el = document.getElementById(`milestones-${id}`);
+            el.classList.toggle('expanded');
+        }
+
+        function toggleMilestone(goalId, milestoneIdx) {
+            const goal = appData.goals.find(g => g.id === goalId);
+            if (goal && goal.milestones && goal.milestones[milestoneIdx]) {
+                goal.milestones[milestoneIdx].completed = !goal.milestones[milestoneIdx].completed;
+                renderGoals();
+                saveToDatabase();
+            }
+        }
+
+        function adjustGoalProgress(id, amount) {
+            const goal = appData.goals.find(g => g.id === id);
+            if (goal) {
+                goal.progress = Math.max(0, Math.min(100, (goal.progress || 0) + amount));
+                renderGoals();
+                saveToDatabase();
+            }
+        }
+
+        function deleteGoal(id) {
+            showConfirmDialog('Delete this goal?', () => {
+                appData.goals = appData.goals.filter(g => g.id !== id);
+                renderGoals();
+                saveToDatabase();
+            });
+        }
+
+        function openGoalModal() {
+            modalMode = 'goal';
+            document.getElementById('modalTitle').textContent = 'Add New Goal';
+            document.getElementById('modalInput').placeholder = 'Goal name...';
+            document.getElementById('modalInput2').style.display = 'block';
+            document.getElementById('modalInput2').placeholder = 'Deadline (e.g., Dec 2025)';
+            document.getElementById('modalInput3').style.display = 'none';
+            document.getElementById('modalOverlay').classList.add('active');
+            document.getElementById('modalInput').focus();
+        }
+
+        function openMilestoneModal(goalId) {
+            modalMode = 'milestone';
+            modalMode = { type: 'milestone', goalId };
+            document.getElementById('modalTitle').textContent = 'Add Milestone';
+            document.getElementById('modalInput').placeholder = 'Milestone description...';
+            document.getElementById('modalInput2').style.display = 'none';
+            document.getElementById('modalInput3').style.display = 'none';
+            document.getElementById('modalOverlay').classList.add('active');
+            document.getElementById('modalInput').focus();
+        }
+
+        // ==================== TASKS ====================
+        function renderTasks() {
+            const container = document.getElementById('tasksList');
+            container.innerHTML = appData.tasks.map(task => `
+                <div class="task-item ${task.completed ? 'completed' : ''}">
+                    <div class="task-check ${task.completed ? 'completed' : ''}" onclick="toggleTask(${task.id})"></div>
+                    <div class="task-text">${task.text}</div>
+                    <button class="task-delete" onclick="deleteTask(${task.id})">×</button>
+                </div>
+            `).join('');
+        }
+
+        function addTask() {
+            const input = document.getElementById('taskInput');
+            const text = input.value.trim();
+            if (text) {
+                appData.tasks.push({
+                    id: Date.now(),
+                    text: text,
+                    completed: false
+                });
+                input.value = '';
+                renderTasks();
+                updateStats();
+                saveToDatabase();
+            }
+        }
+
+        function toggleTask(id) {
+            const task = appData.tasks.find(t => t.id === id);
+            if (task) {
+                task.completed = !task.completed;
+                if (task.completed) {
+                    appData.totalTasksCompleted++;
+                }
+                renderTasks();
+                updateStats();
+                checkAchievements();
+                saveToDatabase();
+            }
+        }
+
+        function deleteTask(id) {
+            appData.tasks = appData.tasks.filter(t => t.id !== id);
+            renderTasks();
+            updateStats();
+            saveToDatabase();
+        }
+
+        // ==================== ROUTINES ====================
+        function renderRoutines() {
+            renderRoutineList('morning');
+            renderRoutineList('evening');
+        }
+
+        function renderRoutineList(type) {
+            const container = document.getElementById(`${type}RoutineList`);
+            const items = appData.routines[type] || [];
+            const completed = items.filter(r => r.completed).length;
+
+            document.getElementById(`${type}Progress`).textContent = `${completed}/${items.length}`;
+
+            container.innerHTML = items.map(item => `
+                <div class="routine-item ${item.completed ? 'completed' : ''}">
+                    <div class="task-check ${item.completed ? 'completed' : ''}" onclick="toggleRoutine('${type}', ${item.id})"></div>
+                    <div class="routine-text">${item.text}</div>
+                    <button class="task-delete" onclick="deleteRoutine('${type}', ${item.id})">×</button>
+                </div>
+            `).join('');
+        }
+
+        function toggleRoutine(type, id) {
+            const item = appData.routines[type].find(r => r.id === id);
+            if (item) {
+                item.completed = !item.completed;
+                renderRoutines();
+                checkAchievements();
+                saveToDatabase();
+            }
+        }
+
+        function deleteRoutine(type, id) {
+            appData.routines[type] = appData.routines[type].filter(r => r.id !== id);
+            renderRoutines();
+            saveToDatabase();
+        }
+
+        function openRoutineModal(type) {
+            modalMode = { type: 'routine', routineType: type };
+            document.getElementById('modalTitle').textContent = `Add ${type.charAt(0).toUpperCase() + type.slice(1)} Task`;
+            document.getElementById('modalInput').placeholder = 'Task description...';
+            document.getElementById('modalInput2').style.display = 'none';
+            document.getElementById('modalInput3').style.display = 'none';
+            document.getElementById('modalOverlay').classList.add('active');
+            document.getElementById('modalInput').focus();
+        }
+
+        // ==================== JOURNAL WITH CALENDAR ====================
+        function renderJournalCalendar() {
+            const container = document.getElementById('journalCalendar');
+            const today = new Date();
+            const currentMonth = today.getMonth();
+            const currentYear = today.getFullYear();
+
+            // Get first day of month and total days
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+            const dayNames = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+            let html = dayNames.map(d => `<div class="calendar-day-name">${d}</div>`).join('');
+
+            // Empty cells for days before first day
+            for (let i = 0; i < firstDay; i++) {
+                html += '<div class="calendar-day" style="opacity: 0;"></div>';
+            }
+
+            // Days of month
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const hasEntry = appData.journal[dateStr];
+                const isToday = day === today.getDate();
+                const moodForDay = appData.mood.history[dateStr];
+
+                html += `
+                    <div class="calendar-day ${hasEntry ? 'has-entry' : ''} ${isToday ? 'today' : ''}"
+                         onclick="selectJournalDate('${dateStr}')">
+                        ${day}
+                        ${moodForDay ? `<div class="calendar-mood">${moodEmojis[moodForDay]}</div>` : ''}
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        function selectJournalDate(dateStr) {
+            selectedJournalDate = dateStr;
+
+            // Update selection visual
+            document.querySelectorAll('.calendar-day').forEach(el => el.classList.remove('selected'));
+            event.target.closest('.calendar-day').classList.add('selected');
+
+            const entry = appData.journal[dateStr];
+            if (entry) {
+                document.getElementById('journalEntryView').style.display = 'block';
+                document.getElementById('journalEditor').style.display = 'none';
+                document.getElementById('selectedEntryDate').textContent = formatDate(dateStr);
+                document.getElementById('selectedEntryContent').textContent = entry;
+            } else {
+                showJournalEditor();
+            }
+        }
+
+        function showJournalEditor() {
+            document.getElementById('journalEntryView').style.display = 'none';
+            document.getElementById('journalEditor').style.display = 'block';
+            if (selectedJournalDate && appData.journal[selectedJournalDate]) {
+                document.getElementById('journalEntry').value = appData.journal[selectedJournalDate];
+            } else {
+                document.getElementById('journalEntry').value = '';
+            }
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+        }
+
+        function setRandomPrompt() {
+            const prompt = journalPrompts[Math.floor(Math.random() * journalPrompts.length)];
+            document.getElementById('journalPrompt').textContent = prompt;
+        }
+
+        function saveJournal() {
+            const entry = document.getElementById('journalEntry').value.trim();
+            const dateStr = selectedJournalDate || getDateString(new Date());
+
+            if (entry) {
+                appData.journal[dateStr] = entry;
+                showToast('Journal entry saved! 📝');
+                renderJournalCalendar();
+                checkAchievements();
+                saveToDatabase();
+            }
+        }
+
+        // ==================== MOOD ====================
+        function loadTodayMood() {
+            const today = getDateString(new Date());
+            const todayMood = appData.mood.history[today];
+            if (todayMood) {
+                document.querySelectorAll('.mood-option').forEach(opt => {
+                    opt.classList.toggle('selected', opt.dataset.mood === todayMood);
+                });
+            }
+        }
+
+        function selectMood(mood) {
+            const today = getDateString(new Date());
+            appData.mood.history[today] = mood;
+
+            document.querySelectorAll('.mood-option').forEach(opt => {
+                opt.classList.toggle('selected', opt.dataset.mood === mood);
+            });
+
+            renderMoodHistory();
+            renderJournalCalendar();
+            updateAnalytics();
+            showToast('Mood logged! ' + moodEmojis[mood]);
+            saveToDatabase();
+        }
+
+        function renderMoodHistory() {
+            const container = document.getElementById('moodHistory');
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const today = new Date();
+
+            let html = '';
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                const dateStr = getDateString(date);
+                const mood = appData.mood.history[dateStr];
+
+                html += `
+                    <div class="mood-day">
+                        <div class="emoji">${mood ? moodEmojis[mood] : '—'}</div>
+                        <div>${days[date.getDay()]}</div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        // ==================== FOCUS TIMER ====================
+        function renderCustomPresets() {
+            const container = document.getElementById('customPresetsList');
+            container.innerHTML = appData.customPresets.map(preset => `
+                <div class="custom-preset-item">
+                    <div class="custom-preset-info" onclick="setCustomPreset(${preset.id})">
+                        <span class="custom-preset-icon">${preset.icon}</span>
+                        <div>
+                            <div class="custom-preset-name">${preset.name}</div>
+                            <div class="custom-preset-duration">${preset.duration} min</div>
+                        </div>
+                    </div>
+                    <button class="task-delete" style="opacity: 1;" onclick="deletePreset(${preset.id})">×</button>
+                </div>
+            `).join('');
+
+            // Render timer presets buttons
+            const presetsContainer = document.getElementById('timerPresets');
+            presetsContainer.innerHTML = `
+                <button class="preset-btn active" onclick="setTimer(25, 'Pomodoro')">25 min</button>
+                <button class="preset-btn" onclick="setTimer(15, 'Short Focus')">15 min</button>
+                <button class="preset-btn" onclick="setTimer(5, 'Break')">5 min</button>
+                <button class="preset-btn" onclick="setTimer(45, 'Deep Work')">45 min</button>
+            `;
+        }
+
+        function setCustomPreset(id) {
+            const preset = appData.customPresets.find(p => p.id === id);
+            if (preset) {
+                setTimer(preset.duration, preset.name);
+            }
+        }
+
+        function deletePreset(id) {
+            appData.customPresets = appData.customPresets.filter(p => p.id !== id);
+            renderCustomPresets();
+            saveToDatabase();
+        }
+
+        function openPresetModal() {
+            modalMode = 'preset';
+            document.getElementById('modalTitle').textContent = 'Add Custom Preset';
+            document.getElementById('modalInput').placeholder = 'Preset name...';
+            document.getElementById('modalInput2').style.display = 'block';
+            document.getElementById('modalInput2').placeholder = 'Icon (emoji)...';
+            document.getElementById('modalInput3').style.display = 'block';
+            document.getElementById('modalInput3').placeholder = 'Duration (minutes)';
+            document.getElementById('modalInput3').value = '';
+            document.getElementById('modalOverlay').classList.add('active');
+            document.getElementById('modalInput').focus();
+        }
+
+        function toggleTimer() {
+            const btn = document.getElementById('timerStartBtn');
+            if (timerRunning) {
+                clearInterval(timerInterval);
+                timerRunning = false;
+                btn.textContent = 'Resume';
+            } else {
+                timerRunning = true;
+                btn.textContent = 'Pause';
+                timerInterval = setInterval(() => {
+                    timerSeconds--;
+                    updateTimerDisplay();
+                    if (timerSeconds <= 0) {
+                        clearInterval(timerInterval);
+                        timerRunning = false;
+                        btn.textContent = 'Start';
+                        appData.focusSessions++;
+                        appData.totalFocusSessions++;
+                        document.getElementById('sessionsCount').textContent = appData.focusSessions;
+                        showToast('Focus session complete! 🎉');
+                        checkAchievements();
+                        saveToDatabase();
+                        resetTimer();
+                    }
+                }, 1000);
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timerRunning = false;
+            timerSeconds = timerTotal;
+            document.getElementById('timerStartBtn').textContent = 'Start';
+            updateTimerDisplay();
+        }
+
+        function setTimer(minutes, name) {
+            timerTotal = minutes * 60;
+            timerSeconds = timerTotal;
+            currentPresetName = name || `${minutes} min`;
+            document.getElementById('currentPresetName').textContent = currentPresetName;
+            updateTimerDisplay();
+
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.includes(minutes));
+            });
+        }
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(timerSeconds / 60);
+            const secs = timerSeconds % 60;
+            document.getElementById('timerDisplay').textContent =
+                `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+            const progress = ((timerTotal - timerSeconds) / timerTotal) * 100;
+            document.getElementById('timerCircle').style.setProperty('--progress', `${progress}%`);
+        }
+
+        // ==================== GRATITUDE & AFFIRMATIONS ====================
+        function loadTodayGratitude() {
+            const today = getDateString(new Date());
+            const gratitude = appData.gratitude[today] || [];
+            for (let i = 0; i < 3; i++) {
+                document.getElementById(`gratitude${i + 1}`).value = gratitude[i] || '';
+            }
+        }
+
+        function saveGratitude() {
+            const today = getDateString(new Date());
+            appData.gratitude[today] = [
+                document.getElementById('gratitude1').value,
+                document.getElementById('gratitude2').value,
+                document.getElementById('gratitude3').value
+            ].filter(g => g.trim());
+            saveToDatabase();
+            showToast('Gratitude saved! 🙏');
+        }
+
+        function renderCustomAffirmations() {
+            const container = document.getElementById('customAffirmationsList');
+            container.innerHTML = appData.customAffirmations.map((aff, idx) => `
+                <div class="custom-affirmation-item">
+                    <div style="flex: 1; color: var(--text-primary);">"${aff}"</div>
+                    <button class="task-delete" style="opacity: 1;" onclick="deleteAffirmation(${idx})">×</button>
+                </div>
+            `).join('');
+        }
+
+        function deleteAffirmation(idx) {
+            appData.customAffirmations.splice(idx, 1);
+            renderCustomAffirmations();
+            saveToDatabase();
+        }
+
+        function openAffirmationModal() {
+            modalMode = 'affirmation';
+            document.getElementById('modalTitle').textContent = 'Add Custom Affirmation';
+            document.getElementById('modalInput').placeholder = 'Your affirmation...';
+            document.getElementById('modalInput2').style.display = 'none';
+            document.getElementById('modalInput3').style.display = 'none';
+            document.getElementById('modalOverlay').classList.add('active');
+            document.getElementById('modalInput').focus();
+        }
+
+        function newAffirmation() {
+            const allAffirmations = [...defaultAffirmations, ...appData.customAffirmations];
+            const affirmation = allAffirmations[Math.floor(Math.random() * allAffirmations.length)];
+            document.getElementById('affirmationText').textContent = affirmation;
+            if (document.getElementById('affirmationText2')) {
+                document.getElementById('affirmationText2').textContent = affirmation;
+            }
+        }
+
+        // ==================== QUOTES ====================
+        function setRandomQuote() {
+            const quote = quotes[Math.floor(Math.random() * quotes.length)];
+            document.getElementById('quoteText').textContent = `"${quote.text}"`;
+            document.getElementById('quoteAuthor').textContent = `— ${quote.author}`;
+        }
+
+        // ==================== STATS ====================
+        function updateStats() {
+            const today = getDateString(new Date());
+            const completedHabits = appData.habits.filter(h => h.completedDates && h.completedDates.includes(today)).length;
+            const completedTasks = appData.tasks.filter(t => t.completed).length;
+
+            document.getElementById('statStreak').textContent = appData.streak;
+            document.getElementById('statHabits').textContent = `${completedHabits}/${appData.habits.length}`;
+            document.getElementById('statTasks').textContent = completedTasks;
+            document.getElementById('sessionsCount').textContent = appData.focusSessions;
+        }
+
+        // ==================== INSIGHTS ====================
+        function renderInsights() {
+            const container = document.getElementById('insightsList');
+            const insights = [];
+            const today = getDateString(new Date());
+
+            // Streak insight
+            if (appData.streak >= 7) {
+                insights.push({ icon: '🔥', title: "You're on fire!", desc: `${appData.streak}-day streak! Keep it up!` });
+            } else if (appData.streak > 0) {
+                insights.push({ icon: '🔥', title: 'Building momentum', desc: `${appData.streak}-day streak. You're doing great!` });
+            }
+
+            // Habit completion insight
+            const completedHabits = appData.habits.filter(h => h.completedDates && h.completedDates.includes(today)).length;
+            if (completedHabits === appData.habits.length && appData.habits.length > 0) {
+                insights.push({ icon: '⭐', title: 'Perfect day!', desc: 'All habits completed today!' });
+            } else if (completedHabits > 0) {
+                insights.push({ icon: '📈', title: 'Making progress', desc: `${completedHabits}/${appData.habits.length} habits done` });
+            }
+
+            // Focus insight
+            if (appData.totalFocusSessions >= 10) {
+                insights.push({ icon: '🎯', title: 'Focus master', desc: `${appData.totalFocusSessions} total focus sessions!` });
+            }
+
+            // Default insights
+            if (insights.length === 0) {
+                insights.push({ icon: '🌱', title: 'Start your journey', desc: 'Add habits and goals to track your progress!' });
+            }
+
+            insights.push({ icon: '🧘', title: 'Mindfulness tip', desc: 'Take a 5-minute break to breathe deeply.' });
+
+            container.innerHTML = insights.map(i => `
+                <div class="insight-item">
+                    <div class="insight-icon">${i.icon}</div>
+                    <div class="insight-content">
+                        <div class="insight-title">${i.title}</div>
+                        <div class="insight-desc">${i.desc}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ==================== ACHIEVEMENTS ====================
+        function checkAchievements() {
+            const today = getDateString(new Date());
+
+            // First habit completed
+            if (!appData.achievements.firstHabit && appData.habits.some(h => h.completedDates && h.completedDates.length > 0)) {
+                appData.achievements.firstHabit = true;
+                showToast('🏆 Achievement unlocked: First Step!');
+            }
+
+            // 7-day streak
+            if (!appData.achievements.streak7 && appData.streak >= 7) {
+                appData.achievements.streak7 = true;
+                showToast('🏆 Achievement unlocked: Week Warrior!');
+            }
+
+            // 30-day streak
+            if (!appData.achievements.streak30 && appData.streak >= 30) {
+                appData.achievements.streak30 = true;
+                showToast('🏆 Achievement unlocked: Monthly Master!');
+            }
+
+            // 10 tasks
+            if (!appData.achievements.tasks10 && appData.totalTasksCompleted >= 10) {
+                appData.achievements.tasks10 = true;
+                showToast('🏆 Achievement unlocked: Task Tackler!');
+            }
+
+            // 50 tasks
+            if (!appData.achievements.tasks50 && appData.totalTasksCompleted >= 50) {
+                appData.achievements.tasks50 = true;
+                showToast('🏆 Achievement unlocked: Productivity Pro!');
+            }
+
+            // 10 focus sessions
+            if (!appData.achievements.focus10 && appData.totalFocusSessions >= 10) {
+                appData.achievements.focus10 = true;
+                showToast('🏆 Achievement unlocked: Focus Fighter!');
+            }
+
+            // All habits completed
+            const completedHabits = appData.habits.filter(h => h.completedDates && h.completedDates.includes(today)).length;
+            if (!appData.achievements.allHabits && completedHabits === appData.habits.length && appData.habits.length >= 3) {
+                appData.achievements.allHabits = true;
+                showToast('🏆 Achievement unlocked: Perfect Day!');
+            }
+
+            // Journal for a week
+            const journalDays = Object.keys(appData.journal).length;
+            if (!appData.achievements.journalWeek && journalDays >= 7) {
+                appData.achievements.journalWeek = true;
+                showToast('🏆 Achievement unlocked: Reflector!');
+            }
+
+            // Morning routine complete
+            const morningComplete = appData.routines.morning.length > 0 &&
+                appData.routines.morning.every(r => r.completed);
+            if (!appData.achievements.earlyBird && morningComplete) {
+                appData.achievements.earlyBird = true;
+                showToast('🏆 Achievement unlocked: Early Bird!');
+            }
+
+            renderAchievements();
+            saveToDatabase();
+        }
+
+        function renderAchievements() {
+            const previewContainer = document.getElementById('achievementsPreview');
+            const allContainer = document.getElementById('allAchievements');
+
+            const unlockedAchievements = achievements.filter(a => appData.achievements[a.id]);
+
+            // Preview (first 3 unlocked or locked)
+            const preview = achievements.slice(0, 3).map(a => `
+                <div class="achievement-item ${appData.achievements[a.id] ? 'unlocked' : 'locked'}">
+                    <div class="achievement-icon">${a.icon}</div>
+                    <div class="achievement-name">${a.name}</div>
+                </div>
+            `).join('');
+            previewContainer.innerHTML = preview;
+
+            // All achievements
+            const all = achievements.map(a => `
+                <div class="achievement-item ${appData.achievements[a.id] ? 'unlocked' : 'locked'}">
+                    <div class="achievement-icon">${a.icon}</div>
+                    <div class="achievement-name">${a.name}</div>
+                    <div class="achievement-desc">${a.desc}</div>
+                </div>
+            `).join('');
+            allContainer.innerHTML = all;
+        }
+
+        // ==================== ANALYTICS ====================
+        function initCharts() {
+            const habitCtx = document.getElementById('habitChart').getContext('2d');
+            const moodCtx = document.getElementById('moodChart').getContext('2d');
+
+            habitChart = new Chart(habitCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Habits Completed',
+                        data: [],
+                        backgroundColor: 'rgba(212, 165, 116, 0.7)',
+                        borderColor: 'rgba(212, 165, 116, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#a3a3a3' },
+                            grid: { color: '#2a2a2a' }
+                        },
+                        x: {
+                            ticks: { color: '#a3a3a3' },
+                            grid: { color: '#2a2a2a' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+
+            moodChart = new Chart(moodCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Mood',
+                        data: [],
+                        borderColor: 'rgba(167, 139, 250, 1)',
+                        backgroundColor: 'rgba(167, 139, 250, 0.2)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            min: 1,
+                            max: 5,
+                            ticks: {
+                                color: '#a3a3a3',
+                                callback: function(value) {
+                                    const labels = ['', '😢', '😔', '😐', '🙂', '😄'];
+                                    return labels[value] || '';
+                                }
+                            },
+                            grid: { color: '#2a2a2a' }
+                        },
+                        x: {
+                            ticks: { color: '#a3a3a3' },
+                            grid: { color: '#2a2a2a' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        function setAnalyticsPeriod(period) {
+            analyticsPeriod = period;
+            document.querySelectorAll('.analytics-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.textContent.toLowerCase() === period);
+            });
+            updateAnalytics();
+        }
+
+        function updateAnalytics() {
+            const days = analyticsPeriod === 'week' ? 7 : 30;
+            const today = new Date();
+            const labels = [];
+            const habitData = [];
+            const moodData = [];
+
+            for (let i = days - 1; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                const dateStr = getDateString(date);
+
+                labels.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
+
+                // Count habits completed on this date
+                const habitsCompleted = appData.habits.filter(h =>
+                    h.completedDates && h.completedDates.includes(dateStr)
+                ).length;
+                habitData.push(habitsCompleted);
+
+                // Get mood for this date
+                const mood = appData.mood.history[dateStr];
+                moodData.push(mood ? moodValues[mood] : null);
+            }
+
+            // Update charts
+            if (habitChart) {
+                habitChart.data.labels = labels;
+                habitChart.data.datasets[0].data = habitData;
+                habitChart.update();
+            }
+
+            if (moodChart) {
+                moodChart.data.labels = labels;
+                moodChart.data.datasets[0].data = moodData;
+                moodChart.update();
+            }
+
+            // Update summary stats
+            const today2 = getDateString(new Date());
+            const completedToday = appData.habits.filter(h => h.completedDates && h.completedDates.includes(today2)).length;
+            const habitRate = appData.habits.length > 0
+                ? Math.round((completedToday / appData.habits.length) * 100)
+                : 0;
+
+            document.getElementById('analyticsStreak').textContent = appData.streak;
+            document.getElementById('analyticsHabitRate').textContent = habitRate + '%';
+            document.getElementById('analyticsTasks').textContent = appData.totalTasksCompleted;
+            document.getElementById('analyticsFocus').textContent = appData.totalFocusSessions;
+        }
+
+        // ==================== DATA EXPORT/IMPORT ====================
+        function exportData() {
+            const dataStr = JSON.stringify(appData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ascend-backup-${getDateString(new Date())}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showToast('Data exported successfully! 📤');
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    appData = { ...defaultData, ...importedData };
+                    renderAll();
+                    updateAnalytics();
+                    saveToDatabase();
+                    showToast('Data imported successfully! 📥');
+                } catch (err) {
+                    showToast('Invalid file format! ❌');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        function confirmResetData() {
+            showConfirmDialog('This will delete ALL your data. Are you sure?', () => {
+                appData = JSON.parse(JSON.stringify(defaultData));
+                renderAll();
+                updateAnalytics();
+                saveToDatabase();
+                showToast('All data has been reset! 🔄');
+            });
+        }
+
+        // ==================== MODAL ====================
+        function closeModal(event) {
+            if (event && event.target !== document.getElementById('modalOverlay')) return;
+            document.getElementById('modalOverlay').classList.remove('active');
+            document.getElementById('modalInput').value = '';
+            document.getElementById('modalInput2').value = '';
+            document.getElementById('modalInput3').value = '';
+        }
+
+        function confirmModal() {
+            const input1 = document.getElementById('modalInput').value.trim();
+            const input2 = document.getElementById('modalInput2').value.trim();
+            const input3 = document.getElementById('modalInput3').value;
+
+            if (!input1) return;
+
+            if (modalMode === 'habit') {
+                appData.habits.push({
+                    id: Date.now(),
+                    name: input1,
+                    time: input2 || 'Any time',
+                    streak: 0,
+                    completedDates: []
+                });
+                renderHabits();
+            } else if (modalMode === 'goal') {
+                appData.goals.push({
+                    id: Date.now(),
+                    name: input1,
+                    progress: 0,
+                    deadline: input2 || 'No deadline',
+                    milestones: []
+                });
+                renderGoals();
+            } else if (modalMode && modalMode.type === 'milestone') {
+                const goal = appData.goals.find(g => g.id === modalMode.goalId);
+                if (goal) {
+                    if (!goal.milestones) goal.milestones = [];
+                    goal.milestones.push({ text: input1, completed: false });
+                    renderGoals();
+                }
+            } else if (modalMode && modalMode.type === 'routine') {
+                appData.routines[modalMode.routineType].push({
+                    id: Date.now(),
+                    text: input1,
+                    completed: false
+                });
+                renderRoutines();
+            } else if (modalMode === 'preset') {
+                const duration = parseInt(input3) || 25;
+                appData.customPresets.push({
+                    id: Date.now(),
+                    name: input1,
+                    icon: input2 || '⏱️',
+                    duration: duration
+                });
+                renderCustomPresets();
+            } else if (modalMode === 'affirmation') {
+                appData.customAffirmations.push(input1);
+                renderCustomAffirmations();
+            }
+
+            closeModal();
+            updateStats();
+            saveToDatabase();
+        }
+
+        // ==================== CONFIRM DIALOG ====================
+        function showConfirmDialog(message, callback) {
+            document.getElementById('confirmMessage').textContent = message;
+            confirmCallback = callback;
+            document.getElementById('confirmOverlay').classList.add('active');
+        }
+
+        function closeConfirm(event) {
+            if (event && event.target !== document.getElementById('confirmOverlay')) return;
+            document.getElementById('confirmOverlay').classList.remove('active');
+            confirmCallback = null;
+        }
+
+        function executeConfirm() {
+            if (confirmCallback) confirmCallback();
+            closeConfirm();
+        }
+
+        // ==================== TOAST ====================
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 30px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: var(--accent-gold);
+                color: var(--bg-primary);
+                padding: 12px 24px;
+                border-radius: 25px;
+                font-weight: 600;
+                z-index: 2000;
+                animation: slideUp 0.3s ease;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'fadeOut 0.3s ease forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
+        }
+
+        // Add animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideUp {
+                from { transform: translateX(-50%) translateY(20px); opacity: 0; }
+                to { transform: translateX(-50%) translateY(0); opacity: 1; }
+            }
+            @keyframes fadeOut {
+                to { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initialize app
+        init();
+    </script>
+
+
+
+</body></html>

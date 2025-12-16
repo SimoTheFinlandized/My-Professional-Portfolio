@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Finance Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f5f5f5;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 90%;
+            max-width: 600px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h2, h3 {
+            text-align: center;
+            color: #007BFF;
+        }
+        input, select, button {
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            background: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #218838;
+        }
+        .transactions {
+            margin-top: 20px;
+        }
+        .transaction {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .delete-btn {
+            background: red;
+            color: white;
+            border: none;
+            padding: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            border-radius: 5px;
+        }
+        .delete-btn:hover {
+            background: darkred;
+        }
+        .dark-mode {
+            background: #222;
+            color: #fff;
+        }
+        canvas {
+            margin-top: 20px;
+            width: 100%;
+            max-width: 500px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Personal Finance Dashboard</h2>
+        <h3>Total Balance: <span id="balance">$0</span></h3>
+        
+        <input type="text" id="desc" placeholder="Enter description">
+        <input type="number" id="amount" placeholder="Enter amount">
+        <select id="category"></select>
+        <button onclick="addTransaction()">Add Transaction</button>
+        <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
+        <button onclick="exportData()">Export Data</button>
+        <input type="file" id="importFile" onchange="importData(event)">
+        
+        <div class="transactions" id="transactions"></div>
+        <canvas id="expenseChart"></canvas>
+        <canvas id="incomeExpenseChart"></canvas>
+    </div>
+    
+    <script>
+        let transactions = JSON.parse(localStorage.getItem("transactions")) || [];
+        let categories = ["Income", "Food", "Transport", "Shopping", "Entertainment", "Other"];
+        
+        function loadCategories() {
+            const categorySelect = document.getElementById("category");
+            categorySelect.innerHTML = "";
+            categories.forEach(category => {
+                let option = document.createElement("option");
+                option.value = category;
+                option.textContent = category;
+                categorySelect.appendChild(option);
+            });
+        }
+        
+        function addTransaction() {
+            const desc = document.getElementById("desc").value;
+            const amount = parseFloat(document.getElementById("amount").value);
+            const category = document.getElementById("category").value;
+
+            if (!desc || isNaN(amount)) {
+                alert("Please enter valid details");
+                return;
+            }
+
+            transactions.push({ desc, amount, category, date: new Date().toISOString() });
+            document.getElementById("desc").value = "";
+            document.getElementById("amount").value = "";
+            updateUI();
+        }
+        
+        function updateUI() {
+            const transactionsList = document.getElementById("transactions");
+            const balanceElement = document.getElementById("balance");
+            transactionsList.innerHTML = "";
+            
+            let balance = 0;
+            let categoryTotals = {};
+            let incomeExpenseData = [];
+
+            transactions.forEach((transaction, index) => {
+                balance += transaction.amount;
+                incomeExpenseData.push({ x: new Date(transaction.date), y: balance });
+                
+                if (transaction.category !== "Income") {
+                    categoryTotals[transaction.category] = (categoryTotals[transaction.category] || 0) + Math.abs(transaction.amount);
+                }
+
+                let transactionEl = document.createElement("div");
+                transactionEl.classList.add("transaction");
+                transactionEl.innerHTML = `<span>${transaction.desc} ($${transaction.amount}) - ${transaction.category}</span>
+                    <button class="delete-btn" onclick="deleteTransaction(${index})">X</button>`;
+                transactionsList.appendChild(transactionEl);
+            });
+            
+            balanceElement.textContent = `$${balance.toFixed(2)}`;
+            updateCharts(categoryTotals, incomeExpenseData);
+            localStorage.setItem("transactions", JSON.stringify(transactions));
+        }
+        
+        function deleteTransaction(index) {
+            transactions.splice(index, 1);
+            updateUI();
+        }
+        
+        function toggleDarkMode() {
+            document.body.classList.toggle("dark-mode");
+        }
+        
+        function exportData() {
+            const blob = new Blob([JSON.stringify(transactions)], { type: "application/json" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "finance_data.json";
+            link.click();
+        }
+        
+        function importData(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                transactions = JSON.parse(e.target.result);
+                updateUI();
+            };
+            reader.readAsText(file);
+        }
+        
+        loadCategories();
+        updateUI();
+    </script>
+</body>
+</html>
+
