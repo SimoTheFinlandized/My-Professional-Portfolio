@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>GAIUS (AI Chatbot)</title>
+  <style>
+    :root {
+      --primary: #2563eb; --secondary: #1e40af; --accent: #3b82f6;
+      --bg: #f8fafc; --dark: #1e293b; --text: #1f2937;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{display:flex;height:100vh;font-family:sans-serif;color:var(--text);}
+    .sidebar{width:260px;background:var(--dark);color:#fff;overflow:auto;padding:1rem;}
+    .sidebar h2{margin-bottom:.5rem;font-size:1.2rem;}
+    .section{margin:1rem 0;}
+    .section h3{margin-bottom:.5rem;}
+    .section input, .section select, .section button{width:100%;margin:.25rem 0;padding:.5rem;border-radius:4px;border:1px solid #555;}
+    .section ul{list-style:none;padding:0;}
+    .section ul li{margin:.25rem 0;}
+    .main{flex:1;display:flex;flex-direction:column;background:var(--bg);}
+    header{display:flex;justify-content:space-between;align-items:center;padding:.5rem 1rem;background:var(--primary);color:#fff;}
+    #chat{flex:1;overflow:auto;padding:1rem;}
+    .msg{margin:.5rem 0;padding:.75rem;border-radius:8px;max-width:70%;word-wrap:break-word;}
+    .user{background:var(--primary);color:#fff;align-self:flex-end;}
+    .bot{background:#e2e8f0;align-self:flex-start;}
+    #controls{display:flex;padding:1rem;background:#fff;border-top:1px solid #ccc;}
+    #input{flex:1;padding:.75rem;border:1px solid #ccc;border-radius:4px;}
+    #controls button,#controls input[type=file]{margin-left:.5rem;}
+    /* Task/habit lists */
+    .task, .habit{display:flex;justify-content:space-between;padding:.25rem .5rem;background:#fff;border-radius:4px;margin:.25rem 0;}
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <h2>GAIUS Controls</h2>
+    <!-- 1. Local Weather & News -->
+    <div class="section">
+      <h3>Weather (Fort Wayne)</h3>
+      <div id="weather">Loading...</div>
+    </div>
+    <div class="section">
+      <h3>Top News (US)</h3>
+      <ul id="news"></ul>
+    </div>
+    <!-- 5. Tasks & Habits -->
+    <div class="section">
+      <h3>Tasks</h3>
+      <input id="taskInput" placeholder="New task…"/>
+      <button onclick="addTask()">Add Task</button>
+      <div id="tasks"></div>
+    </div>
+    <div class="section">
+      <h3>Habits</h3>
+      <input id="habitInput" placeholder="New habit…"/>
+      <button onclick="addHabit()">Add Habit</button>
+      <div id="habits"></div>
+    </div>
+    <!-- 6. Persona & Tone -->
+    <div class="section">
+      <h3>Persona & Tone</h3>
+      <select id="persona">
+        <option value="default">Default</option>
+        <option value="socratic">Socratic Tutor</option>
+        <option value="mentor">Code Mentor</option>
+        <option value="stoic">Stoic Guide</option>
+      </select>
+      <select id="tone">
+        <option value="neutral">Neutral</option>
+        <option value="motivational">Motivational</option>
+        <option value="detailed">Detailed</option>
+      </select>
+    </div>
+    <!-- 7. Plugin Loader -->
+    <div class="section">
+      <h3>Plugins</h3>
+      <button onclick="loadPlugin()">Load Plugin</button>
+      <ul id="plugins"></ul>
+    </div>
+    <!-- 9. Rooms -->
+    <div class="section">
+      <h3>Rooms</h3>
+      <input id="roomInput" placeholder="Room name…"/>
+      <button onclick="createRoom()">Create Room</button>
+      <ul id="rooms"></ul>
+    </div>
+    <!-- 10. Profile -->
+    <div class="section">
+      <h3>Profile</h3>
+      <input id="profileName" placeholder="Your name…"/>
+      <button onclick="saveProfile()">Save</button>
+      <div id="profileDisplay"></div>
+    </div>
+  </div>
+
+  <div class="main">
+    <header>
+      <div>
+        <button onclick="startVoice()">🎤</button>
+        <button onclick="stopVoice()">⏹️</button>
+      </div>
+      <div>GAIUS AI Chatbot</div>
+      <div>
+        <button onclick="summarizeDoc()">📄 Summarize</button>
+        <button onclick="generateInfographic()">📊 Infographic</button>
+        <button onclick="generateMeme()"> meme</button>
+        <button onclick="translateChat()">🌐 Translate</button>
+      </div>
+    </header>
+    <div id="chat"></div>
+    <div id="controls">
+      <input id="input" placeholder="Type message…"/>
+      <input type="file" id="file" onchange="uploadFile()"/>
+      <button onclick="send()">Send</button>
+    </div>
+  </div>
+
+  <script>
+    // Replace with your keys:
+    const OPENAI_KEY = 'YOUR_OPENAI_KEY';
+    const OWM_KEY = 'YOUR_OWM_KEY';
+    const NEWS_KEY = 'YOUR_NEWS_KEY';
+
+    // 1. Weather & News
+    fetch(`https://api.openweathermap.org/data/2.5/weather?lat=41.0793&lon=-85.1394&units=imperial&appid=${OWM_KEY}`)
+      .then(r=>r.json()).then(d=>{
+        document.getElementById('weather').innerText = d.weather[0].main+', '+Math.round(d.main.temp)+'°F';
+      });
+    fetch(`https://newsapi.org/v2/top-headlines?country=us&pageSize=5&apiKey=${NEWS_KEY}`)
+      .then(r=>r.json()).then(d=>{
+        d.articles.forEach(a=>{
+          const li=document.createElement('li');
+          li.innerHTML=`<a href="${a.url}" target="_blank">${a.title}</a>`;
+          document.getElementById('news').append(li);
+        });
+      });
+
+    // 2. Voice I/O
+    let recog, synth=window.speechSynthesis;
+    if(window.SpeechRecognition||window.webkitSpeechRecognition){
+      const SR = window.SpeechRecognition||webkitSpeechRecognition;
+      recog = new SR();
+      recog.onresult = e=>{
+        const t=e.results[0][0].transcript;
+        addMsg('user', t);
+        processChat(t);
+      };
+    }
+    function startVoice(){ recog&&recog.start(); }
+    function stopVoice(){ recog&&recog.stop(); }
+
+    // 5. Task & Habit Tracker
+    let tasks = JSON.parse(localStorage.tasks||'[]'),
+        habits= JSON.parse(localStorage.habits||'[]');
+    function renderList(key){
+      const arr=JSON.parse(localStorage[key]||'[]'), container=document.getElementById(key);
+      container.innerHTML='';
+      arr.forEach((v,i)=>{
+        const d=document.createElement('div'); d.className=key.slice(0,-1);
+        d.innerHTML=`<span>${v}</span><button onclick="removeItem('${key}',${i})">✕</button>`;
+        container.append(d);
+      });
+    }
+    function addTask(){ const v=document.getElementById('taskInput').value.trim(); if(v){tasks.push(v);localStorage.tasks=JSON.stringify(tasks);renderList('tasks');}}
+    function addHabit(){ const v=document.getElementById('habitInput').value.trim(); if(v){habits.push(v);localStorage.habits=JSON.stringify(habits);renderList('habits');}}
+    function removeItem(key,i){ const arr=JSON.parse(localStorage[key]); arr.splice(i,1); localStorage[key]=JSON.stringify(arr); renderList(key); }
+    renderList('tasks'); renderList('habits');
+
+    // 6. Persona & Tone
+    function contextPrefix(){
+      const p=document.getElementById('persona').value,
+            t=document.getElementById('tone').value;
+      return `[Persona:${p}|Tone:${t}] `;
+    }
+
+    // 7. Plugin Loader stub
+    function loadPlugin(){
+      const url=prompt('Plugin URL');
+      if(!url) return;
+      const li=document.createElement('li');
+      li.textContent=`${url} (loaded)`;
+      document.getElementById('plugins').append(li);
+      // real: import(url).then(...)
+    }
+
+    // 8. Multi-Language Translate
+    async function translateChat(){
+      const lang=prompt('Translate conversation to which language?');
+      if(!lang) return;
+      const convo = Array.from(document.querySelectorAll('#chat .msg')).map(el=>el.innerText).join('\n');
+      const res = await openAI([{role:'system',content:`Translate to ${lang} preserving formatting.`},
+                                {role:'user',content:convo}]);
+      addMsg('bot',res);
+    }
+
+    // 9. Collaborative Rooms
+    let rooms = JSON.parse(localStorage.rooms||'[]');
+    function renderRooms(){
+      const ul=document.getElementById('rooms'); ul.innerHTML='';
+      rooms.forEach(r=>{ const li=document.createElement('li');li.textContent=r;ul.append(li);});
+    }
+    function createRoom(){
+      const n=document.getElementById('roomInput').value.trim();
+      if(n){rooms.push(n);localStorage.rooms=JSON.stringify(rooms);renderRooms();}
+    }
+    renderRooms();
+
+    // 10. Profile memory
+    function saveProfile(){
+      const n=document.getElementById('profileName').value.trim();
+      if(n){localStorage.profile=n;document.getElementById('profileDisplay').innerText=`Hello, ${n}`;}
+    }
+    if(localStorage.profile) document.getElementById('profileDisplay').innerText=`Hello, ${localStorage.profile}`;
+
+    // Chat handling
+    async function openAI(messages){
+      const r = await fetch('https://api.openai.com/v1/chat/completions',{
+        method:'POST',headers:{
+          'Content-Type':'application/json',
+          'Authorization':'Bearer '+OPENAI_KEY
+        },
+        body:JSON.stringify({model:'gpt-4',messages})
+      });
+      const j=await r.json();
+      return j.choices[0].message.content.trim();
+    }
+
+    function addMsg(who,text){
+      const d=document.createElement('div');
+      d.className=`msg ${who}`;
+      d.innerText=text;
+      document.getElementById('chat').append(d);
+      d.scrollIntoView();
+      if(who==='bot'&&synth){synth.speak(new SpeechSynthesisUtterance(text));}
+    }
+
+    let lastFile=null, lastTextContent='';
+
+    function uploadFile(){
+      const f=document.getElementById('file').files[0];
+      if(!f)return;
+      lastFile=f;
+      addMsg('user', `Uploaded file: ${f.name}`);
+      if(f.type==='text/plain'){
+        const r=new FileReader();
+        r.onload=()=> lastTextContent=r.result;
+        r.readAsText(f);
+      }
+    }
+
+    async function send(){
+      const inp=document.getElementById('input'), txt=inp.value.trim();
+      let userContent=contextPrefix()+(txt||`[file:${lastFile?.name}]`);
+      if(!txt && lastFile?.type!=='text/plain'){
+        addMsg('bot','📄 Non-text file summarization not supported.');
+        inp.value=''; return;
+      }
+      addMsg('user', userContent);
+      inp.value=''; document.getElementById('controls').querySelector('button').disabled=true;
+      const msgs=[{role:'system',content:'You are GAIUS, a helpful work & study assistant.'}];
+      msgs.push({role:'user',content: lastFile&&txt===''?lastTextContent: userContent});
+      const resp=await openAI(msgs);
+      addMsg('bot',resp);
+      document.getElementById('controls').querySelector('button').disabled=false;
+      lastFile=null; lastTextContent='';
+    }
+
+    document.getElementById('input').addEventListener('keydown',e=>{
+      if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}
+    });
+
+    // 3. Summarize Document
+    async function summarizeDoc(){
+      let text=lastTextContent;
+      if(!text) text=prompt('Paste text to summarize:');
+      if(!text) return;
+      addMsg('user','[Summarize request]');
+      const resp=await openAI([
+        {role:'system',content:'Summarize the following text into key points:'},
+        {role:'user',content:text}
+      ]);
+      addMsg('bot',resp);
+    }
+
+    // 4. Infographic & Meme
+    async function generateInfographic(){
+      const promptText=prompt('Describe the infographic you want:');
+      if(!promptText) return;
+      addMsg('user','[Infographic request]');
+      const r=await fetch('https://api.openai.com/v1/images/generations',{
+        method:'POST',headers:{
+          'Content-Type':'application/json',
+          'Authorization':'Bearer '+OPENAI_KEY
+        },
+        body:JSON.stringify({prompt:promptText,n:1,size:'512x512'})
+      });
+      const j=await r.json();
+      const img=j.data[0].url;
+      const d=document.createElement('div');d.className='msg bot';
+      d.innerHTML=`<img src="${img}" style="max-width:100%;">`;
+      document.getElementById('chat').append(d); d.scrollIntoView();
+    }
+    async function generateMeme(){
+      const promptText=prompt('Describe the meme scene/text:');
+      if(!promptText) return;
+      addMsg('user','[Meme request]');
+      const r=await fetch('https://api.openai.com/v1/images/generations',{
+        method:'POST',headers:{
+          'Content-Type':'application/json',
+          'Authorization':'Bearer '+OPENAI_KEY
+        },
+        body:JSON.stringify({prompt:`Meme: ${promptText}`,n:1,size:'512x512'})
+      });
+      const j=await r.json();
+      const img=j.data[0].url;
+      const d=document.createElement('div');d.className='msg bot';
+      d.innerHTML=`<img src="${img}" style="max-width:100%;">`;
+      document.getElementById('chat').append(d); d.scrollIntoView();
+    }
+  </script>
+</body>
+</html>
