@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Life Planner</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; transition: background 0.3s, color 0.3s; }
+        h1 { text-align: center; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+        .tabs { display: flex; justify-content: space-around; cursor: pointer; background: #007bff; color: white; padding: 10px; border-radius: 5px; }
+        .tab { flex: 1; text-align: center; padding: 10px; }
+        .tab:hover, .active { background: #0056b3; }
+        .section { display: none; padding: 20px; }
+        .visible { display: block; }
+        textarea, input, button { width: 100%; margin-top: 10px; padding: 10px; border-radius: 5px; border: 1px solid #ddd; }
+        button { background: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .list { margin-top: 10px; }
+        .list div { background: #eee; margin: 5px 0; padding: 10px; border-radius: 5px; display: flex; justify-content: space-between; }
+        .delete { background: red; padding: 5px; cursor: pointer; color: white; border-radius: 3px; }
+        .dark-mode { background: #1e1e1e; color: white; }
+        .dark-mode .container { background: #333; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Ultimate Life Planner 🚀</h1>
+    <div class="tabs">
+        <div class="tab active" data-section="tasks">Tasks</div>
+        <div class="tab" data-section="calendar">Calendar</div>
+        <div class="tab" data-section="journal">Journal</div>
+        <div class="tab" data-section="habit">Habit Tracker</div>
+        <div class="tab" data-section="mood">Mood Tracker</div>
+        <div class="tab" data-section="finance">Finance</div>
+        <div class="tab" data-section="deepwork">Deep Work</div>
+        <div class="tab" data-section="summary">Daily Summary</div>
+    </div>
+
+    <button onclick="toggleDarkMode()">🌙 Toggle Dark Mode</button>
+
+    <!-- Task Manager Section -->
+    <div id="tasks" class="section visible">
+        <h2>📝 Task Manager</h2>
+        <input type="text" id="task-input" placeholder="Enter Task">
+        <button onclick="addTask()">Add Task</button>
+        <h3>Pending Tasks</h3>
+        <div id="task-list" class="list"></div>
+    </div>
+
+    <!-- Calendar Section -->
+    <div id="calendar" class="section">
+        <h2>📅 Calendar & Appointments</h2>
+        <input type="date" id="calendar-date">
+        <input type="text" id="calendar-event" placeholder="Enter Event">
+        <button onclick="saveCalendarEvent()">Save Event</button>
+        <div id="calendar-list" class="list"></div>
+    </div>
+
+    <!-- Journal Section -->
+    <div id="journal" class="section">
+        <h2>📖 Journal & Reflection</h2>
+        <textarea id="journal-entry" rows="5" placeholder="Write your thoughts..."></textarea>
+        <button onclick="saveJournal()">Save Entry</button>
+        <div id="journal-entries" class="list"></div>
+    </div>
+
+    <!-- Habit Tracker -->
+    <div id="habit" class="section">
+        <h2>🔥 Habit Tracker</h2>
+        <input type="text" id="habit-input" placeholder="Enter Habit">
+        <button onclick="addHabit()">Add Habit</button>
+        <div id="habit-list" class="list"></div>
+    </div>
+
+    <!-- Mood Tracker -->
+    <div id="mood" class="section">
+        <h2>😊 Mood & Energy Tracker</h2>
+        <select id="mood-select">
+            <option value="😀 Happy">😀 Happy</option>
+            <option value="😞 Sad">😞 Sad</option>
+            <option value="😡 Angry">😡 Angry</option>
+        </select>
+        <button onclick="logMood()">Save Mood</button>
+        <div id="mood-list" class="list"></div>
+    </div>
+
+    <!-- Financial Tracker -->
+    <div id="finance" class="section">
+        <h2>💰 Financial Tracker</h2>
+        <input type="text" id="finance-description" placeholder="Enter Description">
+        <button onclick="addTransaction()">Add Transaction</button>
+        <div id="transaction-list" class="list"></div>
+    </div>
+
+    <!-- Deep Work Mode -->
+    <div id="deepwork" class="section">
+        <h2>🚀 Deep Work Mode</h2>
+        <input type="number" id="work-duration" placeholder="Enter Minutes">
+        <button onclick="startDeepWork()">Start Session</button>
+        <p id="deepwork-timer">00:00</p>
+    </div>
+
+    <!-- Daily Summary -->
+    <div id="summary" class="section">
+        <h2>📊 Daily Summary</h2>
+        <p id="summary-output">Your daily summary will appear here.</p>
+        <button onclick="generateDailySummary()">Refresh</button>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll(".tab").forEach(tab => {
+            tab.addEventListener("click", function () {
+                document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+                document.querySelectorAll(".section").forEach(s => s.classList.remove("visible"));
+                
+                document.getElementById(this.dataset.section).classList.add("visible");
+                this.classList.add("active");
+            });
+        });
+
+        if (localStorage.getItem("theme") === "dark") {
+            document.body.classList.add("dark-mode");
+        }
+    });
+
+    function toggleDarkMode() {
+        document.body.classList.toggle("dark-mode");
+        localStorage.setItem("theme", document.body.classList.contains("dark-mode") ? "dark" : "light");
+    }
+
+    function addTask() { alert("Task added!"); }
+    function saveCalendarEvent() { alert("Event saved!"); }
+    function saveJournal() { alert("Journal entry saved!"); }
+    function addHabit() { alert("Habit added!"); }
+    function logMood() { alert("Mood logged!"); }
+    function addTransaction() { alert("Transaction added!"); }
+    function startDeepWork() { alert("Deep Work Started!"); }
+    function generateDailySummary() { alert("Daily Summary Generated!"); }
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simo's Website Archiver</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .app-container {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        input[type="url"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .output {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <h1>Simo's Website Archiver</h1>
+        <p>Enter a website URL to archive it as a ZIM file:</p>
+        <input type="url" id="website-url" placeholder="https://example.com" required>
+        <button onclick="archiveWebsite()">Archive Website</button>
+        <div class="output" id="output"></div>
+    </div>
+
+    <script>
+        async function archiveWebsite() {
+            const urlInput = document.getElementById('website-url');
+            const outputDiv = document.getElementById('output');
+
+            const websiteUrl = urlInput.value;
+            if (!websiteUrl) {
+                outputDiv.textContent = 'Please enter a valid URL.';
+                return;
+            }
+
+            outputDiv.textContent = 'Archiving in progress...';
+
+            try {
+                // Replace this URL with the actual endpoint of your ZIM file generator service
+                const apiEndpoint = 'https://zimit.kiwix.org/#/';
+                const response = await fetch(apiEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ url: websiteUrl }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success && data.zimFileUrl) {
+                    outputDiv.innerHTML = `Archived successfully! <a href="${data.zimFileUrl}" download>Download ZIM File</a>`;
+                } else {
+                    outputDiv.textContent = 'Failed to archive the website. Please try again.';
+                }
+            } catch (error) {
+                outputDiv.textContent = `An error occurred: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>
+

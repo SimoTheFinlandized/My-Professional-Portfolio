@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boredom Buster</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to right, #ff7e5f, #feb47b);
+            text-align: center;
+            padding: 20px;
+        }
+        #activity {
+            font-size: 1.5em;
+            margin: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease-in-out;
+        }
+        #activity:hover {
+            transform: scale(1.05);
+        }
+        button {
+            padding: 12px 24px;
+            font-size: 1.2em;
+            cursor: pointer;
+            border: none;
+            background: #28a745;
+            color: white;
+            border-radius: 5px;
+            transition: background 0.3s, transform 0.2s;
+        }
+        button:hover {
+            background: #218838;
+            transform: scale(1.1);
+        }
+        h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1> BOREDOM BUSTER </h1>
+    <h2>🎉 Feeling Bored? Try This! 🎉</h2>
+    <div id="activity">Click the button to get an idea!</div>
+    <button onclick="getRandomActivity()">Give Me an Idea</button>
+
+    <script>
+        let lastIndex = -1;
+        const activities = [
+            "Read a self-improvement book like 'Atomic Habits' or 'The 7 Habits of Highly Effective People'.",
+            "Take an online course on a skill you've always wanted to learn, like coding or graphic design.",
+            "Watch a TED Talk on personal growth, technology, or mental health.",
+            "Listen to an insightful podcast episode about productivity or entrepreneurship.",
+            "Practice a new language using an app like Duolingo or Babbel.",
+            "Write in a journal about your goals, emotions, or a recent experience.",
+            "Plan your upcoming week with a to-do list and schedule.",
+            "Practice meditation using an app like Headspace or Calm.",
+            "Write down 10 personal goals you want to achieve in the next year.",
+            "Research an interesting topic and take notes for future reference.",
+            "Update your resume and LinkedIn profile with recent achievements.",
+            "Draft professional emails for networking or job applications.",
+            "Declutter and organize your workspace for better productivity.",
+            "Brainstorm ideas for a side hustle and create an action plan.",
+            "Improve your typing speed with online typing tests.",
+            "Build or update your personal portfolio website.",
+            "Watch a tutorial on improving your professional or creative skills.",
+            "Research companies you admire and explore their job openings.",
+            "Write an insightful LinkedIn post or blog article about your industry.",
+            "Learn a few new shortcuts in the software you use frequently.",
+            "Go for a 30-minute walk or run to refresh your mind.",
+            "Follow a YouTube workout video for a quick exercise session.",
+            "Try a new healthy recipe and cook a nutritious meal.",
+            "Drink a glass of water and set hydration goals for the day.",
+            "Plan and prep meals for the week to save time and money.",
+            "Practice deep breathing exercises to reduce stress and improve focus.",
+            "Declutter your kitchen by removing expired or unused items.",
+            "Read about sleep hygiene and adjust your nighttime routine.",
+            "Follow a beginner yoga or pilates session online.",
+            "Take a break from social media for an hour or a day.",
+            "Review and adjust your monthly budget to optimize expenses.",
+            "Sort and organize important financial documents.",
+            "Learn about different investment options like stocks or real estate.",
+            "Cancel subscriptions or memberships you no longer use.",
+            "Set specific savings goals for the next six months.",
+            "Compare service providers to find better deals on bills.",
+            "Sell unused items online through platforms like eBay or Facebook Marketplace.",
+            "Use an expense tracking app to monitor your spending habits.",
+            "Read a book or article about financial literacy.",
+            "Explore passive income ideas that align with your skills.",
+            "Experiment with digital drawing using apps like Procreate or Krita.",
+            "Start a blog or YouTube channel on a topic you're passionate about.",
+            "Learn to play a song on an instrument you enjoy.",
+            "Write a short story, poem, or creative piece for fun.",
+            "Take creative photos or videos and edit them for social media.",
+            "Make a vision board to visualize your future aspirations.",
+            "Sort, edit, and back up your photos for easy access.",
+            "Create a DIY craft project for home decoration.",
+            "Fold an intricate origami figure to practice patience and focus.",
+            "Learn and practice a dance routine from YouTube or TikTok."
+        ];
+
+        function getRandomActivity() {
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * activities.length);
+            } while (randomIndex === lastIndex);
+            lastIndex = randomIndex;
+            document.getElementById('activity').innerText = activities[randomIndex];
+        }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Planner</title>
+    <style>
+        :root {
+            --bg-color: #f4f4f4;
+            --text-color: #000;
+            --card-bg: white;
+            --btn-bg: #28a745;
+            --btn-hover: #218838;
+            --urgent: #ff4d4d;
+            --upcoming: #ffcc00;
+        }
+
+        body.dark-mode {
+            --bg-color: #1e1e1e;
+            --text-color: #fff;
+            --card-bg: #333;
+            --btn-bg: #17a2b8;
+            --btn-hover: #138496;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 20px;
+            padding: 20px;
+            transition: 0.3s;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: auto;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            background: var(--btn-bg);
+            color: white;
+            cursor: pointer;
+            border: none;
+        }
+
+        button:hover {
+            background: var(--btn-hover);
+        }
+
+        .task-list {
+            margin-top: 20px;
+        }
+
+        .task {
+            display: flex;
+            flex-direction: column;
+            background: var(--card-bg);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            transition: 0.3s;
+        }
+
+        .completed {
+            text-decoration: line-through;
+            color: gray;
+        }
+
+        .urgent {
+            border-left: 5px solid var(--urgent);
+        }
+
+        .upcoming {
+            border-left: 5px solid var(--upcoming);
+        }
+
+        .delete-btn {
+            background: red;
+            color: white;
+            border: none;
+            padding: 5px;
+            cursor: pointer;
+            border-radius: 3px;
+            margin-top: 5px;
+        }
+
+        .progress {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .calendar {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #darkModeToggle {
+            margin-top: 10px;
+            display: block;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Student Planner</h2>
+
+        <input type="text" id="taskInput" placeholder="Enter task">
+        <select id="subjectInput">
+            <option value="Math">Math</option>
+            <option value="Science">Science</option>
+            <option value="History">History</option>
+            <option value="English">English</option>
+            <option value="Other">Other</option>
+        </select>
+        <input type="date" id="dueDateInput">
+        <button onclick="addTask()">Add Task</button>
+
+        <input type="text" id="searchTask" placeholder="Search tasks..." oninput="renderTasks()">
+
+        <div class="progress" id="progressText">Progress: 0%</div>
+
+        <div class="task-list" id="taskList"></div>
+
+        <div class="calendar" id="calendarView"></div>
+
+        <button id="exportCSV" onclick="exportTasks()">Export as CSV</button>
+        <button id="darkModeToggle" onclick="toggleDarkMode()">Toggle Dark Mode</button>
+    </div>
+
+    <script>
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+        function addTask() {
+            const taskInput = document.getElementById("taskInput");
+            const subjectInput = document.getElementById("subjectInput");
+            const dueDateInput = document.getElementById("dueDateInput");
+
+            if (taskInput.value.trim() === "") {
+                alert("Please enter a task.");
+                return;
+            }
+
+            const task = {
+                id: Date.now(),
+                text: taskInput.value,
+                subject: subjectInput.value,
+                dueDate: dueDateInput.value,
+                completed: false
+            };
+
+            tasks.push(task);
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+            taskInput.value = "";
+            renderTasks();
+        }
+
+        function renderTasks() {
+            const taskList = document.getElementById("taskList");
+            const searchQuery = document.getElementById("searchTask").value.toLowerCase();
+            taskList.innerHTML = "";
+
+            let completedCount = 0;
+            tasks.forEach(task => {
+                if (!task.text.toLowerCase().includes(searchQuery)) return;
+
+                const taskDiv = document.createElement("div");
+                taskDiv.classList.add("task");
+
+                const today = new Date().toISOString().split('T')[0];
+                if (task.dueDate && task.dueDate < today) taskDiv.classList.add("urgent");
+                else if (task.dueDate && task.dueDate === today) taskDiv.classList.add("upcoming");
+
+                if (task.completed) {
+                    taskDiv.classList.add("completed");
+                    completedCount++;
+                }
+
+                taskDiv.innerHTML = `
+                    <span onclick="toggleTask(${task.id})">${task.text} (${task.subject}) - Due: ${task.dueDate}</span>
+                    <button class="delete-btn" onclick="deleteTask(${task.id})">X</button>
+                `;
+
+                taskList.appendChild(taskDiv);
+            });
+
+            document.getElementById("progressText").innerText = `Progress: ${Math.round((completedCount / tasks.length) * 100) || 0}%`;
+        }
+
+        function toggleTask(id) {
+            tasks = tasks.map(task => task.id === id ? { ...task, completed: !task.completed } : task);
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+            renderTasks();
+        }
+
+        function deleteTask(id) {
+            tasks = tasks.filter(task => task.id !== id);
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+            renderTasks();
+        }
+
+        function exportTasks() {
+            const csv = "Task,Subject,Due Date,Completed\n" + tasks.map(t => `${t.text},${t.subject},${t.dueDate},${t.completed}`).join("\n");
+            const blob = new Blob([csv], { type: "text/csv" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "student_planner.csv";
+            link.click();
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle("dark-mode");
+        }
+
+        window.onload = renderTasks;
+    </script>
+
+</body>
+</html>

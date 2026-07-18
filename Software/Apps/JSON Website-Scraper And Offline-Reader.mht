@@ -1,0 +1,1550 @@
+<!DOCTYPE html>
+<!-- saved from url=(0139)https://galaxy-prod.tlcdn.com/original/raw/chat/code_interpreter/user_2w3ESEJeOmWwLyZeRtOGgR7Zo9U/4f2030f1-3660-4ce4-8d92-3a554099b88f.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Website-Scraper And Offline Web-Reader</title>
+    <style>
+        /* Enhanced CSS with better theming and organization */
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --accent-color: #007bff;
+            --secondary-color: #6c757d;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --border-color: #dee2e6;
+            --card-bg: #f8f9fa;
+        }
+
+        body.dark-mode {
+            --bg-color: #1a1a1a;
+            --text-color: #ffffff;
+            --accent-color: #0d6efd;
+            --secondary-color: #adb5bd;
+            --success-color: #198754;
+            --warning-color: #ffca2c;
+            --danger-color: #dc3545;
+            --border-color: #495057;
+            --card-bg: #2d3748;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+            transition: all 0.3s ease;
+            line-height: 1.6;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--accent-color);
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, var(--accent-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: var(--secondary-color);
+            margin-top: 10px;
+        }
+
+        .container {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .section {
+            flex: 1;
+            min-width: 350px;
+            padding: 25px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background-color: var(--card-bg);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .section h2 {
+            margin-top: 0;
+            color: var(--accent-color);
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 300px;
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid var(--border-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+
+        input[type="text"], input[type="number"], input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 2px solid var(--border-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+
+        button {
+            padding: 12px 24px;
+            margin: 8px 0;
+            cursor: pointer;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
+            opacity: 0.95;
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.secondary {
+            background-color: var(--secondary-color);
+        }
+
+        button.success {
+            background-color: var(--success-color);
+        }
+
+        button.warning {
+            background-color: var(--warning-color);
+            color: #000;
+        }
+
+        button.danger {
+            background-color: var(--danger-color);
+        }
+
+        .progress-container {
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background-color: var(--border-color);
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-color), var(--success-color));
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 6px;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-weight: 600;
+            color: var(--accent-color);
+            margin-top: 5px;
+        }
+
+        .history-container {
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .history-item {
+            padding: 12px;
+            margin: 5px 0;
+            cursor: pointer;
+            border-radius: 6px;
+            background-color: var(--bg-color);
+            border-left: 4px solid var(--accent-color);
+            transition: all 0.2s ease;
+        }
+
+        .history-item:hover {
+            background-color: rgba(0, 123, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .history-item.active {
+            background-color: rgba(0, 123, 255, 0.2);
+            border-left-color: var(--success-color);
+        }
+
+        .toolbar {
+            margin: 20px 0;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+        }
+
+        .reader-controls {
+            margin: 15px 0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .speech-controls {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .annotation {
+            background-color: rgba(255, 193, 7, 0.2);
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 6px;
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .scraping-options {
+            margin: 15px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .scraping-options label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            background-color: var(--bg-color);
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .scraping-options label:hover {
+            background-color: rgba(0, 123, 255, 0.1);
+        }
+
+        .page-navigation {
+            display: flex;
+            gap: 15px;
+            margin: 15px 0;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+        }
+
+        .page-info {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: var(--accent-color);
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            flex: 1;
+            min-width: 150px;
+            padding: 15px;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent-color);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        select {
+            padding: 10px;
+            border-radius: 6px;
+            border: 2px solid var(--border-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            cursor: pointer;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            padding: 20px;
+            color: var(--secondary-color);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .highlight {
+            background-color: rgba(255, 235, 59, 0.3);
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--secondary-color);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--border-color);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .section {
+                min-width: 100%;
+            }
+
+            .toolbar {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* JSON syntax highlighting */
+        .json-key { color: #d73a49; }
+        .json-string { color: #032f62; }
+        .json-number { color: #005cc5; }
+        .json-boolean { color: #6f42c1; }
+        .json-null { color: #6a737d; }
+
+        body.dark-mode .json-key { color: #ff7b72; }
+        body.dark-mode .json-string { color: #a5d6ff; }
+        body.dark-mode .json-number { color: #79c0ff; }
+        body.dark-mode .json-boolean { color: #d2a8ff; }
+        body.dark-mode .json-null { color: #8b949e; }
+    </style>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="./JSON Website-Scraper And Offline Web-Reader_files/all.min.css">
+</head>
+<body>
+    <div class="header">
+        <h1><i class="fas fa-database"></i> JSON Website-Scraper &amp; Offline Reader</h1>
+        <p>Scrape websites, save as JSON, and read offline with advanced features</p>
+    </div>
+
+    <div class="toolbar">
+        <button onclick="toggleDarkMode()" class="secondary">
+            <i class="fas fa-moon"></i> Toggle Dark Mode
+        </button>
+        <button onclick="clearHistory()" class="danger">
+            <i class="fas fa-trash"></i> Clear History
+        </button>
+        <button onclick="exportAll()" class="success">
+            <i class="fas fa-download"></i> Export All
+        </button>
+        <button onclick="showStats()" class="warning">
+            <i class="fas fa-chart-bar"></i> Show Stats
+        </button>
+        <button onclick="showHelp()" class="secondary">
+            <i class="fas fa-question-circle"></i> Help
+        </button>
+    </div>
+
+    <div class="stats" id="statsPanel" style="display: none;">
+        <div class="stat-item">
+            <div class="stat-value" id="totalScrapes">0</div>
+            <div class="stat-label">Total Scrapes</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="totalPages">0</div>
+            <div class="stat-label">Pages Archived</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="totalSize">0 KB</div>
+            <div class="stat-label">Total Data Size</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="lastScrape">Never</div>
+            <div class="stat-label">Last Scrape</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Web Scraper Section -->
+        <div class="section">
+            <h2><i class="fas fa-spider"></i> Web Scraper</h2>
+
+            <div class="scraping-options">
+                <label>
+                    <input type="checkbox" id="recursiveScraping" checked="">
+                    <span>Recursive scraping (crawl multiple pages)</span>
+                </label>
+                <label>
+                    <span>Max depth:</span>
+                    <input type="number" id="maxDepth" value="2" min="1" max="5" style="width: 80px;">
+                </label>
+                <label>
+                    <span>Max pages:</span>
+                    <input type="number" id="maxPages" value="10" min="1" max="100" style="width: 80px;">
+                </label>
+                <label>
+                    <input type="checkbox" id="sameDomainOnly" checked="">
+                    <span>Same domain only</span>
+                </label>
+            </div>
+
+            <input type="text" id="urlInput" placeholder="https://example.com">
+
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-bar-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">Ready</div>
+            </div>
+
+            <div class="reader-controls">
+                <button onclick="scrapeWebsite()" class="success">
+                    <i class="fas fa-play"></i> Scrape Website
+                </button>
+                <select id="elementType" onchange="updateScrapingOptions()">
+                    <option value="all">All Content</option>
+                    <option value="headings">Headings Only</option>
+                    <option value="paragraphs">Paragraphs Only</option>
+                    <option value="images">Images Only</option>
+                    <option value="metadata">Metadata Only</option>
+                    <option value="links">Links Only</option>
+                    <option value="clean">Clean Text (No HTML)</option>
+                </select>
+            </div>
+
+            <textarea id="scrapedContent" placeholder="Scraped content will appear here..." readonly=""></textarea>
+
+            <div class="reader-controls">
+                <button onclick="saveAsJson()" class="primary">
+                    <i class="fas fa-save"></i> Save as JSON
+                </button>
+                <button onclick="previewScraped()" class="secondary">
+                    <i class="fas fa-eye"></i> Preview
+                </button>
+                <button onclick="clearScraped()" class="danger">
+                    <i class="fas fa-times"></i> Clear
+                </button>
+            </div>
+
+            <h3><i class="fas fa-history"></i> Scraping History</h3>
+            <div class="history-container" id="scrapingHistory">
+                <!-- History items will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Offline Reader Section -->
+        <div class="section">
+            <h2><i class="fas fa-book-reader"></i> Offline Reader</h2>
+
+            <input type="file" id="jsonFileInput" accept=".json">
+
+            <div class="page-navigation" id="pageNavigation" style="display: none;">
+                <button onclick="navigatePage(-1)" class="secondary">
+                    <i class="fas fa-chevron-left"></i> Previous
+                </button>
+                <span class="page-info" id="pageInfo">Page 1 of 1</span>
+                <button onclick="navigatePage(1)" class="secondary">
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+
+            <textarea id="jsonContent" placeholder="JSON content will appear here..." readonly=""></textarea>
+
+            <div class="reader-controls">
+                <button onclick="loadJson()" class="success">
+                    <i class="fas fa-folder-open"></i> Load JSON
+                </button>
+                <button onclick="highlightCode()" class="secondary">
+                    <i class="fas fa-code"></i> Highlight JSON
+                </button>
+                <button onclick="generateTOC()" class="secondary">
+                    <i class="fas fa-list"></i> Generate TOC
+                </button>
+                <button onclick="formatJson()" class="secondary">
+                    <i class="fas fa-align-left"></i> Format JSON
+                </button>
+            </div>
+
+            <div class="speech-controls">
+                <button onclick="startSpeech()" class="warning">
+                    <i class="fas fa-play-circle"></i> Start Speech
+                </button>
+                <button onclick="stopSpeech()" class="danger">
+                    <i class="fas fa-stop-circle"></i> Stop Speech
+                </button>
+                <button onclick="pauseSpeech()" class="secondary">
+                    <i class="fas fa-pause-circle"></i> Pause
+                </button>
+                <select id="voiceSelect"></select>
+                <input type="range" id="speechRate" min="0.5" max="2" step="0.1" value="1" style="width: 100px;">
+                <span>Speed: <span id="rateValue">1.0</span>x</span>
+            </div>
+
+            <h3><i class="fas fa-edit"></i> Annotations</h3>
+            <div id="annotations">
+                <!-- Annotations will appear here -->
+            </div>
+            <div class="reader-controls">
+                <input type="text" id="annotationInput" placeholder="Add annotation...">
+                <button onclick="addAnnotation()" class="secondary">
+                    <i class="fas fa-plus"></i> Add
+                </button>
+            </div>
+
+            <h3><i class="fas fa-search"></i> Search</h3>
+            <div class="reader-controls">
+                <input type="text" id="searchInput" placeholder="Search in content...">
+                <button onclick="searchContent()" class="secondary">
+                    <i class="fas fa-search"></i> Search
+                </button>
+                <button onclick="clearSearch()" class="danger">
+                    <i class="fas fa-times"></i> Clear
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>JSON Website-Scraper v3.0 • All data stored locally in your browser</p>
+        <p>Last saved: <span id="lastSaved">Never</span> • <span id="storageInfo">Storage: 0 KB used</span></p>
+    </div>
+
+    <script>
+        // Enhanced JavaScript for complete functionality
+        let scrapedData = null;
+        let history = JSON.parse(localStorage.getItem('scrapingHistory')) || [];
+        let speechSynthesis = window.speechSynthesis;
+        let currentSpeech = null;
+        let annotations = [];
+        let currentWebsiteData = null;
+        let currentPageIndex = 0;
+        let searchResults = [];
+        let currentSearchIndex = -1;
+
+        // Initialize app
+        function initApp() {
+            // Initialize dark mode
+            if (localStorage.getItem('darkMode') === 'enabled') {
+                document.body.classList.add('dark-mode');
+            }
+
+            // Initialize voices
+            populateVoiceList();
+            speechSynthesis.onvoiceschanged = populateVoiceList;
+
+            // Load history
+            updateHistoryDisplay();
+
+            // Update storage info
+            updateStorageInfo();
+
+            // Set up event listeners
+            setupEventListeners();
+
+            // Update last saved
+            updateLastSaved();
+
+            console.log('JSON Website-Scraper initialized');
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Speech rate slider
+            const speechRate = document.getElementById('speechRate');
+            const rateValue = document.getElementById('rateValue');
+
+            speechRate.addEventListener('input', function() {
+                rateValue.textContent = this.value;
+            });
+
+            // Enter key for URL input
+            document.getElementById('urlInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    scrapeWebsite();
+                }
+            });
+
+            // Enter key for search
+            document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchContent();
+                }
+            });
+
+            // Enter key for annotation
+            document.getElementById('annotationInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    addAnnotation();
+                }
+            });
+
+            // Auto-save every minute
+            setInterval(saveHistory, 60000);
+        }
+
+        // Populate voice list for speech synthesis
+        function populateVoiceList() {
+            voices = speechSynthesis.getVoices();
+            const voiceSelect = document.getElementById('voiceSelect');
+            voiceSelect.innerHTML = voices
+                .map(voice => `<option value="${voice.name}">${voice.name} (${voice.lang})</option>`)
+                .join('');
+        }
+
+        // Enhanced scraping function
+        async function scrapeWebsite() {
+            const url = document.getElementById('urlInput').value.trim();
+            if (!url) {
+                alert('Please enter a valid URL');
+                return;
+            }
+
+            // Validate URL
+            try {
+                new URL(url);
+            } catch (e) {
+                alert('Please enter a valid URL (include http:// or https://)');
+                return;
+            }
+
+            const recursive = document.getElementById('recursiveScraping').checked;
+            const maxDepth = parseInt(document.getElementById('maxDepth').value);
+            const maxPages = parseInt(document.getElementById('maxPages').value);
+            const sameDomainOnly = document.getElementById('sameDomainOnly').checked;
+
+            try {
+                updateProgress(0, 'Starting scrape...');
+
+                if (recursive) {
+                    await scrapeWebsiteRecursive(url, maxDepth, maxPages, sameDomainOnly);
+                } else {
+                    await scrapeSinglePage(url);
+                }
+
+                updateProgress(100, 'Scraping complete!');
+                updateStats();
+                updateStorageInfo();
+            } catch (error) {
+                console.error('Error scraping website:', error);
+                updateProgress(0, 'Error occurred');
+                alert('Error scraping website. Please try again. Check console for details.');
+            }
+        }
+
+        // Scrape single page
+        async function scrapeSinglePage(url) {
+            updateProgress(25, 'Fetching page...');
+
+            try {
+                // Use CORS proxy
+                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+                const response = await fetch(proxyUrl);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                updateProgress(50, 'Parsing content...');
+
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(data.contents, 'text/html');
+                const elementType = document.getElementById('elementType').value;
+
+                scrapedData = processPageContent(url, doc, elementType);
+                updateProgress(75, 'Formatting data...');
+
+                document.getElementById('scrapedContent').value = JSON.stringify(scrapedData, null, 2);
+                addToHistory(scrapedData);
+
+                updateProgress(100, 'Page scraped successfully!');
+            } catch (error) {
+                throw new Error(`Failed to scrape page: ${error.message}`);
+            }
+        }
+
+        // Recursive website scraping
+        async function scrapeWebsiteRecursive(startUrl, maxDepth, maxPages, sameDomainOnly) {
+            const visitedUrls = new Set();
+            const pagesToVisit = [{ url: startUrl, depth: 0 }];
+            const scrapedPages = [];
+            const baseDomain = new URL(startUrl).hostname;
+            let currentPage = 0;
+
+            while (pagesToVisit.length > 0 && scrapedPages.length < maxPages) {
+                const { url, depth } = pagesToVisit.shift();
+
+                if (visitedUrls.has(url) || depth > maxDepth) {
+                    continue;
+                }
+
+                visitedUrls.add(url);
+                currentPage++;
+
+                try {
+                    const progress = (scrapedPages.length / maxPages) * 100;
+                    updateProgress(progress, `Scraping page ${currentPage}/${maxPages}: ${url}`);
+
+                    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+                    const response = await fetch(proxyUrl);
+
+                    if (!response.ok) {
+                        console.warn(`Failed to fetch ${url}: ${response.status}`);
+                        continue;
+                    }
+
+                    const data = await response.json();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(data.contents, 'text/html');
+
+                    // Process current page
+                    const pageData = processPageContent(url, doc, document.getElementById('elementType').value);
+                    scrapedPages.push(pageData);
+
+                    // Extract links for further crawling
+                    if (depth < maxDepth) {
+                        const links = Array.from(doc.querySelectorAll('a[href]'));
+                        for (const link of links) {
+                            const href = link.href;
+                            try {
+                                const linkUrl = new URL(href, url).href;
+
+                                if (!visitedUrls.has(linkUrl) && 
+                                    (!sameDomainOnly || new URL(linkUrl).hostname === baseDomain)) {
+                                    pagesToVisit.push({ url: linkUrl, depth: depth + 1 });
+                                }
+                            } catch (e) {
+                                // Skip invalid URLs
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error(`Error scraping ${url}:`, error);
+                }
+            }
+
+            // Create website archive
+            scrapedData = {
+                type: 'website_archive',
+                version: '3.0',
+                baseUrl: startUrl,
+                timestamp: new Date().toISOString(),
+                totalPages: scrapedPages.length,
+                pages: scrapedPages,
+                metadata: {
+                    title: scrapedPages[0]?.metadata?.title || 'Website Archive',
+                    description: `Archive of ${scrapedPages.length} pages from ${startUrl}`,
+                    scrapedWith: 'JSON Website-Scraper v3.0'
+                }
+            };
+
+            document.getElementById('scrapedContent').value = JSON.stringify(scrapedData, null, 2);
+            addToHistory(scrapedData);
+        }
+
+        // Process page content based on selected type
+        function processPageContent(url, doc, elementType) {
+            let content = '';
+            let extractedData = {};
+
+            switch (elementType) {
+                case 'headings':
+                    content = Array.from(doc.querySelectorAll('h1, h2, h3, h4, h5, h6'))
+                        .map(el => `<${el.tagName}>${el.textContent}</${el.tagName}>`)
+                        .join('
+');
+                    extractedData.headings = Array.from(doc.querySelectorAll('h1, h2, h3, h4, h5, h6'))
+                        .map(el => ({ tag: el.tagName, text: el.textContent }));
+                    break;
+
+                case 'paragraphs':
+                    content = Array.from(doc.querySelectorAll('p'))
+                        .map(el => `<p>${el.textContent}</p>`)
+                        .join('
+');
+                    extractedData.paragraphs = Array.from(doc.querySelectorAll('p'))
+                        .map(el => el.textContent);
+                    break;
+
+                case 'images':
+                    content = Array.from(doc.querySelectorAll('img'))
+                        .map(el => `<img src="${el.src}" alt="${el.alt}" title="${el.title}">`)
+                        .join('
+');
+                    extractedData.images = Array.from(doc.querySelectorAll('img'))
+                        .map(el => ({ src: el.src, alt: el.alt, title: el.title }));
+                    break;
+
+                case 'metadata':
+                    const meta = {
+                        title: doc.title,
+                        description: doc.querySelector('meta[name="description"]')?.content,
+                        keywords: doc.querySelector('meta[name="keywords"]')?.content,
+                        author: doc.querySelector('meta[name="author"]')?.content,
+                        viewport: doc.querySelector('meta[name="viewport"]')?.content,
+                        charset: doc.querySelector('meta[charset]')?.getAttribute('charset')
+                    };
+                    content = JSON.stringify(meta, null, 2);
+                    extractedData = meta;
+                    break;
+
+                case 'links':
+                    content = Array.from(doc.querySelectorAll('a[href]'))
+                        .map(el => `<a href="${el.href}">${el.textContent}</a>`)
+                        .join('
+');
+                    extractedData.links = Array.from(doc.querySelectorAll('a[href]'))
+                        .map(el => ({ href: el.href, text: el.textContent }));
+                    break;
+
+                case 'clean':
+                    content = doc.body.textContent.replace(/\s+/g, ' ').trim();
+                    extractedData.text = content;
+                    break;
+
+                default: // 'all'
+                    content = doc.documentElement.outerHTML;
+                    extractedData.html = content;
+                    break;
+            }
+
+            return {
+                url: url,
+                content: content,
+                extractedData: extractedData,
+                timestamp: new Date().toISOString(),
+                metadata: {
+                    title: doc.title,
+                    description: doc.querySelector('meta[name="description"]')?.content,
+                    path: new URL(url).pathname,
+                    elementType: elementType
+                }
+            };
+        }
+
+        // Update progress bar
+        function updateProgress(percent, message = '') {
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+
+            progressFill.style.width = `${percent}%`;
+            progressText.textContent = message || `${Math.round(percent)}% complete`;
+
+            if (percent >= 100) {
+                setTimeout(() => {
+                    progressFill.style.width = '0%';
+                    progressText.textContent = 'Ready';
+                }, 2000);
+            }
+        }
+
+        // Save scraped data as JSON file
+        function saveAsJson() {
+            if (!scrapedData) {
+                alert('No data to save');
+                return;
+            }
+
+            const timestamp = new Date().toISOString().slice(0, 19).replace(/[:]/g, '-');
+            const filename = `website_archive_${timestamp}.json`;
+
+            const blob = new Blob([JSON.stringify(scrapedData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            alert(`Data saved as ${filename}`);
+        }
+
+        // Export all history
+        function exportAll() {
+            if (history.length === 0) {
+                alert('No history to export');
+                return;
+            }
+
+            const timestamp = new Date().toISOString().slice(0, 19).replace(/[:]/g, '-');
+            const filename = `scraping_history_${timestamp}.json`;
+
+            const blob = new Blob([JSON.stringify(history, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            alert(`History exported as ${filename}`);
+        }
+
+        // Load JSON file
+        function loadJson() {
+            const fileInput = document.getElementById('jsonFileInput');
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('Please select a JSON file');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    currentWebsiteData = data;
+
+                    if (data.type === 'website_archive' && data.pages) {
+                        // Multi-page website archive
+                        document.getElementById('pageNavigation').style.display = 'flex';
+                        currentPageIndex = 0;
+                        displayCurrentPage();
+                    } else {
+                        // Single page (legacy format)
+                        document.getElementById('pageNavigation').style.display = 'none';
+                        document.getElementById('jsonContent').value = JSON.stringify(data, null, 2);
+                    }
+
+                    highlightCode();
+                    updateLastSaved();
+                } catch (error) {
+                    console.error('Error parsing JSON:', error);
+                    alert('Invalid JSON file format');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Display current page in multi-page archive
+        function displayCurrentPage() {
+            if (!currentWebsiteData || !currentWebsiteData.pages) return;
+
+            const page = currentWebsiteData.pages[currentPageIndex];
+            document.getElementById('jsonContent').value = JSON.stringify(page, null, 2);
+            document.getElementById('pageInfo').textContent = `Page ${currentPageIndex + 1} of ${currentWebsiteData.pages.length}`;
+
+            highlightCode();
+        }
+
+        // Navigate between pages
+        function navigatePage(direction) {
+            if (!currentWebsiteData || !currentWebsiteData.pages) return;
+
+            const newIndex = currentPageIndex + direction;
+            if (newIndex >= 0 && newIndex < currentWebsiteData.pages.length) {
+                currentPageIndex = newIndex;
+                displayCurrentPage();
+            }
+        }
+
+        // Highlight JSON syntax
+        function highlightCode() {
+            const textarea = document.getElementById('jsonContent');
+            const content = textarea.value;
+
+            if (!content.trim()) return;
+
+            try {
+                const json = JSON.parse(content);
+                const highlighted = syntaxHighlight(JSON.stringify(json, null, 2));
+
+                // Create a temporary div to hold highlighted content
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = highlighted;
+
+                // Replace textarea with highlighted version (read-only display)
+                const container = textarea.parentNode;
+                const highlightedDiv = document.createElement('div');
+                highlightedDiv.className = 'json-highlight';
+                highlightedDiv.style.cssText = textarea.style.cssText;
+                highlightedDiv.style.fontFamily = "'Consolas', 'Monaco', monospace";
+                highlightedDiv.style.whiteSpace = 'pre';
+                highlightedDiv.style.overflow = 'auto';
+                highlightedDiv.innerHTML = highlighted;
+
+                // Replace textarea with highlighted div
+                container.replaceChild(highlightedDiv, textarea);
+                highlightedDiv.id = 'jsonContent';
+
+                // Add click handler to switch back to editable mode
+                highlightedDiv.addEventListener('dblclick', function() {
+                    const newTextarea = document.createElement('textarea');
+                    newTextarea.id = 'jsonContent';
+                    newTextarea.value = content;
+                    newTextarea.style.cssText = textarea.style.cssText;
+                    container.replaceChild(newTextarea, highlightedDiv);
+                });
+
+            } catch (error) {
+                console.error('Error highlighting JSON:', error);
+            }
+        }
+
+        // JSON syntax highlighting function
+        function syntaxHighlight(json) {
+            json = json.replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>');
+            return json.replace(/("(\u[a-zA-Z0-9]{4}|\[^u]|[^\"])*"(\s*:)?|(true|false|null)|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, 
+                function(match) {
+                    let cls = 'json-number';
+                    if (/^"/.test(match)) {
+                        if (/:$/.test(match)) {
+                            cls = 'json-key';
+                        } else {
+                            cls = 'json-string';
+                        }
+                    } else if (/true|false/.test(match)) {
+                        cls = 'json-boolean';
+                    } else if (/null/.test(match)) {
+                        cls = 'json-null';
+                    }
+                    return '<span class="' + cls + '">' + match + '</span>';
+                });
+        }
+
+        // Format JSON
+        function formatJson() {
+            const textarea = document.getElementById('jsonContent');
+            const content = textarea.value;
+
+            if (!content.trim()) return;
+
+            try {
+                const json = JSON.parse(content);
+                textarea.value = JSON.stringify(json, null, 2);
+                highlightCode();
+            } catch (error) {
+                alert('Invalid JSON format');
+            }
+        }
+
+        // Generate table of contents
+        function generateTOC() {
+            if (!currentWebsiteData) {
+                alert('No data loaded');
+                return;
+            }
+
+            let toc = '## Website Archive Table of Contents
+
+';
+            toc += `**Base URL:** ${currentWebsiteData.baseUrl || 'N/A'}
+`;
+            toc += `**Total Pages:** ${currentWebsiteData.totalPages || 'N/A'}
+`;
+            toc += `**Archived:** ${new Date(currentWebsiteData.timestamp).toLocaleString()}
+`;
+            toc += `**Scraped With:** ${currentWebsiteData.metadata?.scrapedWith || 'JSON Website-Scraper'}
+
+`;
+
+            if (currentWebsiteData.pages) {
+                toc += '## Pages:
+
+';
+                currentWebsiteData.pages.forEach((page, index) => {
+                    const title = page.metadata?.title || 'Untitled';
+                    const url = page.url || 'N/A';
+                    const date = new Date(page.timestamp).toLocaleDateString();
+                    toc += `${index + 1}. **${title}**
+`;
+                    toc += `   - URL: ${url}
+`;
+                    toc += `   - Date: ${date}
+`;
+                    toc += `   - Type: ${page.metadata?.elementType || 'all'}
+
+`;
+                });
+            }
+
+            const textarea = document.getElementById('jsonContent');
+            textarea.value = `${toc}
+
+---
+
+${textarea.value}`;
+            highlightCode();
+        }
+
+        // Speech synthesis functions
+        function startSpeech() {
+            if (currentSpeech) {
+                speechSynthesis.cancel();
+            }
+
+            const content = document.getElementById('jsonContent').value;
+            if (!content.trim()) {
+                alert('No content to read');
+                return;
+            }
+
+            const utterance = new SpeechSynthesisUtterance(content);
+            utterance.voice = voices.find(voice => voice.name === document.getElementById('voiceSelect').value);
+            utterance.rate = parseFloat(document.getElementById('speechRate').value);
+            utterance.pitch = 1;
+            utterance.volume = 1;
+
+            utterance.onstart = function() {
+                console.log('Speech started');
+            };
+
+            utterance.onend = function() {
+                console.log('Speech ended');
+                currentSpeech = null;
+            };
+
+            speechSynthesis.speak(utterance);
+            currentSpeech = utterance;
+        }
+
+        function stopSpeech() {
+            speechSynthesis.cancel();
+            currentSpeech = null;
+        }
+
+        function pauseSpeech() {
+            if (speechSynthesis.speaking) {
+                speechSynthesis.pause();
+            } else if (speechSynthesis.paused) {
+                speechSynthesis.resume();
+            }
+        }
+
+        // Annotation functions
+        function addAnnotation() {
+            const input = document.getElementById('annotationInput');
+            const text = input.value.trim();
+
+            if (!text) {
+                alert('Please enter annotation text');
+                return;
+            }
+
+            const annotation = {
+                id: Date.now(),
+                text: text,
+                timestamp: new Date().toISOString(),
+                pageIndex: currentPageIndex,
+                url: currentWebsiteData?.pages?.[currentPageIndex]?.url || 'N/A'
+            };
+
+            annotations.push(annotation);
+            input.value = '';
+
+            // Save annotations to localStorage
+            localStorage.setItem('annotations', JSON.stringify(annotations));
+
+            // Update display
+            updateAnnotationsDisplay();
+        }
+
+        function updateAnnotationsDisplay() {
+            const container = document.getElementById('annotations');
+            container.innerHTML = '';
+
+            if (annotations.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-edit"></i><p>No annotations yet</p></div>';
+                return;
+            }
+
+            // Filter annotations for current page if viewing multi-page archive
+            let filteredAnnotations = annotations;
+            if (currentWebsiteData?.pages) {
+                filteredAnnotations = annotations.filter(a => a.pageIndex === currentPageIndex);
+            }
+
+            filteredAnnotations.forEach(annotation => {
+                const annotationDiv = document.createElement('div');
+                annotationDiv.className = 'annotation';
+                annotationDiv.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <strong>${new Date(annotation.timestamp).toLocaleString()}</strong>
+                            <p>${annotation.text}</p>
+                            <small>Page: ${annotation.pageIndex + 1} • URL: ${annotation.url}</small>
+                        </div>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteAnnotation(${annotation.id})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(annotationDiv);
+            });
+        }
+
+        function deleteAnnotation(id) {
+            if (confirm('Delete this annotation?')) {
+                annotations = annotations.filter(a => a.id !== id);
+                localStorage.setItem('annotations', JSON.stringify(annotations));
+                updateAnnotationsDisplay();
+            }
+        }
+
+        // Search functionality
+        function searchContent() {
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
+            if (!query) {
+                alert('Please enter search term');
+                return;
+            }
+
+            const content = document.getElementById('jsonContent').value.toLowerCase();
+            if (!content) {
+                alert('No content to search');
+                return;
+            }
+
+            // Find all occurrences
+            const regex = new RegExp(query, 'gi');
+            const matches = [...content.matchAll(regex)];
+
+            if (matches.length === 0) {
+                alert('No matches found');
+                return;
+            }
+
+            searchResults = matches.map(match => match.index);
+            currentSearchIndex = 0;
+
+            // Highlight first match
+            highlightSearchResult();
+
+            alert(`Found ${matches.length} matches`);
+        }
+
+        function highlightSearchResult() {
+            if (currentSearchIndex < 0 || currentSearchIndex >= searchResults.length) return;
+
+            const textarea = document.getElementById('jsonContent');
+            const content = textarea.value;
+            const query = document.getElementById('searchInput').value.trim();
+
+            // Create highlighted version
+            const regex = new RegExp(`(${query})`, 'gi');
+            const highlighted = content.replace(regex, '<span class="highlight">$1</span>');
+
+            // Update display
+            const container = textarea.parentNode;
+            const highlightedDiv = document.createElement('div');
+            highlightedDiv.className = 'json-highlight';
+            highlightedDiv.style.cssText = textarea.style.cssText;
+            highlightedDiv.style.fontFamily = "'Consolas', 'Monaco', monospace";
+            highlightedDiv.style.whiteSpace = 'pre';
+            highlightedDiv.style.overflow = 'auto';
+            highlightedDiv.innerHTML = highlighted;
+
+            container.replaceChild(highlightedDiv, textarea);
+            highlightedDiv.id = 'jsonContent';
+
+            // Scroll to highlighted position
+            const textBefore = content.substring(0, searchResults[currentSearchIndex]);
+            const lines = textBefore.split('
+').length;
+            highlightedDiv.scrollTop = (lines - 1) * 20;
+        }
+
+        function clearSearch() {
+            searchResults = [];
+            currentSearchIndex = -1;
+            document.getElementById('searchInput').value = '';
+            highlightCode(); // Restore normal highlighting
+        }
+
+        // History management
+        function addToHistory(data) {
+            history.push(data);
+            saveHistory();
+            updateHistoryDisplay();
+        }
+
+        function saveHistory() {
+            localStorage.setItem('scrapingHistory', JSON.stringify(history));
+            updateLastSaved();
+            updateStorageInfo();
+        }
+
+        function clearHistory() {
+            if (confirm('Clear all scraping history? This cannot be undone.')) {
+                history = [];
+                localStorage.removeItem('scrapingHistory');
+                updateHistoryDisplay();
+                updateStats();
+                updateStorageInfo();
+                alert('History cleared');
+            }
+        }
+
+        function updateHistoryDisplay() {
+            const container = document.getElementById('scrapingHistory');
+            container.innerHTML = '';
+
+            if (history.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-history"></i><p>No scraping history yet</p></div>';
+                return;
+            }
+
+            // Show most recent first
+            const recentHistory = [...history].reverse().slice(0, 10);
+
+            recentHistory.forEach((item, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <strong>${item.metadata?.title || 'Untitled'}</strong>
+                            <p class="small">${item.url || 'N/A'}</p>
+                            <small>${new Date(item.timestamp).toLocaleString()}</small>
+                        </div>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="loadFromHistory(${history.length - 1 - index})">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(historyItem);
+            });
+        }
+
+        function loadFromHistory(index) {
+            if (index >= 0 && index < history.length) {
+                scrapedData = history[index];
+                document.getElementById('scrapedContent').value = JSON.stringify(scrapedData, null, 2);
+                highlightCode();
+                alert('Loaded from history');
+            }
+        }
+
+        // Utility functions
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDarkMode ? 'enabled' : 'disabled');
+        }
+
+        function showStats() {
+            const statsPanel = document.getElementById('statsPanel');
+            statsPanel.style.display = statsPanel.style.display === 'none' ? 'flex' : 'none';
+            updateStats();
+        }
+
+        function updateStats() {
+            document.getElementById('totalScrapes').textContent = history.length;
+
+            let totalPages = 0;
+            history.forEach(item => {
+                if (item.pages) {
+                    totalPages += item.pages.length;
+                } else {
+                    totalPages += 1;
+                }
+            });
+            document.getElementById('totalPages').textContent = totalPages;
+
+            // Calculate approximate data size
+            const dataSize = JSON.stringify(history).length;
+            document.getElementById('totalSize').textContent = `${Math.round(dataSize / 1024)} KB`;
+
+            // Last scrape time
+            if (history.length > 0) {
+                const lastScrape = history[history.length - 1].timestamp;
+                document.getElementById('lastScrape').textContent = new Date(lastScrape).toLocaleDateString();
+            } else {
+                document.getElementById('lastScrape').textContent = 'Never';
+            }
+        }
+
+        function updateStorageInfo() {
+            const dataSize = JSON.stringify(history).length + JSON.stringify(annotations).length;
+            const element = document.getElementById('storageInfo');
+            element.textContent = `Storage: ${Math.round(dataSize / 1024)} KB used`;
+        }
+
+        function updateLastSaved() {
+            const element = document.getElementById('lastSaved');
+            element.textContent = new Date().toLocaleString();
+        }
+
+        function showHelp() {
+            alert(`JSON Website-Scraper v3.0 Help:
+
+1. WEB SCRAPER:
+   - Enter URL and click "Scrape Website"
+   - Choose content type (headings, paragraphs, images, etc.)
+   - Enable recursive scraping for entire websites
+   - Save scraped data as JSON files
+
+2. OFFLINE READER:
+   - Load saved JSON files
+   - Navigate multi-page archives
+   - Highlight JSON syntax
+   - Generate table of contents
+   - Text-to-speech functionality
+   - Add annotations and search content
+
+3. DATA MANAGEMENT:
+   - All data stored locally in your browser
+   - Export/import functionality
+   - Dark/light mode toggle
+   - Auto-save every minute
+
+Keyboard Shortcuts:
+- Enter: Submit URL/search
+- Double-click JSON: Edit mode
+- Auto-save: Every 60 seconds`);
+        }
+
+        function previewScraped() {
+            if (!scrapedData) {
+                alert('No scraped data to preview');
+                return;
+            }
+
+            const previewWindow = window.open('', '_blank');
+            previewWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Preview: ${scrapedData.metadata?.title || 'Scraped Content'}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; }
+                        img { max-width: 100%; height: auto; }
+                    </style>
+                </head>
+                <body>
+                    <h1>${scrapedData.metadata?.title || 'Preview'}</h1>
+                    <p><strong>URL:</strong> ${scrapedData.url}</p>
+                    <p><strong>Scraped:</strong> ${new Date(scrapedData.timestamp).toLocaleString()}</p>
+                    <hr>
+                    <div>${scrapedData.content}</div>
+                </body>
+                </html>
+            `);
+            previewWindow.document.close();
+        }
+
+        function clearScraped() {
+            if (confirm('Clear scraped content?')) {
+                document.getElementById('scrapedContent').value = '';
+                scrapedData = null;
+            }
+        }
+
+        function updateScrapingOptions() {
+            const elementType = document.getElementById('elementType').value;
+            console.log('Scraping mode changed to:', elementType);
+        }
+
+        // Load saved annotations
+        function loadAnnotations() {
+            const savedAnnotations = localStorage.getItem('annotations');
+            if (savedAnnotations) {
+                try {
+                    annotations = JSON.parse(savedAnnotations);
+                    updateAnnotationsDisplay();
+                } catch (error) {
+                    console.error('Error loading annotations:', error);
+                }
+            }
+        }
+
+        // Initialize app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            initApp();
+            loadAnnotations();
+            console.log('JSON Website-Scraper v3.0 loaded successfully');
+        });
+    </script>
+
+</body></html>

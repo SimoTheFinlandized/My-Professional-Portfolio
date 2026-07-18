@@ -1,0 +1,1206 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeQuest RPG - Level Up Your Life</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&amp;family=Philosopher:wght@400;700&amp;family=Quicksand:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #0d0a1a;
+            --bg-card: #1a1428;
+            --bg-card-hover: #241d38;
+            --accent-gold: #ffd700;
+            --accent-gold-dim: #b8960f;
+            --accent-purple: #9d4edd;
+            --accent-blue: #4cc9f0;
+            --accent-green: #2ecc71;
+            --accent-red: #e74c3c;
+            --accent-orange: #f39c12;
+            --accent-pink: #ff6b9d;
+            --text-primary: #f0e6d3;
+            --text-secondary: #a89f8a;
+            --text-muted: #6b6259;
+            --border: #3d3154;
+            --xp-bar: linear-gradient(90deg, #9d4edd, #4cc9f0);
+        }
+
+        .light {
+            --bg-dark: #f5f0e8;
+            --bg-card: #ffffff;
+            --bg-card-hover: #f0ebe3;
+            --accent-gold: #d4a500;
+            --accent-gold-dim: #a88200;
+            --text-primary: #2d2418;
+            --text-secondary: #5c5244;
+            --text-muted: #8a8075;
+            --border: #d4cfc5;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        .font-display {
+            font-family: 'Cinzel', serif;
+        }
+
+        .font-accent {
+            font-family: 'Philosopher', sans-serif;
+        }
+
+        /* Magical background */
+        .magic-bg {
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(157, 78, 221, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(76, 201, 240, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(255, 215, 0, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Floating particles */
+        .particle {
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            background: var(--accent-gold);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float 15s infinite ease-in-out;
+            pointer-events: none;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.5; }
+            90% { opacity: 0.5; }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* Card styling */
+        .quest-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quest-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--xp-bar);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .quest-card:hover::before {
+            opacity: 1;
+        }
+
+        /* Stat bars */
+        .stat-bar {
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .stat-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        /* XP bar */
+        .xp-bar-container {
+            height: 12px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .xp-bar-fill {
+            height: 100%;
+            background: var(--xp-bar);
+            border-radius: 6px;
+            transition: width 0.5s ease;
+            position: relative;
+        }
+
+        .xp-bar-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* Level badge */
+        .level-badge {
+            background: linear-gradient(135deg, var(--accent-gold) 0%, var(--accent-gold-dim) 100%);
+            color: var(--bg-dark);
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-purple) 0%, #7b2cbf 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(157, 78, 221, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-secondary);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+        }
+
+        .btn-complete {
+            background: linear-gradient(135deg, var(--accent-green) 0%, #27ae60 100%);
+            color: white;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .btn-complete:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(46, 204, 113, 0.5);
+        }
+
+        /* Category icons */
+        .category-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        /* Tabs */
+        .tab-btn {
+            padding: 12px 16px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 2px solid transparent;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .tab-btn.active {
+            color: var(--accent-gold);
+            border-bottom-color: var(--accent-gold);
+        }
+
+        /* Boon cards */
+        .boon-card {
+            background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-card-hover) 100%);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .boon-card.unlocked {
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+        }
+
+        .boon-card.locked {
+            opacity: 0.5;
+            filter: grayscale(0.5);
+        }
+
+        .boon-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin: 0 auto 12px;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 16px;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 400px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        /* Input styling */
+        .form-input {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 16px;
+            width: 100%;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-purple);
+        }
+
+        .form-select {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 16px;
+            width: 100%;
+            font-family: 'Quicksand', sans-serif;
+            cursor: pointer;
+        }
+
+        /* Level up animation */
+        .level-up-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .level-up-text {
+            font-family: 'Cinzel', serif;
+            font-size: 48px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-gold), #fff, var(--accent-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: pulse 0.5s ease infinite alternate;
+            text-align: center;
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Streak flame */
+        .streak-flame {
+            animation: flicker 0.5s ease infinite alternate;
+        }
+
+        @keyframes flicker {
+            from { transform: scale(1) rotate(-2deg); }
+            to { transform: scale(1.1) rotate(2deg); }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        /* Quest complete animation */
+        .quest-completing {
+            animation: questComplete 0.5s ease forwards;
+        }
+
+        @keyframes questComplete {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.02); background: rgba(46, 204, 113, 0.2); }
+            100% { transform: scale(0.95); opacity: 0; }
+        }
+
+        /* XP popup */
+        .xp-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Cinzel', serif;
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--accent-gold);
+            text-shadow: 0 0 20px var(--accent-gold);
+            animation: xpPop 1s ease forwards;
+            pointer-events: none;
+            z-index: 1500;
+        }
+
+        @keyframes xpPop {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            20% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+            80% { opacity: 1; }
+            100% { transform: translate(-50%, -150%) scale(1); opacity: 0; }
+        }
+
+        /* Nav dots for mobile */
+        .nav-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--border);
+            transition: all 0.3s;
+        }
+
+        .nav-dot.active {
+            background: var(--accent-gold);
+            width: 24px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="magic-bg"></div>
+
+    <!-- Floating particles -->
+    <div id="particles"></div>
+
+    <div class="relative min-h-screen pb-20">
+        <!-- Header / Character Panel -->
+        <header class="sticky top-0 z-50 p-4" style="background: linear-gradient(180deg, var(--bg-dark) 0%, var(--bg-dark) 80%, transparent 100%);">
+            <div class="max-w-lg mx-auto">
+                <div class="quest-card p-4">
+                    <div class="flex items-center gap-4">
+                        <!-- Avatar -->
+                        <div class="relative">
+                            <div class="w-16 h-16 rounded-full overflow-hidden border-2" style="border-color: var(--accent-gold); background: var(--bg-dark);">
+                                <div id="avatarDisplay" class="w-full h-full flex items-center justify-center text-3xl">⚔️</div>
+                            </div>
+                            <div class="level-badge w-7 h-7 text-sm absolute -bottom-1 -right-1" id="levelBadge">1</div>
+                        </div>
+
+                        <!-- Info -->
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between mb-1">
+                                <h1 class="font-display font-bold text-lg truncate" id="heroName">Hero</h1>
+                                <span class="text-xs font-accent" style="color: var(--accent-gold);" id="heroTitle">Novice</span>
+                            </div>
+
+                            <!-- XP Bar -->
+                            <div class="mb-2">
+                                <div class="flex justify-between text-xs mb-1" style="color: var(--text-muted);">
+                                    <span>Level <span id="currentLevel">1</span></span>
+                                    <span><span id="currentXP">0</span>/<span id="xpToLevel">100</span> XP</span>
+                                </div>
+                                <div class="xp-bar-container">
+                                    <div class="xp-bar-fill" id="xpBarFill" style="width: 0%;"></div>
+                                </div>
+                            </div>
+
+                            <!-- Quick Stats -->
+                            <div class="flex gap-3 text-xs">
+                                <span style="color: var(--accent-orange);"><i class="fas fa-fire streak-flame"></i> <span id="streakCount">0</span></span>
+                                <span style="color: var(--accent-green);"><i class="fas fa-check-circle"></i> <span id="questsCompleted">0</span></span>
+                                <span style="color: var(--accent-purple);"><i class="fas fa-gem"></i> <span id="boonsUnlocked">0</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="max-w-lg mx-auto px-4">
+            <!-- Tabs -->
+            <div class="flex justify-center gap-2 mb-4 overflow-x-auto">
+                <button class="tab-btn active" data-tab="quests"><i class="fas fa-scroll mr-2"></i>Quests</button>
+                <button class="tab-btn" data-tab="stats"><i class="fas fa-chart-line mr-2"></i>Stats</button>
+                <button class="tab-btn" data-tab="boons"><i class="fas fa-star mr-2"></i>Boons</button>
+            </div>
+
+            <!-- Quests Tab -->
+            <div id="questsTab" class="tab-content">
+                <!-- Daily Quests -->
+                <div class="mb-6">
+                    <div class="flex items-center justify-between mb-3">
+                        <h2 class="font-display font-semibold flex items-center gap-2">
+                            <i class="fas fa-sun" style="color: var(--accent-orange);"></i> Daily Quests
+                        </h2>
+                        <button class="text-sm" style="color: var(--accent-purple);" onclick="openAddQuestModal('daily')">
+                            <i class="fas fa-plus-circle"></i> Add
+                        </button>
+                    </div>
+                    <div id="dailyQuestsList" class="space-y-3">
+                        <!-- Daily quests render here -->
+                    </div>
+                </div>
+
+                <!-- Main Quests -->
+                <div class="mb-6">
+                    <div class="flex items-center justify-between mb-3">
+                        <h2 class="font-display font-semibold flex items-center gap-2">
+                            <i class="fas fa-crown" style="color: var(--accent-gold);"></i> Main Quests
+                        </h2>
+                        <button class="text-sm" style="color: var(--accent-purple);" onclick="openAddQuestModal('main')">
+                            <i class="fas fa-plus-circle"></i> Add
+                        </button>
+                    </div>
+                    <div id="mainQuestsList" class="space-y-3">
+                        <!-- Main quests render here -->
+                    </div>
+                </div>
+
+                <!-- Side Quests -->
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <h2 class="font-display font-semibold flex items-center gap-2">
+                            <i class="fas fa-map-marked-alt" style="color: var(--accent-blue);"></i> Side Quests
+                        </h2>
+                        <button class="text-sm" style="color: var(--accent-purple);" onclick="openAddQuestModal('side')">
+                            <i class="fas fa-plus-circle"></i> Add
+                        </button>
+                    </div>
+                    <div id="sideQuestsList" class="space-y-3">
+                        <!-- Side quests render here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Tab -->
+            <div id="statsTab" class="tab-content hidden">
+                <div class="quest-card p-5">
+                    <h2 class="font-display font-semibold mb-4 text-center">Character Attributes</h2>
+                    <div class="space-y-4" id="statsContainer">
+                        <!-- Stats render here -->
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="quest-card p-5 mt-4">
+                    <h2 class="font-display font-semibold mb-4">Recent Adventures</h2>
+                    <div id="activityLog" class="space-y-2 max-h-60 overflow-y-auto">
+                        <!-- Activity log renders here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Boons Tab -->
+            <div id="boonsTab" class="tab-content hidden">
+                <div class="text-center mb-4">
+                    <p class="text-sm" style="color: var(--text-secondary);">Complete quests and level up to unlock powerful boons!</p>
+                </div>
+                <div class="grid grid-cols-2 gap-3" id="boonsGrid">
+                    <!-- Boons render here -->
+                </div>
+            </div>
+        </main>
+
+        <!-- Floating Add Button -->
+        <button class="fixed bottom-6 right-6 w-14 h-14 rounded-full btn-primary flex items-center justify-center text-xl shadow-lg z-40" onclick="openAddQuestModal('side')">
+            <i class="fas fa-plus"></i>
+        </button>
+    </div>
+
+    <!-- Add Quest Modal -->
+    <div id="addQuestModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-display font-semibold text-lg">New Quest</h3>
+                <button onclick="closeAddQuestModal()" class="text-xl" style="color: var(--text-muted);">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <form id="addQuestForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold mb-2" style="color: var(--text-secondary);">Quest Name</label>
+                    <input type="text" id="questName" class="form-input" placeholder="e.g., Run 5km" required="">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold mb-2" style="color: var(--text-secondary);">Category</label>
+                    <select id="questCategory" class="form-select">
+                        <option value="fitness">💪 Fitness</option>
+                        <option value="learning">📚 Learning</option>
+                        <option value="health">🧘 Health &amp; Wellness</option>
+                        <option value="social">👥 Social</option>
+                        <option value="productivity">⚡ Productivity</option>
+                        <option value="creativity">🎨 Creativity</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold mb-2" style="color: var(--text-secondary);">Quest Type</label>
+                    <select id="questType" class="form-select">
+                        <option value="daily">🌅 Daily (Repeatable)</option>
+                        <option value="main">👑 Main Quest (One-time)</option>
+                        <option value="side">🗺️ Side Quest (One-time)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold mb-2" style="color: var(--text-secondary);">Difficulty</label>
+                    <div class="flex gap-2">
+                        <button type="button" class="difficulty-btn flex-1 py-2 rounded-lg border text-sm transition-all" data-difficulty="easy" style="border-color: var(--accent-green); color: var(--accent-green);">Easy</button>
+                        <button type="button" class="difficulty-btn flex-1 py-2 rounded-lg border text-sm transition-all" data-difficulty="medium" style="border-color: var(--accent-orange); color: var(--accent-orange);">Medium</button>
+                        <button type="button" class="difficulty-btn flex-1 py-2 rounded-lg border text-sm transition-all" data-difficulty="hard" style="border-color: var(--accent-red); color: var(--accent-red);">Hard</button>
+                    </div>
+                </div>
+
+                <input type="hidden" id="selectedDifficulty" value="easy">
+
+                <button type="submit" class="btn-primary w-full mt-4">
+                    <i class="fas fa-plus mr-2"></i> Add Quest
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Level Up Overlay -->
+    <div id="levelUpOverlay" class="level-up-overlay hidden">
+        <div class="level-up-text mb-4">LEVEL UP!</div>
+        <div class="level-badge w-24 h-24 text-4xl mb-6" id="newLevelDisplay">2</div>
+        <p class="font-accent text-xl mb-2" style="color: var(--accent-gold);" id="newTitleDisplay">Apprentice</p>
+        <p class="text-sm mb-6" style="color: var(--text-secondary);" id="levelUpMessage">You've grown stronger!</p>
+        <button class="btn-primary" onclick="closeLevelUp()">Continue</button>
+    </div>
+
+    <!-- Boon Unlock Overlay -->
+    <div id="boonUnlockOverlay" class="level-up-overlay hidden">
+        <div class="text-4xl mb-4">✨</div>
+        <div class="font-display text-2xl mb-4" style="color: var(--accent-gold);">Boon Unlocked!</div>
+        <div class="boon-icon mb-4" id="unlockedBoonIcon" style="background: var(--accent-purple);">🌟</div>
+        <p class="font-accent text-xl mb-2" id="unlockedBoonName">New Power</p>
+        <p class="text-sm mb-6 max-w-xs text-center" style="color: var(--text-secondary);" id="unlockedBoonDesc">Description</p>
+        <button class="btn-primary" onclick="closeBoonUnlock()">Awesome!</button>
+    </div>
+
+    <script>
+        // ============ GAME STATE ============
+        let gameState = {
+            hero: {
+                name: "Hero",
+                avatar: "⚔️",
+                level: 1,
+                xp: 0,
+                title: "Novice"
+            },
+            stats: {
+                strength: { value: 5, max: 100, icon: "💪", color: "#e74c3c", name: "Strength" },
+                intellect: { value: 5, max: 100, icon: "🧠", color: "#9d4edd", name: "Intellect" },
+                vitality: { value: 5, max: 100, icon: "❤️", color: "#2ecc71", name: "Vitality" },
+                charisma: { value: 5, max: 100, icon: "✨", color: "#f39c12", name: "Charisma" },
+                discipline: { value: 5, max: 100, icon: "🎯", color: "#4cc9f0", name: "Discipline" },
+                creativity: { value: 5, max: 100, icon: "🎨", color: "#ff6b9d", name: "Creativity" }
+            },
+            quests: {
+                daily: [],
+                main: [],
+                side: []
+            },
+            completedQuests: 0,
+            streak: 0,
+            lastCompletionDate: null,
+            activityLog: [],
+            unlockedBoons: []
+        };
+
+        // ============ CONSTANTS ============
+        const TITLES = [
+            { level: 1, title: "Novice" },
+            { level: 5, title: "Apprentice" },
+            { level: 10, title: "Journeyman" },
+            { level: 15, title: "Adept" },
+            { level: 20, title: "Expert" },
+            { level: 30, title: "Master" },
+            { level: 40, title: "Grandmaster" },
+            { level: 50, title: "Legend" },
+            { level: 75, title: "Mythic" },
+            { level: 100, title: "Transcendent" }
+        ];
+
+        const BOONS = [
+            { id: 1, name: "Early Riser", icon: "🌅", desc: "Your morning quests feel easier", requirement: { type: "quests", count: 5 }, color: "#f39c12" },
+            { id: 2, name: "Iron Will", icon: "🛡️", desc: "+10% XP for discipline quests", requirement: { type: "level", count: 3 }, color: "#4cc9f0" },
+            { id: 3, name: "Knowledge Seeker", icon: "📖", desc: "Learning brings wisdom", requirement: { type: "quests", count: 10 }, color: "#9d4edd" },
+            { id: 4, name: "Social Butterfly", icon: "🦋", desc: "Connections strengthen you", requirement: { type: "level", count: 5 }, color: "#ff6b9d" },
+            { id: 5, name: "Warrior Spirit", icon: "⚔️", desc: "Physical challenges fear you", requirement: { type: "quests", count: 20 }, color: "#e74c3c" },
+            { id: 6, name: "Zen Master", icon: "🧘", desc: "Inner peace grants power", requirement: { type: "level", count: 10 }, color: "#2ecc71" },
+            { id: 7, name: "Creative Genius", icon: "💡", desc: "Your imagination knows no bounds", requirement: { type: "quests", count: 30 }, color: "#ffd700" },
+            { id: 8, name: "Streak Hunter", icon: "🔥", desc: "Consistency is your strength", requirement: { type: "streak", count: 7 }, color: "#ff6b35" },
+            { id: 9, name: "Perfectionist", icon: "💎", desc: "Quality over quantity", requirement: { type: "level", count: 15 }, color: "#00d4ff" },
+            { id: 10, name: "Life Master", icon: "👑", desc: "You've mastered the art of living", requirement: { type: "quests", count: 50 }, color: "#ffd700" },
+            { id: 11, name: "Unstoppable", icon: "🚀", desc: "Nothing can hold you back", requirement: { type: "streak", count: 30 }, color: "#9d4edd" },
+            { id: 12, name: "Legend", icon: "🌟", desc: "Your story will be told for ages", requirement: { type: "level", count: 25 }, color: "#ffd700" }
+        ];
+
+        const CATEGORY_CONFIG = {
+            fitness: { icon: "💪", color: "#e74c3c", stat: "strength" },
+            learning: { icon: "📚", color: "#9d4edd", stat: "intellect" },
+            health: { icon: "🧘", color: "#2ecc71", stat: "vitality" },
+            social: { icon: "👥", color: "#f39c12", stat: "charisma" },
+            productivity: { icon: "⚡", color: "#4cc9f0", stat: "discipline" },
+            creativity: { icon: "🎨", color: "#ff6b9d", stat: "creativity" }
+        };
+
+        const DIFFICULTY_XP = {
+            easy: 25,
+            medium: 50,
+            hard: 100
+        };
+
+        const AVATARS = ["⚔️", "🧙", "🏹", "🛡️", "🐉", "🦊", "🐺", "🦅", "🔮", "💫"];
+
+        // ============ INITIALIZATION ============
+        function init() {
+            createParticles();
+            initDefaultQuests();
+            setupEventListeners();
+            render();
+            checkStreak();
+        }
+
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 15; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                container.appendChild(particle);
+            }
+        }
+
+        function initDefaultQuests() {
+            gameState.quests.daily = [
+                { id: 1, name: "Morning Workout", category: "fitness", difficulty: "medium", completed: false },
+                { id: 2, name: "Read for 30 minutes", category: "learning", difficulty: "easy", completed: false },
+                { id: 3, name: "Meditate 10 minutes", category: "health", difficulty: "easy", completed: false },
+                { id: 4, name: "Drink 8 glasses of water", category: "health", difficulty: "easy", completed: false }
+            ];
+            gameState.quests.main = [
+                { id: 5, name: "Complete online course", category: "learning", difficulty: "hard", completed: false },
+                { id: 6, name: "Run a 5K race", category: "fitness", difficulty: "hard", completed: false }
+            ];
+            gameState.quests.side = [
+                { id: 7, name: "Call a friend", category: "social", difficulty: "easy", completed: false },
+                { id: 8, name: "Try a new recipe", category: "creativity", difficulty: "medium", completed: false }
+            ];
+        }
+
+        function setupEventListeners() {
+            // Tab switching
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+            });
+
+            // Difficulty buttons
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                btn.addEventListener('click', () => selectDifficulty(btn.dataset.difficulty));
+            });
+
+            // Add quest form
+            document.getElementById('addQuestForm').addEventListener('submit', handleAddQuest);
+
+            // Dark mode detection
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+                document.documentElement.classList.add('light');
+            }
+            window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', event => {
+                document.documentElement.classList.toggle('light', event.matches);
+            });
+        }
+
+        // ============ RENDERING ============
+        function render() {
+            renderHeroPanel();
+            renderQuests();
+            renderStats();
+            renderBoons();
+            renderActivityLog();
+        }
+
+        function renderHeroPanel() {
+            document.getElementById('avatarDisplay').textContent = gameState.hero.avatar;
+            document.getElementById('heroName').textContent = gameState.hero.name;
+            document.getElementById('heroTitle').textContent = gameState.hero.title;
+            document.getElementById('levelBadge').textContent = gameState.hero.level;
+            document.getElementById('currentLevel').textContent = gameState.hero.level;
+            document.getElementById('currentXP').textContent = gameState.hero.xp;
+
+            const xpNeeded = getXPForLevel(gameState.hero.level + 1);
+            const xpForCurrentLevel = getXPForLevel(gameState.hero.level);
+            const xpProgress = gameState.hero.xp - xpForCurrentLevel;
+            const xpRequired = xpNeeded - xpForCurrentLevel;
+
+            document.getElementById('xpToLevel').textContent = xpRequired;
+            document.getElementById('xpBarFill').style.width = `${(xpProgress / xpRequired) * 100}%`;
+
+            document.getElementById('streakCount').textContent = gameState.streak;
+            document.getElementById('questsCompleted').textContent = gameState.completedQuests;
+            document.getElementById('boonsUnlocked').textContent = gameState.unlockedBoons.length;
+        }
+
+        function renderQuests() {
+            ['daily', 'main', 'side'].forEach(type => {
+                const container = document.getElementById(`${type}QuestsList`);
+                const quests = gameState.quests[type].filter(q => !q.completed);
+
+                if (quests.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-4" style="color: var(--text-muted);">
+                            <i class="fas fa-check-circle text-2xl mb-2"></i>
+                            <p class="text-sm">All ${type} quests complete!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = quests.map(quest => {
+                    const config = CATEGORY_CONFIG[quest.category];
+                    const xp = DIFFICULTY_XP[quest.difficulty];
+                    return `
+                        <div class="quest-card p-3 flex items-center gap-3" id="quest-${quest.id}">
+                            <div class="category-icon" style="background: ${config.color}20; color: ${config.color};">
+                                ${config.icon}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="font-semibold truncate">${quest.name}</p>
+                                <div class="flex items-center gap-2 text-xs" style="color: var(--text-muted);">
+                                    <span style="color: ${getDifficultyColor(quest.difficulty)};">${quest.difficulty}</span>
+                                    <span>•</span>
+                                    <span style="color: var(--accent-gold);">+${xp} XP</span>
+                                </div>
+                            </div>
+                            <button class="btn-complete" onclick="completeQuest('${type}', ${quest.id})">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+            });
+        }
+
+        function renderStats() {
+            const container = document.getElementById('statsContainer');
+            container.innerHTML = Object.entries(gameState.stats).map(([key, stat]) => `
+                <div class="flex items-center gap-3">
+                    <div class="text-2xl w-10 text-center">${stat.icon}</div>
+                    <div class="flex-1">
+                        <div class="flex justify-between mb-1">
+                            <span class="font-semibold">${stat.name}</span>
+                            <span style="color: ${stat.color};">${stat.value}</span>
+                        </div>
+                        <div class="stat-bar">
+                            <div class="stat-fill" style="width: ${stat.value}%; background: ${stat.color};"></div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderBoons() {
+            const container = document.getElementById('boonsGrid');
+            container.innerHTML = BOONS.map(boon => {
+                const unlocked = gameState.unlockedBoons.includes(boon.id);
+                const progress = getBoonProgress(boon);
+                return `
+                    <div class="boon-card ${unlocked ? 'unlocked' : 'locked'}">
+                        <div class="boon-icon" style="background: ${unlocked ? boon.color + '30' : 'var(--bg-dark)'}; color: ${boon.color};">
+                            ${boon.icon}
+                        </div>
+                        <p class="font-semibold text-sm mb-1">${boon.name}</p>
+                        <p class="text-xs mb-2" style="color: var(--text-muted);">${boon.desc}</p>
+                        ${!unlocked ? `
+                            <div class="stat-bar mt-2">
+                                <div class="stat-fill" style="width: ${progress}%; background: ${boon.color};"></div>
+                            </div>
+                            <p class="text-xs mt-1" style="color: var(--text-muted);">${getRequirementText(boon)}</p>
+                        ` : '<p class="text-xs" style="color: var(--accent-gold);"><i class="fas fa-check"></i> Unlocked</p>'}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderActivityLog() {
+            const container = document.getElementById('activityLog');
+            if (gameState.activityLog.length === 0) {
+                container.innerHTML = '<p class="text-center text-sm" style="color: var(--text-muted);">No adventures yet. Complete quests to begin!</p>';
+                return;
+            }
+
+            container.innerHTML = gameState.activityLog.slice(-10).reverse().map(log => `
+                <div class="flex items-center gap-2 text-sm py-2" style="border-bottom: 1px solid var(--border);">
+                    <span class="text-lg">${log.icon}</span>
+                    <span class="flex-1">${log.message}</span>
+                    <span class="text-xs" style="color: var(--text-muted);">${log.time}</span>
+                </div>
+            `).join('');
+        }
+
+        // ============ QUEST MANAGEMENT ============
+        function completeQuest(type, questId) {
+            const questIndex = gameState.quests[type].findIndex(q => q.id === questId);
+            if (questIndex === -1) return;
+
+            const quest = gameState.quests[type][questIndex];
+            const xpGained = DIFFICULTY_XP[quest.difficulty];
+            const config = CATEGORY_CONFIG[quest.category];
+
+            // Animate quest card
+            const card = document.getElementById(`quest-${questId}`);
+            if (card) {
+                card.classList.add('quest-completing');
+            }
+
+            // Show XP popup
+            showXPPopup(xpGained);
+
+            setTimeout(() => {
+                // Mark as completed
+                quest.completed = true;
+                gameState.completedQuests++;
+
+                // Add XP
+                addXP(xpGained);
+
+                // Increase stat
+                gameState.stats[config.stat].value = Math.min(100, gameState.stats[config.stat].value + getStatGain(quest.difficulty));
+
+                // Update streak
+                updateStreak();
+
+                // Add to activity log
+                addActivityLog(config.icon, `Completed: ${quest.name}`, '+' + xpGained + ' XP');
+
+                // Check for boon unlocks
+                checkBoonUnlocks();
+
+                // Re-render
+                render();
+            }, 500);
+        }
+
+        function getStatGain(difficulty) {
+            return { easy: 1, medium: 2, hard: 4 }[difficulty];
+        }
+
+        function showXPPopup(xp) {
+            const popup = document.createElement('div');
+            popup.className = 'xp-popup';
+            popup.textContent = `+${xp} XP`;
+            document.body.appendChild(popup);
+            setTimeout(() => popup.remove(), 1000);
+        }
+
+        // ============ XP & LEVELING ============
+        function getXPForLevel(level) {
+            return Math.floor(100 * Math.pow(1.5, level - 1));
+        }
+
+        function addXP(amount) {
+            gameState.hero.xp += amount;
+
+            // Check for level up
+            while (gameState.hero.xp >= getXPForLevel(gameState.hero.level + 1)) {
+                levelUp();
+            }
+        }
+
+        function levelUp() {
+            gameState.hero.level++;
+
+            // Update title
+            const newTitle = TITLES.filter(t => t.level <= gameState.hero.level).pop();
+            gameState.hero.title = newTitle.title;
+
+            // Show level up overlay
+            document.getElementById('newLevelDisplay').textContent = gameState.hero.level;
+            document.getElementById('newTitleDisplay').textContent = gameState.hero.title;
+            document.getElementById('levelUpMessage').textContent = getLevelUpMessage();
+            document.getElementById('levelUpOverlay').classList.remove('hidden');
+
+            addActivityLog('⬆️', `Reached Level ${gameState.hero.level}!`, gameState.hero.title);
+        }
+
+        function getLevelUpMessage() {
+            const messages = [
+                "Your power grows!",
+                "The world takes notice!",
+                "New heights achieved!",
+                "Your legend expands!",
+                "Strength flows through you!",
+                "You've grown stronger!"
+            ];
+            return messages[Math.floor(Math.random() * messages.length)];
+        }
+
+        function closeLevelUp() {
+            document.getElementById('levelUpOverlay').classList.add('hidden');
+            checkBoonUnlocks();
+            render();
+        }
+
+        // ============ STREAK MANAGEMENT ============
+        function checkStreak() {
+            const today = new Date().toDateString();
+            const yesterday = new Date(Date.now() - 86400000).toDateString();
+
+            if (gameState.lastCompletionDate === yesterday) {
+                // Streak continues
+            } else if (gameState.lastCompletionDate !== today) {
+                // Streak broken
+                gameState.streak = 0;
+            }
+        }
+
+        function updateStreak() {
+            const today = new Date().toDateString();
+            const yesterday = new Date(Date.now() - 86400000).toDateString();
+
+            if (gameState.lastCompletionDate !== today) {
+                if (gameState.lastCompletionDate === yesterday || gameState.lastCompletionDate === null) {
+                    gameState.streak++;
+                } else {
+                    gameState.streak = 1;
+                }
+                gameState.lastCompletionDate = today;
+            }
+        }
+
+        // ============ BOONS ============
+        function getBoonProgress(boon) {
+            switch (boon.requirement.type) {
+                case 'quests':
+                    return Math.min(100, (gameState.completedQuests / boon.requirement.count) * 100);
+                case 'level':
+                    return Math.min(100, (gameState.hero.level / boon.requirement.count) * 100);
+                case 'streak':
+                    return Math.min(100, (gameState.streak / boon.requirement.count) * 100);
+                default:
+                    return 0;
+            }
+        }
+
+        function getRequirementText(boon) {
+            switch (boon.requirement.type) {
+                case 'quests':
+                    return `${gameState.completedQuests}/${boon.requirement.count} quests`;
+                case 'level':
+                    return `Level ${gameState.hero.level}/${boon.requirement.count}`;
+                case 'streak':
+                    return `${gameState.streak}/${boon.requirement.count} day streak`;
+                default:
+                    return '';
+            }
+        }
+
+        function checkBoonUnlocks() {
+            BOONS.forEach(boon => {
+                if (gameState.unlockedBoons.includes(boon.id)) return;
+
+                let unlocked = false;
+                switch (boon.requirement.type) {
+                    case 'quests':
+                        unlocked = gameState.completedQuests >= boon.requirement.count;
+                        break;
+                    case 'level':
+                        unlocked = gameState.hero.level >= boon.requirement.count;
+                        break;
+                    case 'streak':
+                        unlocked = gameState.streak >= boon.requirement.count;
+                        break;
+                }
+
+                if (unlocked) {
+                    gameState.unlockedBoons.push(boon.id);
+                    showBoonUnlock(boon);
+                }
+            });
+        }
+
+        function showBoonUnlock(boon) {
+            document.getElementById('unlockedBoonIcon').textContent = boon.icon;
+            document.getElementById('unlockedBoonIcon').style.background = boon.color + '30';
+            document.getElementById('unlockedBoonName').textContent = boon.name;
+            document.getElementById('unlockedBoonDesc').textContent = boon.desc;
+            document.getElementById('boonUnlockOverlay').classList.remove('hidden');
+
+            addActivityLog('🌟', `Unlocked: ${boon.name}`, 'Boon');
+        }
+
+        function closeBoonUnlock() {
+            document.getElementById('boonUnlockOverlay').classList.add('hidden');
+            render();
+        }
+
+        // ============ UI HELPERS ============
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.tab === tabName);
+            });
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            document.getElementById(`${tabName}Tab`).classList.remove('hidden');
+        }
+
+        function getDifficultyColor(difficulty) {
+            return { easy: '#2ecc71', medium: '#f39c12', hard: '#e74c3c' }[difficulty];
+        }
+
+        function selectDifficulty(difficulty) {
+            document.querySelectorAll('.difficulty-btn').forEach(btn => {
+                const isSelected = btn.dataset.difficulty === difficulty;
+                btn.style.background = isSelected ? getDifficultyColor(difficulty) + '30' : 'transparent';
+            });
+            document.getElementById('selectedDifficulty').value = difficulty;
+        }
+
+        function openAddQuestModal(type) {
+            document.getElementById('questType').value = type;
+            document.getElementById('addQuestModal').classList.remove('hidden');
+            document.getElementById('questName').focus();
+            selectDifficulty('easy');
+        }
+
+        function closeAddQuestModal() {
+            document.getElementById('addQuestModal').classList.add('hidden');
+            document.getElementById('addQuestForm').reset();
+        }
+
+        function handleAddQuest(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('questName').value.trim();
+            const category = document.getElementById('questCategory').value;
+            const type = document.getElementById('questType').value;
+            const difficulty = document.getElementById('selectedDifficulty').value;
+
+            if (!name) return;
+
+            const newQuest = {
+                id: Date.now(),
+                name,
+                category,
+                difficulty,
+                completed: false
+            };
+
+            gameState.quests[type].push(newQuest);
+
+            addActivityLog('📜', `New quest: ${name}`, type);
+
+            closeAddQuestModal();
+            render();
+        }
+
+        function addActivityLog(icon, message, tag) {
+            const now = new Date();
+            const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            gameState.activityLog.push({ icon, message, tag, time });
+        }
+
+        // ============ INIT ============
+        init();
+    </script>
+
+
+
+</body></html>

@@ -1,0 +1,415 @@
+{
+  "name": "📚 Ebook Creator — Fiction & Nonfiction (Humanized, Sourced)",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 📚 Ebook Creator\n**Fiction & Nonfiction · Model-agnostic · Humanizer · Source Lookup**\n\nOne form branches into two pipelines:\n\n**Fiction:** Story Architect Agent (story bible + chapter outline) → Chapter Writer → Humanizer\n\n**Nonfiction:** Research Agent (Tavily+Wikipedia) → Outliner Agent → Chapter Writer (cites sources) → Humanizer\n\nBoth converge on one Compile step that assembles the full manuscript with a TOC and (for nonfiction) a References section.",
+        "height": 280,
+        "width": 480,
+        "color": 7
+      },
+      "id": "eb-note-about",
+      "name": "📋 About",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-80, 60]
+    },
+    {
+      "parameters": {
+        "content": "## ⚙️ One-Time Setup\n\n**1 · Chat Model credential**\nAll LLM nodes ship as `lmChatOpenAi`. Swap the node type to change providers.\n\n**2 · Tavily API key**\nOnly used on the nonfiction branch. Attach to `🌐 Tavily Web Search`.\n\n**3 · Branching**\nThe `🔀 Fiction or Nonfiction?` IF node routes on the form's Genre Type field. Only the matching branch executes each run.\n\n**4 · Per-chapter fan-out**\n`🧩 Normalize Chapters` turns the outline into one item per chapter — Chapter Writer and Humanizer then run once per chapter automatically.\n\n**5 · Activate** and open the Form Trigger URL.",
+        "height": 340,
+        "width": 480,
+        "color": 3
+      },
+      "id": "eb-note-setup",
+      "name": "⚙️ Setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-80, 420]
+    },
+    {
+      "parameters": {
+        "formTitle": "📚 Ebook Generator",
+        "formDescription": "Generate a full fiction or nonfiction ebook manuscript, humanized and (for nonfiction) fully sourced.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Genre Type",
+              "fieldType": "dropdown",
+              "requiredField": true,
+              "fieldOptions": { "values": [{ "option": "Fiction" }, { "option": "Nonfiction" }] }
+            },
+            {
+              "fieldLabel": "Working Title",
+              "fieldType": "text",
+              "requiredField": true,
+              "placeholder": "e.g. The Last Signal / Atomic Habits for Freelancers"
+            },
+            {
+              "fieldLabel": "Premise or Topic",
+              "fieldType": "textarea",
+              "requiredField": true,
+              "placeholder": "Fiction: the core premise/plot idea. Nonfiction: the subject and central thesis."
+            },
+            {
+              "fieldLabel": "Category / Subgenre",
+              "fieldType": "text",
+              "requiredField": false,
+              "placeholder": "e.g. psychological thriller / productivity & self-help"
+            },
+            {
+              "fieldLabel": "Target Chapter Count",
+              "fieldType": "number",
+              "requiredField": false,
+              "placeholder": "12"
+            },
+            {
+              "fieldLabel": "Target Audience",
+              "fieldType": "textarea",
+              "requiredField": true,
+              "placeholder": "e.g. adult thriller readers who enjoyed Gone Girl"
+            },
+            {
+              "fieldLabel": "Author Voice & Style",
+              "fieldType": "textarea",
+              "requiredField": true,
+              "placeholder": "Describe the prose voice — pacing, sentence rhythm, tone, POV."
+            },
+            {
+              "fieldLabel": "Humanizer Intensity",
+              "fieldType": "dropdown",
+              "requiredField": false,
+              "fieldOptions": { "values": [{ "option": "Light" }, { "option": "Standard" }, { "option": "Aggressive" }] }
+            }
+          ]
+        },
+        "options": {
+          "path": "ebook-generate",
+          "responseMode": "lastNode"
+        }
+      },
+      "id": "eb-form-trigger",
+      "name": "📝 Ebook Request Form",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2,
+      "position": [400, 460],
+      "webhookId": "ebook-generate-001"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "eb-f1", "name": "genre_type", "value": "={{ $json['Genre Type'] }}", "type": "string" },
+            { "id": "eb-f2", "name": "title", "value": "={{ $json['Working Title'] }}", "type": "string" },
+            { "id": "eb-f3", "name": "topic", "value": "={{ $json['Premise or Topic'] }}", "type": "string" },
+            { "id": "eb-f4", "name": "category", "value": "={{ $json['Category / Subgenre'] || '' }}", "type": "string" },
+            { "id": "eb-f5", "name": "chapter_count", "value": "={{ $json['Target Chapter Count'] || 12 }}", "type": "number" },
+            { "id": "eb-f6", "name": "audience", "value": "={{ $json['Target Audience'] }}", "type": "string" },
+            { "id": "eb-f7", "name": "author_voice", "value": "={{ $json['Author Voice & Style'] }}", "type": "string" },
+            { "id": "eb-f8", "name": "humanizer_intensity", "value": "={{ $json['Humanizer Intensity'] || 'Standard' }}", "type": "string" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "eb-set-context",
+      "name": "⚙️ Prepare Context",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [680, 460]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "eb-cond-fiction",
+              "leftValue": "={{ $json.genre_type }}",
+              "rightValue": "Fiction",
+              "operator": { "type": "string", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "eb-if-branch",
+      "name": "🔀 Fiction or Nonfiction?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [960, 460]
+    },
+    {
+      "parameters": {
+        "model": { "__rl": true, "value": "gpt-4o", "mode": "list", "cachedResultName": "gpt-4o" },
+        "options": { "temperature": 0.9, "maxTokens": 3000, "timeout": 150000 }
+      },
+      "id": "eb-llm-architect",
+      "name": "🧠 Story Architect LLM (swap provider here)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [1240, 160],
+      "credentials": { "openAiApi": { "id": "REPLACE_WITH_YOUR_LLM_CREDENTIAL_ID", "name": "OpenAI API" } }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Design a complete story bible and chapter-by-chapter outline for a novel.\n\nWORKING TITLE: {{ $json.title }}\nPREMISE: {{ $json.topic }}\nCATEGORY: {{ $json.category }}\nTARGET CHAPTER COUNT: {{ $json.chapter_count }}\nTARGET AUDIENCE: {{ $json.audience }}",
+        "options": {
+          "systemMessage": "You are a professional novelist and story architect. Produce, in order:\n\n1. A STORY BIBLE section covering: main characters (name, role, core motivation, arc), setting, central conflict, and a 3-act plot summary.\n\n2. A fenced ```json code block containing ONLY a valid JSON array, one entry per chapter, in exactly this shape:\n[{\"chapter_number\": 1, \"chapter_title\": \"...\", \"chapter_brief\": \"Key scenes and beats for this chapter, referencing the story bible\"}, ...]\n\nThe JSON array is machine-parsed downstream — it must be syntactically valid JSON and nothing else inside the code fence. Make each chapter brief specific enough that a different writer could execute it consistently with the story bible.",
+          "maxIterations": 3,
+          "returnIntermediateSteps": false
+        }
+      },
+      "id": "eb-agent-architect",
+      "name": "🏛️ Story Architect Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [1240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const cfg = $('⚙️ Prepare Context').first().json;\nconst raw = $input.first().json.output || '';\nconst match = raw.match(/```json\\s*([\\s\\S]*?)```/i);\nlet chapters = [];\nif (match) { try { chapters = JSON.parse(match[1]); } catch (e) { chapters = []; } }\nif (!Array.isArray(chapters) || chapters.length === 0) {\n  chapters = [{ chapter_number: 1, chapter_title: cfg.title, chapter_brief: cfg.topic }];\n}\nconst storyBible = raw.split(/```json/i)[0].trim();\n\nreturn chapters.map((c, i) => ({\n  json: {\n    title: cfg.title,\n    category: cfg.category,\n    audience: cfg.audience,\n    author_voice: cfg.author_voice,\n    is_fiction: true,\n    chapter_number: c.chapter_number || (i + 1),\n    chapter_title: c.chapter_title || `Chapter ${i + 1}`,\n    chapter_brief: c.chapter_brief || '',\n    story_context: storyBible,\n    sources_block: ''\n  }\n}));"
+      },
+      "id": "eb-code-parse-fiction",
+      "name": "🧩 Parse Fiction Outline",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1520, 300]
+    },
+    {
+      "parameters": {
+        "model": { "__rl": true, "value": "gpt-4o", "mode": "list", "cachedResultName": "gpt-4o" },
+        "options": { "temperature": 0.2, "maxTokens": 4096, "timeout": 150000 }
+      },
+      "id": "eb-llm-research",
+      "name": "🧠 Research LLM (swap provider here)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [1240, 640],
+      "credentials": { "openAiApi": { "id": "REPLACE_WITH_YOUR_LLM_CREDENTIAL_ID", "name": "OpenAI API" } }
+    },
+    {
+      "parameters": {
+        "description": "Search the live web for current facts, statistics, examples, and case studies relevant to the book's topic."
+      },
+      "id": "eb-tool-tavily",
+      "name": "🌐 Tavily Web Search",
+      "type": "@n8n/n8n-nodes-langchain.toolTavilySearch",
+      "typeVersion": 1,
+      "position": [1420, 640],
+      "credentials": { "tavilyApi": { "id": "REPLACE_WITH_YOUR_TAVILY_CREDENTIAL_ID", "name": "Tavily API" } }
+    },
+    {
+      "parameters": {
+        "description": "Search Wikipedia for foundational background and established facts about the book's topic."
+      },
+      "id": "eb-tool-wikipedia",
+      "name": "📖 Wikipedia Search",
+      "type": "@n8n/n8n-nodes-langchain.toolWikipedia",
+      "typeVersion": 1,
+      "position": [1600, 640]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Research this book's subject thoroughly.\n\nTOPIC / THESIS: {{ $json.topic }}\nCATEGORY: {{ $json.category }}\nAUDIENCE: {{ $json.audience }}\n\nFind current facts, statistics, expert perspectives, case studies, and counterarguments. Make 6-10 targeted searches.",
+        "options": {
+          "systemMessage": "You are a meticulous nonfiction research assistant. Cover: core facts, current data/statistics, real-world case studies, expert viewpoints, and common misconceptions worth addressing.\n\nOUTPUT FORMAT — end your answer with exactly these two sections:\n\n### RESEARCH SUMMARY\n(Dense, organized brief ready for an author to draw from.)\n\n### SOURCES\n(A markdown bullet list of every source used, formatted as [Title](URL). This section is machine-parsed downstream — do not omit it.)",
+          "maxIterations": 8,
+          "returnIntermediateSteps": false
+        }
+      },
+      "id": "eb-agent-research",
+      "name": "🔍 Research Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [1240, 780]
+    },
+    {
+      "parameters": {
+        "model": { "__rl": true, "value": "gpt-4o", "mode": "list", "cachedResultName": "gpt-4o" },
+        "options": { "temperature": 0.4, "maxTokens": 2500, "timeout": 120000 }
+      },
+      "id": "eb-llm-outliner",
+      "name": "🧠 Outliner LLM (swap provider here)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [1520, 640],
+      "credentials": { "openAiApi": { "id": "REPLACE_WITH_YOUR_LLM_CREDENTIAL_ID", "name": "OpenAI API" } }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Design a {{ $('⚙️ Prepare Context').first().json.chapter_count }}-chapter nonfiction book outline.\n\nTITLE: {{ $('⚙️ Prepare Context').first().json.title }}\nTOPIC/THESIS: {{ $('⚙️ Prepare Context').first().json.topic }}\nCATEGORY: {{ $('⚙️ Prepare Context').first().json.category }}\nAUDIENCE: {{ $('⚙️ Prepare Context').first().json.audience }}\n\nRESEARCH TO GROUND THE OUTLINE:\n{{ $json.output }}",
+        "options": {
+          "systemMessage": "You are an expert nonfiction book editor and outliner. Design chapters that build the book's central argument progressively — each chapter should advance the thesis, not just cover an adjacent topic.\n\nOUTPUT — produce exactly two things, in order:\n\n1. A human-readable outline explaining the book's thesis and how each chapter builds the case.\n\n2. A fenced ```json code block containing ONLY a valid JSON array, in exactly this shape:\n[{\"chapter_number\": 1, \"chapter_title\": \"...\", \"chapter_brief\": \"Key points and arguments this chapter must make\"}, ...]\n\nThe JSON array is machine-parsed downstream — it must be syntactically valid JSON and nothing else inside the code fence.",
+          "maxIterations": 3,
+          "returnIntermediateSteps": false
+        }
+      },
+      "id": "eb-agent-outliner",
+      "name": "🗂️ Nonfiction Outliner Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [1520, 780]
+    },
+    {
+      "parameters": {
+        "jsCode": "const cfg = $('⚙️ Prepare Context').first().json;\nconst research = $('🔍 Research Agent').first().json.output || '';\nlet sources = '';\nconst srcSplit = research.split(/###\\s*SOURCES/i);\nif (srcSplit.length > 1) sources = srcSplit[1].trim();\nconst researchSummary = srcSplit[0].trim();\n\nconst raw = $input.first().json.output || '';\nconst match = raw.match(/```json\\s*([\\s\\S]*?)```/i);\nlet chapters = [];\nif (match) { try { chapters = JSON.parse(match[1]); } catch (e) { chapters = []; } }\nif (!Array.isArray(chapters) || chapters.length === 0) {\n  chapters = [{ chapter_number: 1, chapter_title: cfg.title, chapter_brief: cfg.topic }];\n}\n\nreturn chapters.map((c, i) => ({\n  json: {\n    title: cfg.title,\n    category: cfg.category,\n    audience: cfg.audience,\n    author_voice: cfg.author_voice,\n    is_fiction: false,\n    chapter_number: c.chapter_number || (i + 1),\n    chapter_title: c.chapter_title || `Chapter ${i + 1}`,\n    chapter_brief: c.chapter_brief || '',\n    story_context: researchSummary,\n    sources_block: sources\n  }\n}));"
+      },
+      "id": "eb-code-parse-nonfiction",
+      "name": "🧩 Parse Nonfiction Outline",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1800, 780]
+    },
+    {
+      "parameters": {
+        "content": "## 🧩 Fan-In / Fan-Out Point\nBoth branches converge here. Only the branch that ran has items; this node normalizes them into one item per chapter. Everything after this point runs once per chapter automatically — n8n's default per-item processing.",
+        "height": 220,
+        "width": 300,
+        "color": 5
+      },
+      "id": "eb-note-fanout",
+      "name": "🧩 Fan-In Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [2080, 60]
+    },
+    {
+      "parameters": {
+        "jsCode": "return $input.all().map(item => ({\n  json: {\n    title: item.json.title,\n    category: item.json.category || '',\n    audience: item.json.audience,\n    author_voice: item.json.author_voice,\n    is_fiction: !!item.json.is_fiction,\n    chapter_number: item.json.chapter_number,\n    chapter_title: item.json.chapter_title,\n    chapter_brief: item.json.chapter_brief,\n    story_context: item.json.story_context || '',\n    sources_block: item.json.sources_block || ''\n  }\n}));"
+      },
+      "id": "eb-code-normalize",
+      "name": "🧩 Normalize Chapters",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2080, 460]
+    },
+    {
+      "parameters": {
+        "model": { "__rl": true, "value": "gpt-4o", "mode": "list", "cachedResultName": "gpt-4o" },
+        "options": { "temperature": 0.85, "maxTokens": 3200, "timeout": 150000 }
+      },
+      "id": "eb-llm-writer",
+      "name": "🧠 Chapter Writer LLM (swap provider here)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [2360, 240],
+      "credentials": { "openAiApi": { "id": "REPLACE_WITH_YOUR_LLM_CREDENTIAL_ID", "name": "OpenAI API" } }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Write full Chapter {{ $json.chapter_number }}: {{ $json.chapter_title }} of \"{{ $json.title }}\".\n\nCHAPTER BRIEF:\n{{ $json.chapter_brief }}\n\nBACKGROUND CONTEXT (story bible for fiction, research summary for nonfiction):\n{{ $json.story_context }}\n\nAUDIENCE: {{ $json.audience }}\nCATEGORY: {{ $json.category }}",
+        "options": {
+          "systemMessage": "=You are a professional {{ $json.is_fiction ? 'novelist' : 'nonfiction author' }} writing on behalf of the author.\n\nAUTHOR VOICE: {{ $json.author_voice }}\n\n{{ $json.is_fiction ? 'FICTION RULES:\\n- Show, do not tell\\n- Use vivid sensory detail\\n- Give characters distinct dialogue voices\\n- End the chapter on a hook or turn\\n- Stay consistent with the story bible provided' : 'NONFICTION RULES:\\n- Cite factual or statistical claims inline as markdown links [Title](URL) using the research provided\\n- Include at least one concrete example or case study\\n- End the chapter with a clear takeaway or action step' }}\n\nWrite the complete chapter now. Start immediately — no preamble, no \"Here is...\" framing.",
+          "maxIterations": 3,
+          "returnIntermediateSteps": false
+        }
+      },
+      "id": "eb-agent-writer",
+      "name": "✍️ Chapter Writer Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [2360, 460]
+    },
+    {
+      "parameters": {
+        "model": { "__rl": true, "value": "gpt-4o", "mode": "list", "cachedResultName": "gpt-4o" },
+        "options": { "temperature": 0.7, "maxTokens": 3500, "timeout": 150000 }
+      },
+      "id": "eb-llm-humanizer",
+      "name": "🧠 Humanizer LLM (swap provider here)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [2680, 240],
+      "credentials": { "openAiApi": { "id": "REPLACE_WITH_YOUR_LLM_CREDENTIAL_ID", "name": "OpenAI API" } }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.output }}",
+        "options": {
+          "systemMessage": "=You are a professional editor who removes all traces of AI-generated writing while preserving every plot detail, fact, and citation exactly as given.\n\nHUMANIZATION INTENSITY: {{ $('⚙️ Prepare Context').first().json.humanizer_intensity }}\n(Light = light touch. Standard = full checklist below. Aggressive = full checklist plus freely restructure paragraphs and lean harder into voice.)\n\nCHECKLIST:\n- Replace stiff transition words (however/furthermore/moreover) with natural ones\n- Delete filler like \"it's worth noting\", \"needless to say\"\n- Vary sentence length and rhythm — mix short punchy sentences with longer flowing ones\n- Make dialogue (fiction) or asides (nonfiction) sound spoken, not written\n- Cut any paragraph that reads like a summary rather than a scene or argument\n\nCRITICAL: Do not alter, remove, or invent any plot event, character detail, fact, or citation. Return ONLY the edited chapter text, no preamble.",
+          "maxIterations": 2,
+          "returnIntermediateSteps": false
+        }
+      },
+      "id": "eb-agent-humanizer",
+      "name": "🎭 Humanizer Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [2680, 460]
+    },
+    {
+      "parameters": {
+        "content": "## 📚 Output Stage\nGathers every humanized chapter back into one manuscript, in chapter order, with a Table of Contents. Nonfiction manuscripts get a References section pulled from the Research Agent's `### SOURCES` block; fiction gets a standard disclaimer instead.",
+        "height": 220,
+        "width": 300,
+        "color": 6
+      },
+      "id": "eb-note-output",
+      "name": "📤 Output Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [3000, 60]
+    },
+    {
+      "parameters": {
+        "jsCode": "const cfg = $('⚙️ Prepare Context').first().json;\nconst humanizedItems = $input.all();\nconst outlineItems = $('🧩 Normalize Chapters').all();\n\nconst chapters = humanizedItems.map((item, i) => {\n  const o = outlineItems[i] ? outlineItems[i].json : {};\n  return {\n    number: o.chapter_number ?? (i + 1),\n    title: o.chapter_title ?? `Chapter ${i + 1}`,\n    content: (item.json.output || '').trim(),\n    sources_block: o.sources_block || ''\n  };\n}).sort((a, b) => a.number - b.number);\n\nconst isFiction = !!(outlineItems[0] && outlineItems[0].json.is_fiction);\n\nconst toc = chapters.map(c => `- Chapter ${c.number}: ${c.title}`).join('\\n');\nconst body = chapters.map(c => `## Chapter ${c.number}: ${c.title}\\n\\n${c.content}`).join('\\n\\n---\\n\\n');\n\nlet allSources = '_No structured sources returned — verify claims manually._';\nif (!isFiction && outlineItems[0] && outlineItems[0].json.sources_block) {\n  allSources = outlineItems[0].json.sources_block;\n}\n\nconst date = new Date().toISOString().slice(0, 10);\nconst genreLine = (isFiction ? 'Fiction' : 'Nonfiction') + (cfg.category ? ' · ' + cfg.category : '');\n\nlet finalMarkdown = `# ${cfg.title}\\n\\n*${genreLine} · For: ${cfg.audience}*\\n*Generated: ${date}*\\n\\n---\\n\\n## Table of Contents\\n\\n${toc}\\n\\n---\\n\\n${body}\\n`;\n\nif (!isFiction) {\n  finalMarkdown += `\\n---\\n\\n## Sources & References\\n\\n${allSources}\\n`;\n} else {\n  finalMarkdown += `\\n---\\n\\n*This is a work of fiction. Any resemblance to real events or persons is coincidental.*\\n`;\n}\n\nreturn [{\n  json: {\n    title: cfg.title,\n    is_fiction: isFiction,\n    chapter_count: chapters.length,\n    generated_date: date,\n    final_markdown: finalMarkdown\n  }\n}];"
+      },
+      "id": "eb-code-compile",
+      "name": "📚 Compile Ebook",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [3000, 460]
+    }
+  ],
+  "connections": {
+    "📝 Ebook Request Form": { "main": [[{ "node": "⚙️ Prepare Context", "type": "main", "index": 0 }]] },
+    "⚙️ Prepare Context": { "main": [[{ "node": "🔀 Fiction or Nonfiction?", "type": "main", "index": 0 }]] },
+    "🔀 Fiction or Nonfiction?": {
+      "main": [
+        [{ "node": "🏛️ Story Architect Agent", "type": "main", "index": 0 }],
+        [{ "node": "🔍 Research Agent", "type": "main", "index": 0 }]
+      ]
+    },
+    "🧠 Story Architect LLM (swap provider here)": { "ai_languageModel": [[{ "node": "🏛️ Story Architect Agent", "type": "ai_languageModel", "index": 0 }]] },
+    "🏛️ Story Architect Agent": { "main": [[{ "node": "🧩 Parse Fiction Outline", "type": "main", "index": 0 }]] },
+    "🧩 Parse Fiction Outline": { "main": [[{ "node": "🧩 Normalize Chapters", "type": "main", "index": 0 }]] },
+    "🧠 Research LLM (swap provider here)": { "ai_languageModel": [[{ "node": "🔍 Research Agent", "type": "ai_languageModel", "index": 0 }]] },
+    "🌐 Tavily Web Search": { "ai_tool": [[{ "node": "🔍 Research Agent", "type": "ai_tool", "index": 0 }]] },
+    "📖 Wikipedia Search": { "ai_tool": [[{ "node": "🔍 Research Agent", "type": "ai_tool", "index": 0 }]] },
+    "🔍 Research Agent": { "main": [[{ "node": "🗂️ Nonfiction Outliner Agent", "type": "main", "index": 0 }]] },
+    "🧠 Outliner LLM (swap provider here)": { "ai_languageModel": [[{ "node": "🗂️ Nonfiction Outliner Agent", "type": "ai_languageModel", "index": 0 }]] },
+    "🗂️ Nonfiction Outliner Agent": { "main": [[{ "node": "🧩 Parse Nonfiction Outline", "type": "main", "index": 0 }]] },
+    "🧩 Parse Nonfiction Outline": { "main": [[{ "node": "🧩 Normalize Chapters", "type": "main", "index": 0 }]] },
+    "🧩 Normalize Chapters": { "main": [[{ "node": "✍️ Chapter Writer Agent", "type": "main", "index": 0 }]] },
+    "🧠 Chapter Writer LLM (swap provider here)": { "ai_languageModel": [[{ "node": "✍️ Chapter Writer Agent", "type": "ai_languageModel", "index": 0 }]] },
+    "✍️ Chapter Writer Agent": { "main": [[{ "node": "🎭 Humanizer Agent", "type": "main", "index": 0 }]] },
+    "🧠 Humanizer LLM (swap provider here)": { "ai_languageModel": [[{ "node": "🎭 Humanizer Agent", "type": "ai_languageModel", "index": 0 }]] },
+    "🎭 Humanizer Agent": { "main": [[{ "node": "📚 Compile Ebook", "type": "main", "index": 0 }]] }
+  },
+  "pinData": {},
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  },
+  "versionId": "v1.0.0-ebook-creator",
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "ebook-creator"
+  },
+  "id": "ebook-creator-v1",
+  "tags": [
+    { "name": "Ebook" },
+    { "name": "fiction" },
+    { "name": "nonfiction" },
+    { "name": "ai-humanizer" }
+  ]
+}

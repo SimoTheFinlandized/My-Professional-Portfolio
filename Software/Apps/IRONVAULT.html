@@ -1,0 +1,2464 @@
+<!DOCTYPE html>
+<!-- saved from url=(0108)https://galaxy-prod.tlcdn.com/gen/user_2w3ESEJeOmWwLyZeRtOGgR7Zo9U/b848058b-c02e-41e0-86ad-9dc3b12f09e2.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src &#39;none&#39;; script-src &#39;unsafe-inline&#39;; style-src &#39;unsafe-inline&#39;; img-src data:;">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex,nofollow">
+<title>IRONVAULT</title>
+<style>
+/* ═══════════════════════════════════════════════════════
+   IRONVAULT — TACTICAL TERMINAL THEME
+   Single-file offline secure field operations terminal
+   ═══════════════════════════════════════════════════════ */
+:root{
+  --g:#00ff41;--gd:#00cc33;--gk:#004d14;--gg:rgba(0,255,65,.12);
+  --a:#ffb000;--r:#ff3333;--bg:#050505;--bp:#080d08;--bh:#06090a;
+  --bd:#004d14;--td:#009922;--fn:'Courier New','Lucida Console','Consolas',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;background:var(--bg);color:var(--g);
+  font-family:var(--fn);font-size:14px;overflow:hidden;
+  user-select:none;-webkit-user-select:none;}
+/* CRT scanlines */
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.07) 2px,rgba(0,0,0,.07) 4px);}
+/* CRT vignette */
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;
+  background:radial-gradient(ellipse at center,rgba(0,255,65,.03) 0%,rgba(0,0,0,.35) 100%);}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--gk);}
+::-webkit-scrollbar-thumb:hover{background:var(--gd);}
+
+@keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+@keyframes fi{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}
+@keyframes glitch{0%,88%,100%{transform:none;filter:none}90%{transform:skewX(2deg);filter:brightness(1.1)}93%{transform:skewX(-2deg)}96%{transform:skewX(.5deg)}}
+@keyframes scanAnim{0%{top:-4px}100%{top:100vh}}
+@keyframes pulse{0%,100%{box-shadow:0 0 4px var(--g)}50%{box-shadow:0 0 12px var(--g),0 0 24px var(--gk)}}
+
+/* ─── SHARED COMPONENTS ─────────────────────── */
+.btn{display:inline-block;padding:7px 18px;border:1px solid var(--g);background:transparent;
+  color:var(--g);font-family:var(--fn);font-size:11px;letter-spacing:2px;cursor:pointer;
+  text-transform:uppercase;transition:all .15s;outline:none;}
+.btn:hover{background:var(--gg);box-shadow:0 0 10px var(--gg);}
+.btn-full{width:100%;}
+.btn-danger{border-color:var(--r);color:var(--r);}
+.btn-danger:hover{background:rgba(255,51,51,.1);box-shadow:0 0 10px rgba(255,51,51,.15);}
+.btn-amber{border-color:var(--a);color:var(--a);}
+.btn-amber:hover{background:rgba(255,176,0,.08);}
+.btn-sm{padding:4px 10px;font-size:10px;}
+.btn-row{display:flex;gap:8px;margin-top:10px;}
+.field-label{display:block;font-size:10px;letter-spacing:2px;color:var(--td);margin-bottom:5px;}
+.field-input,.form-input,.form-select,.form-textarea{
+  width:100%;background:#070707;border:1px solid var(--bd);color:var(--g);
+  font-family:var(--fn);font-size:13px;padding:7px 10px;outline:none;transition:border-color .2s,box-shadow .2s;resize:vertical;}
+.field-input:focus,.form-input:focus,.form-select:focus,.form-textarea:focus{
+  border-color:var(--g);box-shadow:0 0 7px var(--gg);}
+.form-select option{background:#070707;}
+.form-textarea{min-height:100px;line-height:1.7;}
+.form-group{margin-bottom:12px;}
+.form-label{display:block;font-size:10px;letter-spacing:2px;color:var(--td);margin-bottom:4px;}
+.field-row{margin-bottom:14px;}
+.tag{display:inline-block;padding:1px 7px;border:1px solid;font-size:9px;letter-spacing:1px;}
+.tag-g{border-color:var(--g);color:var(--g);}
+.tag-a{border-color:var(--a);color:var(--a);}
+.tag-r{border-color:var(--r);color:var(--r);}
+.tag-d{border-color:var(--bd);color:var(--td);}
+.blink{animation:blink 1s infinite;}
+.text-dim{color:var(--td);}
+.text-a{color:var(--a);}
+.text-r{color:var(--r);}
+.text-xs{font-size:10px;}
+.text-sm{font-size:11px;}
+.flex{display:flex;}.items-center{align-items:center;}.justify-between{justify-content:space-between;}
+.gap-8{gap:8px;}.gap-12{gap:12px;}.mt-8{margin-top:8px;}.mt-12{margin-top:12px;}
+.mb-8{margin-bottom:8px;}.mb-12{margin-bottom:12px;}
+.hidden{display:none!important;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+
+/* ─── MODAL ─────────────────────────────────── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.87);z-index:600;
+  display:flex;align-items:center;justify-content:center;animation:fi .2s ease;}
+.modal{background:var(--bp);border:1px solid var(--g);min-width:360px;max-width:680px;
+  max-height:85vh;display:flex;flex-direction:column;box-shadow:0 0 40px var(--gg);}
+.modal-header{padding:11px 16px;border-bottom:1px solid var(--bd);
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:10px;letter-spacing:2px;color:var(--td);}
+.modal-title{color:var(--g);letter-spacing:3px;font-size:11px;}
+.modal-body{padding:16px;overflow-y:auto;flex:1;}
+.modal-footer{padding:11px 16px;border-top:1px solid var(--bd);display:flex;justify-content:flex-end;gap:8px;}
+.modal-x{background:none;border:none;color:var(--td);cursor:pointer;font-size:18px;
+  font-family:var(--fn);line-height:1;padding:0;}
+.modal-x:hover{color:var(--r);}
+
+/* ─── LOCK SCREEN ───────────────────────────── */
+#lock-screen{position:fixed;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;background:var(--bg);z-index:800;animation:fi .5s ease;}
+.lock-ascii{text-align:center;margin-bottom:32px;animation:glitch 10s infinite;}
+.lock-ascii pre{color:var(--g);font-size:11px;line-height:1.25;
+  text-shadow:0 0 10px var(--g),0 0 20px var(--gk);}
+.lock-sub{color:var(--td);font-size:10px;letter-spacing:5px;margin-top:8px;}
+.lock-box{border:1px solid var(--g);padding:28px 36px;min-width:360px;
+  background:var(--bp);box-shadow:0 0 24px var(--gg),inset 0 0 24px rgba(0,0,0,.4);animation:fi .7s ease;}
+.lock-box-hdr{text-align:center;font-size:10px;letter-spacing:2px;color:var(--td);
+  border-bottom:1px solid var(--bd);padding-bottom:11px;margin-bottom:18px;}
+#lock-status{margin-top:10px;font-size:11px;text-align:center;min-height:16px;}
+.s-err{color:var(--r);}.s-ok{color:var(--g);}.s-warn{color:var(--a);}
+.lock-footer{margin-top:24px;font-size:9px;color:#002a0d;letter-spacing:1px;text-align:center;}
+.fail-bar{margin-top:8px;height:3px;background:var(--bd);}
+.fail-fill{height:100%;background:var(--r);transition:width .3s;}
+
+/* ─── SETUP WIZARD ──────────────────────────── */
+#setup-wizard{display:none;position:fixed;inset:0;background:var(--bg);z-index:700;
+  flex-direction:column;align-items:center;justify-content:center;}
+.wizard-box{border:1px solid var(--g);padding:30px 38px;min-width:420px;max-width:520px;
+  background:var(--bp);box-shadow:0 0 28px var(--gg);}
+.wizard-step{display:none;animation:fi .3s ease;}
+.wizard-step.wactive{display:block;}
+.wiz-title{font-size:11px;letter-spacing:3px;color:var(--g);margin-bottom:6px;}
+.wiz-desc{font-size:11px;color:var(--td);margin-bottom:18px;line-height:1.7;}
+.wiz-prog{display:flex;gap:4px;margin-bottom:20px;}
+.wiz-dot{width:20px;height:3px;background:var(--bd);}
+.wiz-dot.wactive{background:var(--g);}
+.strength-bar{height:3px;background:var(--bd);margin-top:5px;}
+.strength-fill{height:100%;transition:width .3s,background .3s;}
+.pw-reqs{font-size:10px;color:var(--td);margin-top:5px;line-height:1.7;}
+.pw-req{padding-left:0;}
+.pw-req.ok{color:var(--gd);}
+
+/* ─── BOOT SCREEN ───────────────────────────── */
+#boot-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:650;padding:36px 48px;overflow:hidden;}
+#boot-log{font-size:12px;line-height:2;color:var(--td);}
+#boot-log .bok{color:var(--g);}
+#boot-log .bwarn{color:var(--a);}
+#boot-log .berr{color:var(--r);}
+
+/* ─── MAIN APP ──────────────────────────────── */
+#app{display:none;flex-direction:column;height:100vh;overflow:hidden;animation:fi .4s ease;}
+#app-header{display:flex;align-items:center;justify-content:space-between;
+  padding:5px 16px;background:var(--bh);border-bottom:1px solid var(--bd);flex-shrink:0;height:34px;}
+.hdr-title{font-size:12px;letter-spacing:4px;color:var(--g);text-shadow:0 0 8px var(--g);}
+.hdr-status{display:flex;align-items:center;gap:14px;font-size:9px;color:var(--td);letter-spacing:1px;}
+.sdot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--g);
+  box-shadow:0 0 5px var(--g);animation:blink 2.5s infinite;}
+#nav-bar{display:flex;background:var(--bh);border-bottom:1px solid var(--bd);flex-shrink:0;overflow-x:auto;}
+.nav-tab{padding:7px 14px;font-size:9px;letter-spacing:2px;color:var(--td);cursor:pointer;
+  border-right:1px solid var(--bd);white-space:nowrap;transition:all .15s;user-select:none;}
+.nav-tab:hover{color:var(--g);background:var(--gg);}
+.nav-tab.active{color:var(--g);background:rgba(0,255,65,.07);border-bottom:2px solid var(--g);}
+#content-area{flex:1;overflow:hidden;position:relative;}
+.mod-view{display:none;height:100%;flex-direction:column;animation:fi .2s ease;}
+.mod-view.active{display:flex;}
+.mod-hdr{display:flex;align-items:center;justify-content:space-between;
+  padding:9px 16px;border-bottom:1px solid var(--bd);flex-shrink:0;background:var(--bh);}
+.mod-title{font-size:11px;letter-spacing:3px;color:var(--g);}
+.mod-body{flex:1;overflow-y:auto;padding:14px;}
+#status-bar{display:flex;align-items:center;justify-content:space-between;
+  padding:2px 16px;background:var(--bh);border-top:1px solid var(--bd);
+  font-size:9px;color:#003510;letter-spacing:1px;flex-shrink:0;height:20px;}
+
+/* ─── PANELS ────────────────────────────────── */
+.panel{border:1px solid var(--bd);background:var(--bp);margin-bottom:12px;}
+.panel-hdr{padding:7px 12px;background:rgba(0,255,65,.04);border-bottom:1px solid var(--bd);
+  font-size:10px;letter-spacing:2px;color:var(--td);display:flex;align-items:center;justify-content:space-between;}
+.panel-body{padding:12px;}
+
+/* ─── TABLES ────────────────────────────────── */
+.dtable{width:100%;border-collapse:collapse;font-size:12px;}
+.dtable th{padding:5px 10px;text-align:left;font-size:9px;letter-spacing:2px;
+  color:var(--td);border-bottom:1px solid var(--bd);}
+.dtable td{padding:8px 10px;border-bottom:1px solid rgba(0,255,65,.05);vertical-align:top;}
+.dtable tr:hover td{background:var(--gg);}
+.dtable tr.selected td{background:rgba(0,255,65,.08);}
+
+/* ─── SPLIT VIEW ────────────────────────────── */
+.split-view{display:flex;height:100%;overflow:hidden;}
+.split-left{width:240px;flex-shrink:0;border-right:1px solid var(--bd);overflow-y:auto;}
+.split-right{flex:1;overflow-y:auto;padding:14px;}
+.list-item{padding:9px 13px;border-bottom:1px solid rgba(0,255,65,.05);cursor:pointer;transition:background .12s;}
+.list-item:hover,.list-item.active{background:var(--gg);}
+.list-item-title{font-size:12px;margin-bottom:2px;}
+.list-item-meta{font-size:10px;color:var(--td);}
+.list-add-btn{padding:10px 13px;border-bottom:1px solid var(--bd);cursor:pointer;
+  font-size:10px;letter-spacing:1px;color:var(--td);transition:all .12s;}
+.list-add-btn:hover{background:var(--gg);color:var(--g);}
+
+/* ─── CHECKLIST ──────────────────────────────── */
+.cl-item{display:flex;align-items:flex-start;gap:10px;padding:6px 0;
+  border-bottom:1px solid rgba(0,255,65,.05);cursor:pointer;}
+.cl-item:hover{background:var(--gg);}
+.cl-box{width:13px;height:13px;border:1px solid var(--bd);flex-shrink:0;margin-top:1px;
+  position:relative;cursor:pointer;transition:all .12s;}
+.cl-box.checked{border-color:var(--g);background:rgba(0,255,65,.1);}
+.cl-box.checked::after{content:'✓';position:absolute;top:-3px;left:1px;font-size:12px;color:var(--g);}
+.cl-label{flex:1;font-size:12px;line-height:1.5;}
+.cl-label.checked{color:var(--td);text-decoration:line-through;}
+.cl-note{font-size:10px;color:var(--td);margin-top:1px;}
+.cl-progress{height:3px;background:var(--bd);margin-bottom:10px;}
+.cl-progress-fill{height:100%;background:var(--g);transition:width .3s;}
+
+/* ─── INVENTORY ──────────────────────────────── */
+.inv-cat-hdr{padding:8px 12px;background:rgba(0,255,65,.05);border-bottom:1px solid var(--bd);
+  font-size:10px;letter-spacing:2px;color:var(--g);cursor:pointer;
+  display:flex;align-items:center;justify-content:space-between;}
+.inv-row{display:flex;align-items:center;padding:7px 12px;
+  border-bottom:1px solid rgba(0,255,65,.04);font-size:12px;gap:8px;}
+.inv-row:hover{background:var(--gg);}
+.inv-name{flex:1;}
+.inv-qty{width:80px;text-align:right;font-size:11px;}
+.inv-unit{width:60px;text-align:right;font-size:10px;color:var(--td);}
+.inv-exp{width:90px;text-align:right;font-size:10px;color:var(--td);}
+.inv-status{width:50px;text-align:right;}
+.low-stock{color:var(--a);}
+.critical{color:var(--r);}
+.ok-stock{color:var(--g);}
+
+/* ─── SITREP THREAT ──────────────────────────── */
+.tl1{color:var(--g);border-color:var(--g);}
+.tl2{color:#ccff00;border-color:#ccff00;}
+.tl3{color:var(--a);border-color:var(--a);}
+.tl4{color:#ff6600;border-color:#ff6600;}
+.tl5{color:var(--r);border-color:var(--r);}
+
+/* ─── MEDICAL ────────────────────────────────── */
+.march-card{border:1px solid var(--bd);padding:10px 14px;margin-bottom:8px;
+  background:rgba(0,255,65,.02);}
+.march-letter{font-size:22px;color:var(--g);font-weight:bold;margin-right:10px;
+  display:inline-block;text-shadow:0 0 10px var(--g);}
+.march-title{font-size:11px;letter-spacing:2px;color:var(--gd);}
+
+/* ─── REFERENCE ──────────────────────────────── */
+.ref-cats{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+.ref-cat-btn{padding:4px 12px;border:1px solid var(--bd);font-size:10px;
+  letter-spacing:1px;color:var(--td);cursor:pointer;transition:all .12s;}
+.ref-cat-btn:hover,.ref-cat-btn.active{border-color:var(--g);color:var(--g);background:var(--gg);}
+.ref-entry{margin-bottom:18px;border:1px solid var(--bd);background:var(--bp);}
+.ref-entry-hdr{padding:8px 12px;background:rgba(0,255,65,.04);border-bottom:1px solid var(--bd);
+  font-size:10px;letter-spacing:2px;color:var(--g);cursor:pointer;
+  display:flex;align-items:center;justify-content:space-between;}
+.ref-entry-body{padding:12px;font-size:12px;line-height:1.8;color:var(--gd);display:none;}
+.ref-entry-body.open{display:block;}
+.ref-entry-body strong{color:var(--g);}
+.ref-entry-body code{color:var(--a);font-family:var(--fn);}
+.ref-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:8px;}
+.ref-table th{padding:4px 8px;text-align:left;font-size:9px;letter-spacing:2px;
+  color:var(--td);border-bottom:1px solid var(--bd);}
+.ref-table td{padding:5px 8px;border-bottom:1px solid rgba(0,255,65,.04);}
+.ref-table tr:nth-child(even) td{background:rgba(0,255,65,.02);}
+
+/* ─── SETTINGS ───────────────────────────────── */
+.setting-row{display:flex;align-items:center;justify-content:space-between;
+  padding:10px 0;border-bottom:1px solid rgba(0,255,65,.05);}
+.setting-label{font-size:12px;}
+.setting-desc{font-size:10px;color:var(--td);margin-top:2px;}
+.toggle{width:36px;height:18px;border:1px solid var(--bd);position:relative;cursor:pointer;
+  background:transparent;transition:all .2s;}
+.toggle.on{border-color:var(--g);background:var(--gk);}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:12px;height:12px;
+  background:var(--bd);transition:all .2s;}
+.toggle.on::after{left:20px;background:var(--g);}
+.num-input{width:70px;background:#070707;border:1px solid var(--bd);color:var(--g);
+  font-family:var(--fn);font-size:12px;padding:4px 8px;outline:none;text-align:center;}
+.num-input:focus{border-color:var(--g);}
+
+/* ─── LOCATION / COMMS ───────────────────────── */
+.coord-display{font-size:16px;color:var(--g);letter-spacing:2px;margin-bottom:4px;}
+.freq-badge{display:inline-block;padding:2px 8px;border:1px solid var(--gk);
+  color:var(--gd);font-size:11px;letter-spacing:1px;}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     LOCK SCREEN
+═══════════════════════════════════════════════ -->
+<div id="lock-screen">
+  <div class="lock-ascii">
+    <pre id="lock-logo"> ___  ____  ____  _  _  _  _   __   _  _  __    ____
+(_  )(_  _)(  _ \( \/ )( \/ ) /  \ ( )( )(  )  (_  _)
+ )  \  )(   )   / )  (  \  / ( () ) \_/\_/ )(__  )(
+(____)(__)  (_)\_)(_/\_) (__) \__/  (_/\_)(____)(__)</pre>
+    <div class="lock-sub">SECURE FIELD OPERATIONS TERMINAL</div>
+  </div>
+  <div class="lock-box">
+    <div class="lock-box-hdr">⚿ AUTHENTICATION REQUIRED</div>
+    <div class="field-row">
+      <label class="field-label">MASTER KEY</label>
+      <input type="password" class="field-input" id="lock-pw" placeholder="enter master key" autocomplete="off" spellcheck="false">
+    </div>
+    <div id="fail-bar-wrap" class="fail-bar hidden"><div class="fail-fill" id="fail-fill" style="width:0%"></div></div>
+    <div id="lock-status"></div>
+    <div class="btn-row" style="margin-top:14px;">
+      <button class="btn btn-full" id="btn-unlock" onclick="doUnlock()">[ AUTHENTICATE ]</button>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-full" style="font-size: 10px; border-color: var(--bd); color: var(--td); display: block;" id="btn-first-run" onclick="showSetup()">[ FIRST RUN — INITIALIZE VAULT ]</button>
+    </div>
+  </div>
+  <div class="lock-footer">
+    OFFLINE // NO NETWORK ACCESS // ALL DATA ENCRYPTED LOCALLY<br>
+    v1.0.0 // AES-256-GCM // PBKDF2-SHA256
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SETUP WIZARD
+═══════════════════════════════════════════════ -->
+<div id="setup-wizard">
+  <div class="wizard-box">
+    <div style="text-align:center;margin-bottom:20px;">
+      <div style="font-size:11px;letter-spacing:4px;color:var(--g);">VAULT INITIALIZATION</div>
+      <div style="font-size:10px;color:var(--td);margin-top:4px;">FIRST RUN SETUP</div>
+    </div>
+    <div class="wiz-prog" id="wiz-prog"></div>
+
+    <!-- STEP 1: WARNING -->
+    <div class="wizard-step wactive" id="ws-1">
+      <div class="wiz-title">⚠ OPERATIONAL SECURITY NOTICE</div>
+      <div class="wiz-desc" style="border:1px solid var(--a);padding:12px;color:var(--a);">
+        • All data is stored encrypted in your browser's local storage.<br>
+        • No data is transmitted. This app functions 100% offline.<br>
+        • Your master key is NEVER stored — losing it means losing your data.<br>
+        • Use a strong, memorable passphrase. Write it down and store it securely offline.<br>
+        • This vault is designed for preppers and field operators. Keep OPSEC in mind.
+      </div>
+      <div class="btn-row"><button class="btn btn-full" onclick="wizNext()">[ ACKNOWLEDGED — CONTINUE ]</button></div>
+    </div>
+
+    <!-- STEP 2: MASTER KEY -->
+    <div class="wizard-step" id="ws-2">
+      <div class="wiz-title">SET MASTER KEY</div>
+      <div class="wiz-desc">Your encryption key. Must be 12+ characters. Use a passphrase you can memorize.</div>
+      <div class="field-row">
+        <label class="field-label">MASTER KEY</label>
+        <input type="password" class="field-input" id="w-pw1" placeholder="enter master key" autocomplete="new-password" spellcheck="false" oninput="checkPwStrength()">
+        <div class="strength-bar"><div class="strength-fill" id="w-strength-fill" style="width:0%;background:var(--r)"></div></div>
+        <div class="pw-reqs" id="pw-reqs">
+          <div class="pw-req" id="req-len">▸ Minimum 12 characters</div>
+          <div class="pw-req" id="req-upper">▸ Uppercase letter</div>
+          <div class="pw-req" id="req-num">▸ Number</div>
+          <div class="pw-req" id="req-sym">▸ Symbol (!@#$%^&amp;*)</div>
+        </div>
+      </div>
+      <div class="field-row">
+        <label class="field-label">CONFIRM KEY</label>
+        <input type="password" class="field-input" id="w-pw2" placeholder="confirm master key" autocomplete="new-password" spellcheck="false">
+      </div>
+      <div id="w-pw-err" style="font-size:11px;color:var(--r);margin-top:4px;"></div>
+      <div class="btn-row"><button class="btn btn-full" onclick="wizNext()">[ CONFIRM KEY ]</button></div>
+    </div>
+
+    <!-- STEP 3: DURESS KEY -->
+    <div class="wizard-step" id="ws-3">
+      <div class="wiz-title">DURESS KEY (OPTIONAL)</div>
+      <div class="wiz-desc">A second key that opens a decoy vault if you're forced to authenticate under duress. Leave blank to skip.</div>
+      <div class="field-row">
+        <label class="field-label">DURESS KEY</label>
+        <input type="password" class="field-input" id="w-duress1" placeholder="enter duress key (optional)" autocomplete="new-password" spellcheck="false">
+      </div>
+      <div class="field-row">
+        <label class="field-label">CONFIRM DURESS KEY</label>
+        <input type="password" class="field-input" id="w-duress2" placeholder="confirm duress key" autocomplete="new-password" spellcheck="false">
+      </div>
+      <div id="w-duress-err" style="font-size:11px;color:var(--r);margin-top:4px;"></div>
+      <div class="btn-row">
+        <button class="btn" onclick="wizPrev()">[ BACK ]</button>
+        <button class="btn" style="flex:1;" onclick="wizNext()">[ CONTINUE ]</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: SECURITY SETTINGS -->
+    <div class="wizard-step" id="ws-4">
+      <div class="wiz-title">SECURITY CONFIGURATION</div>
+      <div class="wiz-desc">Configure automatic security behaviors.</div>
+      <div class="field-row">
+        <label class="field-label">AUTO-LOCK AFTER INACTIVITY (MINUTES)</label>
+        <input type="number" class="field-input" id="w-autolock" value="5" min="1" max="60">
+      </div>
+      <div class="field-row">
+        <label class="field-label">CLIPBOARD AUTO-CLEAR (SECONDS)</label>
+        <input type="number" class="field-input" id="w-clipclear" value="30" min="5" max="120">
+      </div>
+      <div class="field-row">
+        <label class="field-label">WIPE VAULT AFTER FAILED ATTEMPTS (0 = DISABLED)</label>
+        <input type="number" class="field-input" id="w-failwipe" value="0" min="0" max="20">
+      </div>
+      <div class="btn-row">
+        <button class="btn" onclick="wizPrev()">[ BACK ]</button>
+        <button class="btn" style="flex:1;" onclick="wizFinish()">[ INITIALIZE VAULT ]</button>
+      </div>
+    </div>
+
+    <!-- STEP 5: DONE -->
+    <div class="wizard-step" id="ws-5">
+      <div class="wiz-title" style="text-align:center;font-size:14px;">✓ VAULT INITIALIZED</div>
+      <div style="text-align:center;margin:20px 0;color:var(--td);font-size:11px;">
+        Encryption: AES-256-GCM<br>
+        Key Derivation: PBKDF2-SHA256 (250,000 iterations)<br>
+        Storage: Encrypted localStorage<br><br>
+        <span style="color:var(--r);">REMEMBER YOUR MASTER KEY.<br>IT CANNOT BE RECOVERED.</span>
+      </div>
+      <div class="btn-row"><button class="btn btn-full" id="btn-wizard-done" onclick="wizDone()">[ ENTER VAULT ]</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     BOOT SCREEN
+═══════════════════════════════════════════════ -->
+<div id="boot-screen">
+  <div id="boot-log"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     MAIN APPLICATION
+═══════════════════════════════════════════════ -->
+<div id="app">
+  <div id="app-header">
+    <div class="hdr-title">⊡ IRONVAULT</div>
+    <div class="hdr-status">
+      <span><span class="sdot"></span> ENCRYPTED</span>
+      <span id="hdr-time">2026-06-22 12:53:57 UTC</span>
+      <span id="hdr-lock-timer" style="color:var(--a);"></span>
+      <button class="btn btn-sm btn-danger" onclick="lockVault()" style="padding:2px 8px;font-size:9px;">LOCK</button>
+    </div>
+  </div>
+  <div id="nav-bar">
+    <div class="nav-tab active" onclick="switchMod(&#39;notes&#39;)" data-mod="notes">📓 FIELD NOTES</div>
+    <div class="nav-tab" onclick="switchMod(&#39;checklists&#39;)" data-mod="checklists">✅ CHECKLISTS</div>
+    <div class="nav-tab" onclick="switchMod(&#39;inventory&#39;)" data-mod="inventory">📦 INVENTORY</div>
+    <div class="nav-tab" onclick="switchMod(&#39;reference&#39;)" data-mod="reference">📖 FIELD MANUAL</div>
+    <div class="nav-tab" onclick="switchMod(&#39;locations&#39;)" data-mod="locations">🗺 LOCATIONS</div>
+    <div class="nav-tab" onclick="switchMod(&#39;comms&#39;)" data-mod="comms">📻 COMMS</div>
+    <div class="nav-tab" onclick="switchMod(&#39;medical&#39;)" data-mod="medical">🩺 MEDICAL</div>
+    <div class="nav-tab" onclick="switchMod(&#39;sitrep&#39;)" data-mod="sitrep">⚠ SITREP</div>
+    <div class="nav-tab" onclick="switchMod(&#39;settings&#39;)" data-mod="settings">⚙ SETTINGS</div>
+  </div>
+  <div id="content-area">
+
+    <!-- NOTES MODULE -->
+    <div class="mod-view active" id="mod-notes">
+      <div class="mod-hdr">
+        <div class="mod-title">◈ FIELD NOTES</div>
+        <button class="btn btn-sm" onclick="notesNew()">[ + NEW NOTE ]</button>
+      </div>
+      <div style="display:flex;height:calc(100% - 38px);overflow:hidden;">
+        <div class="split-left" id="notes-list">
+          <div class="list-add-btn" onclick="notesNew()">+ NEW NOTE</div>
+        </div>
+        <div class="split-right" id="notes-editor" style="display:flex;flex-direction:column;">
+          <div style="color:var(--td);font-size:11px;margin:auto;text-align:center;">
+            SELECT A NOTE OR CREATE NEW
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHECKLISTS MODULE -->
+    <div class="mod-view" id="mod-checklists">
+      <div class="mod-hdr">
+        <div class="mod-title">◈ CHECKLISTS</div>
+        <button class="btn btn-sm" onclick="checklistNew()">[ + NEW CHECKLIST ]</button>
+      </div>
+      <div style="display:flex;height:calc(100% - 38px);overflow:hidden;">
+        <div class="split-left" id="cl-list">
+          <div class="list-add-btn" onclick="checklistNew()">+ NEW CHECKLIST</div>
+        </div>
+        <div class="split-right" id="cl-view">
+          <div style="color:var(--td);font-size:11px;margin:auto;text-align:center;">
+            SELECT A CHECKLIST
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INVENTORY MODULE -->
+    <div class="mod-view" id="mod-inventory">
+      <div class="mod-hdr">
+        <div class="mod-title">◈ SUPPLY INVENTORY</div>
+        <button class="btn btn-sm" onclick="showAddInventoryItem()">[ + ADD ITEM ]</button>
+      </div>
+      <div class="mod-body" id="inv-body" style="padding:0;"></div>
+    </div>
+
+    <!-- REFERENCE MODULE -->
+    <div class="mod-view" id="mod-reference">
+      <div class="mod-hdr">
+        <div class="mod-title">◈ FIELD MANUAL — REFERENCE LIBRARY</div>
+        <span class="text-xs text-dim">BUILT-IN // OFFLINE</span>
+      </div>
+      <div class="mod-body" id="ref-body"></div>
+    </div>
+
+    <!-- LOCATIONS MODULE -->
+    <div class="mod-view" id="mod-locations">
+      <div class="mod-hdr">
+        <div class="mod-title">◈ LOCATIONS &amp; WAYPOINTS</div>
+        <button class="btn btn-sm" onclick="showAddLocation()">[ + ADD LOCATION ]</button>
+      </div>
+      <div class="mod-body" id="loc-body"></div>
+    </div>
+
+    <!-- COMMS MODULE -->
+    <div class="mod-view" id="mod-comms">
+      <div class="mod-hdr">
+        <div class="mod-title">◈ COMMUNICATIONS LOG</div>
+        <button class="btn btn-sm" onclick="showAddComms()">[ + ADD ENTRY ]</button>
+      </div>
+      <div class="mod-body" id="comms-body"></div>
+    </div>
+
+    <!-- MEDICAL MODULE -->
+    <div class="mod-view" id="mod-medical">
+      <div class="mod-hdr">
+        <div class="mod-title">◈ MEDICAL RECORDS</div>
+        <span class="text-xs text-dim" id="med-subtitle"></span>
+      </div>
+      <div style="display:flex;height:calc(100% - 38px);overflow:hidden;">
+        <div class="split-left" id="med-list">
+          <div class="list-item active" onclick="medTab(&#39;profile&#39;)" data-mt="profile" style="border-bottom:1px solid var(--bd);">
+            <div class="list-item-title">PERSONAL PROFILE</div>
+            <div class="list-item-meta">Identity &amp; blood type</div>
+          </div>
+          <div class="list-item" onclick="medTab(&#39;medications&#39;)" data-mt="medications">
+            <div class="list-item-title">MEDICATIONS</div>
+            <div class="list-item-meta" id="med-rx-count">0 entries</div>
+          </div>
+          <div class="list-item" onclick="medTab(&#39;allergies&#39;)" data-mt="allergies">
+            <div class="list-item-title">ALLERGIES</div>
+            <div class="list-item-meta" id="med-al-count">0 entries</div>
+          </div>
+          <div class="list-item" onclick="medTab(&#39;contacts&#39;)" data-mt="contacts">
+            <div class="list-item-title">MEDICAL CONTACTS</div>
+            <div class="list-item-meta" id="med-ct-count">0 entries</div>
+          </div>
+          <div class="list-item" onclick="medTab(&#39;journal&#39;)" data-mt="journal">
+            <div class="list-item-title">MEDICAL JOURNAL</div>
+            <div class="list-item-meta" id="med-jn-count">0 entries</div>
+          </div>
+        </div>
+        <div class="split-right" id="med-content"></div>
+      </div>
+    </div>
+
+    <!-- SITREP MODULE -->
+    <div class="mod-view" id="mod-sitrep">
+      <div class="mod-hdr">
+        <div class="mod-title">◈ SITUATION REPORT</div>
+        <button class="btn btn-sm" onclick="showAddSitrep()">[ + LOG EVENT ]</button>
+      </div>
+      <div class="mod-body" id="sitrep-body"></div>
+    </div>
+
+    <!-- SETTINGS MODULE -->
+    <div class="mod-view" id="mod-settings">
+      <div class="mod-hdr"><div class="mod-title">◈ SECURITY SETTINGS</div></div>
+      <div class="mod-body" id="settings-body"></div>
+    </div>
+
+  </div><!-- /content-area -->
+  <div id="status-bar">
+    <span id="sb-left">IRONVAULT v1.0.0 // OFFLINE // ENCRYPTED</span>
+    <span id="sb-right">ALL SYSTEMS NOMINAL</span>
+  </div>
+</div><!-- /app -->
+
+<!-- ═══════════════════════════════════════════
+     MODAL CONTAINER
+═══════════════════════════════════════════════ -->
+<div id="modal-container"></div>
+
+<script>
+'use strict';
+// ═══════════════════════════════════════════════════════
+// IRONVAULT — CORE ENGINE
+// ═══════════════════════════════════════════════════════
+
+// ─── STORAGE KEYS ──────────────────────────────────────
+const SK = {
+  VAULT:'iv_v2_vault', DECOY:'iv_v2_decoy',
+  SALT:'iv_v2_salt',   DSALT:'iv_v2_dsalt',
+  META:'iv_v2_meta'
+};
+
+// ─── APP STATE ──────────────────────────────────────────
+const S = {
+  key: null, isDecoy: false, vault: null,
+  lockTimer: null, lockSecsLeft: 0,
+  failCount: 0, settings: {},
+  currentNote: null, currentCl: null, currentMedTab: 'profile'
+};
+
+// ─── DEFAULT VAULT ──────────────────────────────────────
+function emptyVault(){ return {
+  v:2, created:Date.now(),
+  notes:[], checklists:[], inventory:[], locations:[], comms:[],
+  medical:{profile:{},medications:[],allergies:[],contacts:[],journal:[]},
+  sitrep:[],
+  settings:{autoLock:5, clipClear:30, failWipe:0, duressEnabled:false}
+};}
+
+// ─── CRYPTO ENGINE ──────────────────────────────────────
+async function deriveKey(pw, salt){
+  const enc = new TextEncoder();
+  const km = await crypto.subtle.importKey('raw', enc.encode(pw), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    {name:'PBKDF2', salt, iterations:250000, hash:'SHA-256'},
+    km, {name:'AES-GCM', length:256}, false, ['encrypt','decrypt']
+  );
+}
+async function encryptVault(data, key){
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const enc = new TextEncoder();
+  const ct = await crypto.subtle.encrypt({name:'AES-GCM',iv}, key, enc.encode(JSON.stringify(data)));
+  const out = new Uint8Array(12 + ct.byteLength);
+  out.set(iv); out.set(new Uint8Array(ct), 12);
+  return btoa(String.fromCharCode(...out));
+}
+async function decryptVault(b64, key){
+  try {
+    const raw = Uint8Array.from(atob(b64), c=>c.charCodeAt(0));
+    const iv = raw.slice(0,12), ct = raw.slice(12);
+    const pt = await crypto.subtle.decrypt({name:'AES-GCM',iv}, key, ct);
+    return JSON.parse(new TextDecoder().decode(pt));
+  } catch { return null; }
+}
+function genSalt(){ return crypto.getRandomValues(new Uint8Array(32)); }
+function saltToB64(s){ return btoa(String.fromCharCode(...s)); }
+function b64ToSalt(s){ return Uint8Array.from(atob(s), c=>c.charCodeAt(0)); }
+
+// ─── SAVE / LOAD ────────────────────────────────────────
+async function saveVault(){
+  if(!S.key || !S.vault) return;
+  const enc = await encryptVault(S.vault, S.key);
+  localStorage.setItem(S.isDecoy ? SK.DECOY : SK.VAULT, enc);
+}
+async function loadAndDecrypt(pw){
+  // Try primary vault
+  const salt = localStorage.getItem(SK.SALT);
+  if(salt){
+    const key = await deriveKey(pw, b64ToSalt(salt));
+    const blob = localStorage.getItem(SK.VAULT);
+    if(blob){
+      const v = await decryptVault(blob, key);
+      if(v) return {vault:v, key, isDecoy:false};
+    }
+  }
+  // Try decoy vault
+  const dsalt = localStorage.getItem(SK.DSALT);
+  if(dsalt){
+    const key = await deriveKey(pw, b64ToSalt(dsalt));
+    const blob = localStorage.getItem(SK.DECOY);
+    if(blob){
+      const v = await decryptVault(blob, key);
+      if(v) return {vault:v, key, isDecoy:true};
+    }
+  }
+  return null;
+}
+
+// ─── WIPE ───────────────────────────────────────────────
+function wipeVault(silent){
+  Object.values(SK).forEach(k => localStorage.removeItem(k));
+  if(!silent){
+    lockScreen('VAULT WIPED. DATA DESTROYED.','s-r');
+  }
+}
+
+// ─── SETUP WIZARD STATE ─────────────────────────────────
+const WIZ = { step:1, totalSteps:4, masterPw:'', duressPw:'' };
+
+function showSetup(){
+  document.getElementById('setup-wizard').style.display='flex';
+  document.getElementById('lock-screen').style.display='none';
+  updateWizProg();
+}
+
+function updateWizProg(){
+  const p = document.getElementById('wiz-prog');
+  p.innerHTML = Array.from({length:WIZ.totalSteps}, (_,i)=>
+    `<div class="wiz-dot ${i+1<=WIZ.step?'wactive':''}"></div>`).join('');
+}
+
+function wizNext(){
+  if(WIZ.step===2){
+    // Validate master key
+    const p1 = document.getElementById('w-pw1').value;
+    const p2 = document.getElementById('w-pw2').value;
+    const err = document.getElementById('w-pw-err');
+    if(p1.length < 12){ err.textContent='KEY MUST BE AT LEAST 12 CHARACTERS'; return; }
+    if(p1 !== p2){ err.textContent='KEYS DO NOT MATCH'; return; }
+    err.textContent='';
+    WIZ.masterPw = p1;
+  }
+  if(WIZ.step===3){
+    const d1 = document.getElementById('w-duress1').value;
+    const d2 = document.getElementById('w-duress2').value;
+    const err = document.getElementById('w-duress-err');
+    if(d1 && d1 !== d2){ err.textContent='DURESS KEYS DO NOT MATCH'; return; }
+    if(d1 && d1 === WIZ.masterPw){ err.textContent='DURESS KEY MUST DIFFER FROM MASTER KEY'; return; }
+    err.textContent='';
+    WIZ.duressPw = d1;
+  }
+  WIZ.step = Math.min(WIZ.step+1, 5);
+  updateWizProg();
+  document.querySelectorAll('.wizard-step').forEach((el,i)=>{
+    el.classList.toggle('wactive', i+1===WIZ.step);
+  });
+}
+function wizPrev(){
+  WIZ.step = Math.max(WIZ.step-1,1);
+  updateWizProg();
+  document.querySelectorAll('.wizard-step').forEach((el,i)=>{
+    el.classList.toggle('wactive', i+1===WIZ.step);
+  });
+}
+async function wizFinish(){
+  const al = parseInt(document.getElementById('w-autolock').value)||5;
+  const cc = parseInt(document.getElementById('w-clipclear').value)||30;
+  const fw = parseInt(document.getElementById('w-failwipe').value)||0;
+  // Create primary vault
+  const salt = genSalt();
+  const key = await deriveKey(WIZ.masterPw, salt);
+  const vault = emptyVault();
+  vault.settings = {autoLock:al, clipClear:cc, failWipe:fw, duressEnabled:!!WIZ.duressPw};
+  // Add template checklists
+  vault.checklists = getDefaultChecklists();
+  // Add default inventory categories
+  vault.inventory = getDefaultInventory();
+  const enc = await encryptVault(vault, key);
+  localStorage.setItem(SK.SALT, saltToB64(salt));
+  localStorage.setItem(SK.VAULT, enc);
+  // Create decoy vault if duress key provided
+  if(WIZ.duressPw){
+    const dsalt = genSalt();
+    const dkey = await deriveKey(WIZ.duressPw, dsalt);
+    const decoy = emptyVault();
+    const denc = await encryptVault(decoy, dkey);
+    localStorage.setItem(SK.DSALT, saltToB64(dsalt));
+    localStorage.setItem(SK.DECOY, denc);
+  }
+  localStorage.setItem(SK.META, JSON.stringify({initialized:true, created:Date.now()}));
+  WIZ.step=5; updateWizProg();
+  document.querySelectorAll('.wizard-step').forEach((el,i)=>{
+    el.classList.toggle('wactive', i+1===5);
+  });
+}
+async function wizDone(){
+  document.getElementById('setup-wizard').style.display='none';
+  // Auto-login with the master key
+  const res = await loadAndDecrypt(WIZ.masterPw);
+  if(res){ S.key=res.key; S.vault=res.vault; S.isDecoy=res.isDecoy; }
+  WIZ.masterPw=''; WIZ.duressPw='';
+  bootSequence();
+}
+
+function checkPwStrength(){
+  const pw = document.getElementById('w-pw1').value;
+  const len = pw.length >= 12;
+  const upper = /[A-Z]/.test(pw);
+  const num = /[0-9]/.test(pw);
+  const sym = /[^a-zA-Z0-9]/.test(pw);
+  const score = [len,upper,num,sym].filter(Boolean).length;
+  const fill = document.getElementById('w-strength-fill');
+  const colors = ['var(--r)','#ff6600','var(--a)','var(--gd)'];
+  fill.style.width = (score*25)+'%';
+  fill.style.background = colors[score-1]||'var(--r)';
+  const setReq = (id,ok)=>document.getElementById(id).className='pw-req'+(ok?' ok':'');
+  setReq('req-len',len); setReq('req-upper',upper); setReq('req-num',num); setReq('req-sym',sym);
+}
+
+// ─── AUTHENTICATION ──────────────────────────────────────
+async function doUnlock(){
+  const pw = document.getElementById('lock-pw').value;
+  if(!pw){ setLockStatus('ENTER MASTER KEY','s-warn'); return; }
+  // Check for wipe prefix
+  if(pw.startsWith('WIPE:')){
+    if(confirm('CONFIRM VAULT DESTRUCTION — THIS CANNOT BE UNDONE')){
+      wipeVault(false); return;
+    }
+  }
+  setLockStatus('AUTHENTICATING...','s-warn');
+  document.getElementById('btn-unlock').disabled=true;
+  try {
+    const res = await loadAndDecrypt(pw);
+    if(res){
+      S.key=res.key; S.vault=res.vault; S.isDecoy=res.isDecoy;
+      S.failCount=0;
+      document.getElementById('lock-pw').value='';
+      setLockStatus('ACCESS GRANTED','s-ok');
+      bootSequence();
+    } else {
+      S.failCount++;
+      const max = S.settings.failWipe||0;
+      const meta = JSON.parse(localStorage.getItem(SK.META)||'{}');
+      if(max > 0 && S.failCount >= max){
+        wipeVault(false); return;
+      }
+      document.getElementById('fail-bar-wrap').classList.remove('hidden');
+      if(max > 0){
+        document.getElementById('fail-fill').style.width = Math.min((S.failCount/max)*100,100)+'%';
+      }
+      setLockStatus('AUTHENTICATION FAILED ['+(S.failCount)+']','s-err');
+      document.getElementById('btn-unlock').disabled=false;
+    }
+  } catch(e){
+    setLockStatus('DECRYPTION ERROR','s-err');
+    document.getElementById('btn-unlock').disabled=false;
+  }
+}
+
+function setLockStatus(msg,cls){
+  const el = document.getElementById('lock-status');
+  el.textContent=msg; el.className=cls;
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('lock-pw').addEventListener('keydown', e=>{
+    if(e.key==='Enter') doUnlock();
+  });
+  const meta = localStorage.getItem(SK.META);
+  if(!meta) {
+    document.getElementById('btn-first-run').style.display='block';
+  } else {
+    document.getElementById('btn-first-run').style.display='none';
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+});
+
+// ─── BOOT SEQUENCE ──────────────────────────────────────
+function bootSequence(){
+  const bs = document.getElementById('boot-screen');
+  const log = document.getElementById('boot-log');
+  bs.style.display='block';
+  document.getElementById('lock-screen').style.display='none';
+  const lines = [
+    {t:'IRONVAULT BOOT SEQUENCE INITIATED...',c:''},
+    {t:'[ OK ] AES-256-GCM CRYPTO ENGINE LOADED',c:'bok'},
+    {t:'[ OK ] VAULT DECRYPTED SUCCESSFULLY',c:'bok'},
+    {t:'[ OK ] MEMORY PROTECTION ACTIVE',c:'bok'},
+    {t:'[ OK ] NETWORK ISOLATION CONFIRMED',c:'bok'},
+    {t:'[ OK ] ANTI-TAMPER LAYER ENGAGED',c:'bok'},
+    {t:'[ OK ] CLIPBOARD SCRUBBER ARMED',c:'bok'},
+    {t:'[ OK ] AUTO-LOCK TIMER INITIALIZED ['+(S.vault?.settings?.autoLock||5)+' MIN]',c:'bok'},
+    {t:(S.isDecoy?'[ WARN ] LOADING DECOY VAULT':'[ OK ] PRIMARY VAULT LOADED'),c:S.isDecoy?'bwarn':'bok'},
+    {t:'[ OK ] ALL MODULES READY',c:'bok'},
+    {t:'ENTERING SECURE OPERATIONS MODE...',c:''},
+  ];
+  log.innerHTML='';
+  let i=0;
+  function addLine(){
+    if(i>=lines.length){ setTimeout(launchApp,400); return; }
+    const el=document.createElement('div');
+    el.className=lines[i].c;
+    el.textContent=lines[i].t;
+    log.appendChild(el); i++;
+    setTimeout(addLine, 60+Math.random()*80);
+  }
+  addLine();
+}
+
+function launchApp(){
+  document.getElementById('boot-screen').style.display='none';
+  document.getElementById('app').style.display='flex';
+  S.settings = S.vault.settings||{};
+  initSecurity();
+  renderAllModules();
+}
+
+// ─── SECURITY MONITOR ───────────────────────────────────
+function initSecurity(){
+  resetLockTimer();
+  ['mousemove','keydown','mousedown','touchstart'].forEach(e=>{
+    document.addEventListener(e, resetLockTimer, {passive:true});
+  });
+  // Disable right-click
+  document.addEventListener('contextmenu', e=>e.preventDefault());
+  // Block devtools shortcuts
+  document.addEventListener('keydown', e=>{
+    if(e.key==='F12') e.preventDefault();
+    if(e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key)) e.preventDefault();
+    if(e.ctrlKey && e.key==='U') e.preventDefault();
+  });
+  // Devtools size detection
+  setInterval(()=>{
+    if(window.outerWidth-window.innerWidth>160||window.outerHeight-window.innerHeight>160){
+      lockVault(); }
+  }, 2000);
+  // Wipe sensitive vars on close
+  window.addEventListener('beforeunload', ()=>{ S.key=null; S.vault=null; });
+  // Visibility change — lock on tab hide
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden && S.settings.lockOnHide) lockVault();
+  });
+}
+
+function resetLockTimer(){
+  if(!S.vault) return;
+  clearTimeout(S.lockTimer);
+  const mins = S.vault.settings?.autoLock||5;
+  S.lockSecsLeft = mins*60;
+  S.lockTimer = setTimeout(lockVault, mins*60*1000);
+}
+
+function lockVault(){
+  clearTimeout(S.lockTimer);
+  S.key=null; S.vault=null; S.isDecoy=false;
+  document.getElementById('app').style.display='none';
+  const ls = document.getElementById('lock-screen');
+  ls.style.display='flex';
+  document.getElementById('lock-pw').value='';
+  setLockStatus('VAULT LOCKED','s-warn');
+  document.getElementById('btn-unlock').disabled=false;
+}
+
+function updateClock(){
+  const now = new Date();
+  const ts = now.toISOString().replace('T',' ').slice(0,19)+' UTC';
+  const el = document.getElementById('hdr-time');
+  if(el) el.textContent = ts;
+  const sb = document.getElementById('sb-left');
+  if(sb && S.vault) {
+    const mode = S.isDecoy?'[DECOY MODE] ':'';
+    sb.textContent = mode+'IRONVAULT v1.0.0 // ENCRYPTED // '+ts;
+  }
+}
+setInterval(updateClock,1000);
+
+// Clipboard scrubber
+function secCopy(text){
+  navigator.clipboard.writeText(text).catch(()=>{});
+  const secs = S.vault?.settings?.clipClear||30;
+  setTimeout(()=>{ try{navigator.clipboard.writeText('');}catch(e){} }, secs*1000);
+  setStatus('COPIED TO CLIPBOARD — CLEARS IN '+secs+'s','s-warn');
+}
+
+// ─── NAVIGATION ─────────────────────────────────────────
+function switchMod(mod){
+  document.querySelectorAll('.mod-view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  const mv = document.getElementById('mod-'+mod);
+  if(mv) mv.classList.add('active');
+  const tab = document.querySelector('.nav-tab[data-mod="'+mod+'"]');
+  if(tab) tab.classList.add('active');
+  resetLockTimer();
+}
+
+function setStatus(msg,cls=''){
+  const el = document.getElementById('sb-right');
+  if(el){ el.textContent=msg; el.className=cls; }
+}
+
+// ─── MODAL UTILITIES ────────────────────────────────────
+function showModal(title, bodyHTML, footerHTML=''){
+  closeModal();
+  const html = `<div class="modal-overlay" onclick="closeModal(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-header"><span class="modal-title">${title}</span><button class="modal-x" onclick="closeModal()">×</button></div>
+      <div class="modal-body">${bodyHTML}</div>
+      ${footerHTML?`<div class="modal-footer">${footerHTML}</div>`:''}
+    </div></div>`;
+  document.getElementById('modal-container').innerHTML=html;
+}
+function closeModal(e){
+  if(e && e.target!==e.currentTarget) return;
+  document.getElementById('modal-container').innerHTML='';
+}
+
+// ID generator
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function tsFormat(ts){
+  if(!ts) return '';
+  return new Date(ts).toISOString().replace('T',' ').slice(0,16)+' UTC';
+}
+
+// ═══════════════════════════════════════════════════════
+// MODULE: FIELD NOTES
+// ═══════════════════════════════════════════════════════
+function renderNotes(){
+  const list = document.getElementById('notes-list');
+  const notes = S.vault.notes||[];
+  list.innerHTML='<div class="list-add-btn" onclick="notesNew()">+ NEW NOTE</div>';
+  notes.slice().sort((a,b)=>b.updated-a.updated).forEach(n=>{
+    const el=document.createElement('div');
+    el.className='list-item'+(S.currentNote===n.id?' active':'');
+    el.setAttribute('data-nid',n.id);
+    el.innerHTML=`<div class="list-item-title">${esc(n.title||'UNTITLED')}</div>
+      <div class="list-item-meta">${tsFormat(n.updated)}</div>`;
+    el.onclick=()=>notesOpen(n.id);
+    list.appendChild(el);
+  });
+}
+
+function notesNew(){
+  const n={id:uid(),title:'NEW NOTE',body:'',created:Date.now(),updated:Date.now(),tags:[]};
+  S.vault.notes.unshift(n); S.currentNote=n.id;
+  saveVault(); renderNotes(); notesOpen(n.id);
+}
+
+function notesOpen(id){
+  S.currentNote=id;
+  renderNotes();
+  const n = S.vault.notes.find(x=>x.id===id);
+  if(!n) return;
+  const ed = document.getElementById('notes-editor');
+  ed.innerHTML=`
+    <div style="display:flex;gap:8px;padding:10px;border-bottom:1px solid var(--bd);flex-shrink:0;">
+      <input type="text" class="form-input" id="note-title-inp" value="${esc(n.title)}" placeholder="NOTE TITLE" style="flex:1;" onchange="noteUpdateTitle()">
+      <button class="btn btn-sm btn-danger" onclick="noteDelete('${id}')">DEL</button>
+    </div>
+    <textarea class="form-textarea" id="note-body-ta" style="flex:1;border:none;border-radius:0;min-height:unset;height:100%;resize:none;padding:14px;" 
+      placeholder="BEGIN FIELD NOTES...">${esc(n.body)}</textarea>
+    <div style="padding:6px 12px;border-top:1px solid var(--bd);font-size:9px;color:var(--td);flex-shrink:0;display:flex;justify-content:space-between;">
+      <span>CREATED: ${tsFormat(n.created)}</span>
+      <span id="note-save-status">AUTO-SAVED</span>
+    </div>`;
+  let saveDebounce;
+  document.getElementById('note-body-ta').addEventListener('input',()=>{
+    clearTimeout(saveDebounce);
+    document.getElementById('note-save-status').textContent='UNSAVED...';
+    saveDebounce=setTimeout(()=>{ noteAutoSave(id); },800);
+  });
+}
+
+function noteUpdateTitle(){
+  const n=S.vault.notes.find(x=>x.id===S.currentNote); if(!n) return;
+  n.title=document.getElementById('note-title-inp').value||'UNTITLED';
+  n.updated=Date.now(); saveVault(); renderNotes();
+}
+function noteAutoSave(id){
+  const n=S.vault.notes.find(x=>x.id===id); if(!n) return;
+  n.body=document.getElementById('note-body-ta').value;
+  n.updated=Date.now(); saveVault(); renderNotes();
+  const s=document.getElementById('note-save-status');
+  if(s) s.textContent='SAVED '+tsFormat(n.updated);
+}
+function noteDelete(id){
+  if(!confirm('DELETE THIS NOTE? CANNOT BE UNDONE.')) return;
+  S.vault.notes=S.vault.notes.filter(n=>n.id!==id);
+  S.currentNote=null; saveVault(); renderNotes();
+  document.getElementById('notes-editor').innerHTML=
+    '<div style="color:var(--td);font-size:11px;margin:auto;text-align:center;">SELECT A NOTE OR CREATE NEW</div>';
+}
+
+// ═══════════════════════════════════════════════════════
+// MODULE: CHECKLISTS
+// ═══════════════════════════════════════════════════════
+function getDefaultChecklists(){
+  return [
+    {id:uid(),title:'72-HR BUG-OUT BAG',category:'BOB',created:Date.now(),updated:Date.now(),items:[
+      {id:uid(),label:'Water (3L minimum)',note:'Nalgene + filter straw',checked:false},
+      {id:uid(),label:'Water purification tabs',note:'Iodine or chlorine tablets',checked:false},
+      {id:uid(),label:'LifeStraw / Sawyer Squeeze filter',note:'',checked:false},
+      {id:uid(),label:'3-day food supply (2000 cal/day)',note:'MREs, bars, freeze-dried',checked:false},
+      {id:uid(),label:'First aid kit (comprehensive)',note:'',checked:false},
+      {id:uid(),label:'Emergency medications + prescriptions',note:'',checked:false},
+      {id:uid(),label:'Fixed-blade knife (full tang)',note:'',checked:false},
+      {id:uid(),label:'Multi-tool',note:'Leatherman or Gerber',checked:false},
+      {id:uid(),label:'Firestarter (lighter + ferro rod + waterproof matches)',note:'',checked:false},
+      {id:uid(),label:'Emergency poncho / tarp (2)',note:'',checked:false},
+      {id:uid(),label:'Mylar emergency blankets (2)',note:'',checked:false},
+      {id:uid(),label:'550 paracord (50ft)',note:'',checked:false},
+      {id:uid(),label:'Headlamp + extra batteries',note:'',checked:false},
+      {id:uid(),label:'Hand-crank / solar radio',note:'',checked:false},
+      {id:uid(),label:'Compass + paper map (local area)',note:'',checked:false},
+      {id:uid(),label:'Cash (small bills)',note:'ATMs may be down',checked:false},
+      {id:uid(),label:'Copies of critical documents',note:'ID, insurance, prescriptions',checked:false},
+      {id:uid(),label:'Change of clothes + sturdy boots',note:'',checked:false},
+      {id:uid(),label:'Rain gear',note:'',checked:false},
+      {id:uid(),label:'Dust/N95 masks (10)',note:'',checked:false},
+      {id:uid(),label:'Duct tape',note:'',checked:false},
+      {id:uid(),label:'Whistle (Fox 40 pea-less)',note:'',checked:false},
+      {id:uid(),label:'Hand sanitizer + soap',note:'',checked:false},
+      {id:uid(),label:'Portable charger / power bank',note:'',checked:false},
+      {id:uid(),label:'HAM/GMRS radio (Baofeng UV-5R)',note:'',checked:false},
+    ]},
+    {id:uid(),title:"INCH BAG (I'M NEVER COMING HOME)",category:'INCH',created:Date.now(),updated:Date.now(),items:[
+      {id:uid(),label:'All BOB items',note:'Foundation layer',checked:false},
+      {id:uid(),label:'Quality backpack (65-80L, MOLLE)',note:'',checked:false},
+      {id:uid(),label:'Extended food supply (14+ days)',note:'',checked:false},
+      {id:uid(),label:'Water filtration system (gravity)',note:'',checked:false},
+      {id:uid(),label:'Heirloom seed packet collection',note:'Vegetable variety pack',checked:false},
+      {id:uid(),label:'Hand tools: axe, folding saw, shovel',note:'',checked:false},
+      {id:uid(),label:'Snare wire (100ft)',note:'Small game trapping',checked:false},
+      {id:uid(),label:'Fishing kit (compact)',note:'Line, hooks, weights, lures',checked:false},
+      {id:uid(),label:'Tarp shelter + stakes (heavy duty)',note:'',checked:false},
+      {id:uid(),label:'Sleeping bag (rated to 0°F)',note:'',checked:false},
+      {id:uid(),label:'Sleeping pad (insulated)',note:'',checked:false},
+      {id:uid(),label:'Camp stove + fuel (30-day supply)',note:'',checked:false},
+      {id:uid(),label:'Cookware set (titanium)',note:'',checked:false},
+      {id:uid(),label:'Field surgical kit',note:'',checked:false},
+      {id:uid(),label:'Antibiotics (prescription)',note:'',checked:false},
+      {id:uid(),label:'Solar panel + battery bank (100W)',note:'',checked:false},
+      {id:uid(),label:'Shortwave radio + antenna',note:'',checked:false},
+      {id:uid(),label:'Reloading supplies / extra ammo',note:'',checked:false},
+      {id:uid(),label:'Topo maps + compass (baseplate)',note:'',checked:false},
+      {id:uid(),label:'Skills reference books (waterproofed)',note:'',checked:false},
+      {id:uid(),label:'Hygiene: soap, toothbrush, TP',note:'',checked:false},
+    ]},
+    {id:uid(),title:'VEHICLE EMERGENCY KIT',category:'VEHICLE',created:Date.now(),updated:Date.now(),items:[
+      {id:uid(),label:'Jumper cables / jump pack',note:'',checked:false},
+      {id:uid(),label:'Tire inflator + fix-a-flat',note:'',checked:false},
+      {id:uid(),label:'Spare tire (full size)',note:'',checked:false},
+      {id:uid(),label:'Lug wrench + jack',note:'',checked:false},
+      {id:uid(),label:'Tow rope / recovery strap',note:'',checked:false},
+      {id:uid(),label:'Shovel (foldable)',note:'',checked:false},
+      {id:uid(),label:'Water (1 gallon)',note:'',checked:false},
+      {id:uid(),label:'Food (3-day supply)',note:'',checked:false},
+      {id:uid(),label:'First aid kit',note:'',checked:false},
+      {id:uid(),label:'Blanket / sleeping bag',note:'',checked:false},
+      {id:uid(),label:'Flashlight + batteries',note:'',checked:false},
+      {id:uid(),label:'Road flares / LED triangles',note:'',checked:false},
+      {id:uid(),label:'Basic tool set (wrenches, screwdrivers)',note:'',checked:false},
+      {id:uid(),label:'Extra fuel (approved container)',note:'',checked:false},
+      {id:uid(),label:'Paper maps',note:'',checked:false},
+    ]},
+    {id:uid(),title:'HOME DEFENSE READINESS',category:'HOMESTEAD',created:Date.now(),updated:Date.now(),items:[
+      {id:uid(),label:'Perimeter: exterior lighting installed',note:'Motion-sensor',checked:false},
+      {id:uid(),label:'Perimeter: cameras operational',note:'',checked:false},
+      {id:uid(),label:'Doors: deadbolts + security plates',note:'',checked:false},
+      {id:uid(),label:'Windows: locks + secondary pins',note:'',checked:false},
+      {id:uid(),label:'Safe room identified and stocked',note:'',checked:false},
+      {id:uid(),label:'Communication plan established with family',note:'Rally points, check-in times',checked:false},
+      {id:uid(),label:'Firearms cleaned and function-checked',note:'',checked:false},
+      {id:uid(),label:'Ammunition inventory current',note:'',checked:false},
+      {id:uid(),label:'OPSEC: social media reviewed',note:'Do not post location/plans',checked:false},
+      {id:uid(),label:'Bug-out route (primary + alternate) mapped',note:'',checked:false},
+      {id:uid(),label:'Neighbor trust network established',note:'',checked:false},
+      {id:uid(),label:'30-day water supply stored',note:'',checked:false},
+      {id:uid(),label:'90-day food supply stored',note:'',checked:false},
+      {id:uid(),label:'Power: generator + fuel',note:'',checked:false},
+      {id:uid(),label:'Power: battery backup / solar',note:'',checked:false},
+      {id:uid(),label:'Medical: first aid training current',note:'',checked:false},
+    ]},
+  ];
+}
+
+function renderChecklists(){
+  const list = document.getElementById('cl-list');
+  const cls = S.vault.checklists||[];
+  list.innerHTML='<div class="list-add-btn" onclick="checklistNew()">+ NEW CHECKLIST</div>';
+  cls.forEach(cl=>{
+    const done=cl.items.filter(i=>i.checked).length;
+    const el=document.createElement('div');
+    el.className='list-item'+(S.currentCl===cl.id?' active':'');
+    el.innerHTML=`<div class="list-item-title">${esc(cl.title)}</div>
+      <div class="list-item-meta">${done}/${cl.items.length} complete</div>`;
+    el.onclick=()=>checklistOpen(cl.id);
+    list.appendChild(el);
+  });
+}
+
+function checklistNew(){
+  showModal('NEW CHECKLIST',`
+    <div class="form-group"><label class="form-label">TITLE</label>
+      <input type="text" class="form-input" id="cl-new-title" placeholder="CHECKLIST NAME"></div>
+    <div class="form-group"><label class="form-label">CATEGORY</label>
+      <select class="form-select" id="cl-new-cat">
+        <option>BOB</option><option>INCH</option><option>VEHICLE</option>
+        <option>HOMESTEAD</option><option>MEDICAL</option><option>COMMS</option><option>CUSTOM</option>
+      </select></div>`,
+    `<button class="btn btn-sm" onclick="checklistCreate()">[ CREATE ]</button>
+     <button class="btn btn-sm" style="border-color:var(--bd);color:var(--td);" onclick="closeModal()">CANCEL</button>`
+  );
+}
+function checklistCreate(){
+  const title=document.getElementById('cl-new-title').value||'NEW CHECKLIST';
+  const cat=document.getElementById('cl-new-cat').value;
+  const cl={id:uid(),title,category:cat,created:Date.now(),updated:Date.now(),items:[]};
+  S.vault.checklists.push(cl); S.currentCl=cl.id;
+  saveVault(); closeModal(); renderChecklists(); checklistOpen(cl.id);
+}
+
+function checklistOpen(id){
+  S.currentCl=id; renderChecklists();
+  const cl=S.vault.checklists.find(x=>x.id===id); if(!cl) return;
+  const done=cl.items.filter(i=>i.checked).length;
+  const pct=cl.items.length?Math.round(done/cl.items.length*100):0;
+  let html=`<div style="margin-bottom:14px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+      <span style="font-size:13px;letter-spacing:2px;">${esc(cl.title)}</span>
+      <span class="tag tag-d">${cl.category}</span>
+    </div>
+    <div class="cl-progress"><div class="cl-progress-fill" style="width:${pct}%"></div></div>
+    <div style="font-size:10px;color:var(--td);margin-top:3px;">${done} / ${cl.items.length} — ${pct}% COMPLETE</div>
+  </div>
+  <div id="cl-items-wrap">`;
+  cl.items.forEach(item=>{
+    html+=`<div class="cl-item" onclick="clToggle('${id}','${item.id}')">
+      <div class="cl-box${item.checked?' checked':''}"></div>
+      <div><div class="cl-label${item.checked?' checked':''}">${esc(item.label)}</div>
+      ${item.note?`<div class="cl-note">${esc(item.note)}</div>`:''}
+      </div>
+      <button class="btn btn-sm btn-danger" style="margin-left:auto;padding:2px 6px;font-size:9px;" onclick="event.stopPropagation();clDeleteItem('${id}','${item.id}')">✕</button>
+    </div>`;
+  });
+  html+=`</div>
+  <div style="margin-top:14px;display:flex;gap:8px;">
+    <input type="text" class="form-input" id="cl-new-item" placeholder="ADD NEW ITEM" style="flex:1;" onkeydown="if(event.key==='Enter')clAddItem('${id}')">
+    <button class="btn btn-sm" onclick="clAddItem('${id}')">+ ADD</button>
+  </div>
+  <div style="margin-top:10px;display:flex;gap:8px;">
+    <button class="btn btn-sm" onclick="clResetAll('${id}')">RESET ALL</button>
+    <button class="btn btn-sm btn-danger" onclick="clDelete('${id}')">DELETE LIST</button>
+  </div>`;
+  document.getElementById('cl-view').innerHTML=html;
+}
+function clToggle(clId,itemId){
+  const cl=S.vault.checklists.find(x=>x.id===clId); if(!cl) return;
+  const item=cl.items.find(x=>x.id===itemId); if(!item) return;
+  item.checked=!item.checked; cl.updated=Date.now();
+  saveVault(); checklistOpen(clId); renderChecklists();
+}
+function clAddItem(clId){
+  const inp=document.getElementById('cl-new-item'); if(!inp) return;
+  const label=inp.value.trim(); if(!label) return;
+  const cl=S.vault.checklists.find(x=>x.id===clId); if(!cl) return;
+  cl.items.push({id:uid(),label,note:'',checked:false});
+  cl.updated=Date.now(); saveVault(); checklistOpen(clId); renderChecklists();
+}
+function clDeleteItem(clId,itemId){
+  const cl=S.vault.checklists.find(x=>x.id===clId); if(!cl) return;
+  cl.items=cl.items.filter(x=>x.id!==itemId);
+  cl.updated=Date.now(); saveVault(); checklistOpen(clId);
+}
+function clResetAll(clId){
+  const cl=S.vault.checklists.find(x=>x.id===clId); if(!cl) return;
+  cl.items.forEach(i=>i.checked=false); cl.updated=Date.now();
+  saveVault(); checklistOpen(clId); renderChecklists();
+}
+function clDelete(clId){
+  if(!confirm('DELETE THIS CHECKLIST?')) return;
+  S.vault.checklists=S.vault.checklists.filter(x=>x.id!==clId);
+  S.currentCl=null; saveVault(); renderChecklists();
+  document.getElementById('cl-view').innerHTML='<div style="color:var(--td);font-size:11px;margin:auto;text-align:center;">SELECT A CHECKLIST</div>';
+}
+
+// ═══════════════════════════════════════════════════════
+// MODULE: INVENTORY
+// ═══════════════════════════════════════════════════════
+function getDefaultInventory(){ return []; }
+
+const INV_CATS=['WATER','FOOD (LONG-TERM)','FOOD (PERISHABLE)','MEDICAL','COMMUNICATIONS',
+  'POWER & LIGHTING','TOOLS & EQUIPMENT','WEAPONS & DEFENSE','DOCUMENTS & CASH','MISC'];
+
+function renderInventory(){
+  const body=document.getElementById('inv-body');
+  const items=S.vault.inventory||[];
+  let html='';
+  INV_CATS.forEach(cat=>{
+    const catItems=items.filter(i=>i.cat===cat);
+    html+=`<div class="panel" style="margin-bottom:0;border-bottom:none;">
+      <div class="inv-cat-hdr" onclick="this.nextSibling.classList.toggle('hidden')">
+        <span>${cat} (${catItems.length})</span><span>${catItems.length?'▼':'▼'}</span>
+      </div>
+      <div>`;
+    if(catItems.length){
+      html+=`<div style="padding:0;">
+        <div style="display:flex;padding:4px 12px;font-size:9px;color:var(--td);border-bottom:1px solid var(--bd);">
+          <span style="flex:1;">ITEM</span>
+          <span style="width:80px;text-align:right;">QTY</span>
+          <span style="width:70px;text-align:right;">UNIT</span>
+          <span style="width:100px;text-align:right;">EXPIRY</span>
+          <span style="width:60px;text-align:right;">STATUS</span>
+          <span style="width:50px;"></span>
+        </div>`;
+      catItems.forEach(item=>{
+        const statusClass = item.status==='LOW'?'low-stock':item.status==='CRITICAL'?'critical':'ok-stock';
+        html+=`<div class="inv-row">
+          <span class="inv-name">${esc(item.name)}</span>
+          <span class="inv-qty">${item.qty}</span>
+          <span class="inv-unit">${esc(item.unit||'')}</span>
+          <span class="inv-exp">${item.exp||'—'}</span>
+          <span class="inv-status ${statusClass}">${item.status||'OK'}</span>
+          <span style="width:50px;text-align:right;">
+            <button class="btn btn-sm" style="padding:1px 6px;font-size:9px;border-color:var(--bd);color:var(--td);" onclick="editInventoryItem('${item.id}')">EDIT</button>
+          </span>
+        </div>`;
+      });
+      html+='</div>';
+    } else {
+      html+='<div style="padding:10px 12px;font-size:11px;color:var(--td);">NO ITEMS IN THIS CATEGORY</div>';
+    }
+    html+='</div></div>';
+  });
+  body.innerHTML=html;
+}
+
+function showAddInventoryItem(editId){
+  const item=editId?S.vault.inventory.find(x=>x.id===editId):null;
+  const catOptions=INV_CATS.map(c=>`<option${item&&item.cat===c?' selected':''}>${c}</option>`).join('');
+  showModal(editId?'EDIT ITEM':'ADD INVENTORY ITEM',`
+    <div class="grid-2">
+      <div class="form-group"><label class="form-label">ITEM NAME</label>
+        <input type="text" class="form-input" id="inv-name" value="${esc(item?.name||'')}" placeholder="e.g. Mountain House Meal"></div>
+      <div class="form-group"><label class="form-label">CATEGORY</label>
+        <select class="form-select" id="inv-cat">${catOptions}</select></div>
+      <div class="form-group"><label class="form-label">QUANTITY</label>
+        <input type="number" class="form-input" id="inv-qty" value="${item?.qty||0}" min="0"></div>
+      <div class="form-group"><label class="form-label">UNIT</label>
+        <input type="text" class="form-input" id="inv-unit" value="${esc(item?.unit||'')}" placeholder="cans, gallons, lbs..."></div>
+      <div class="form-group"><label class="form-label">EXPIRY DATE</label>
+        <input type="text" class="form-input" id="inv-exp" value="${esc(item?.exp||'')}" placeholder="YYYY-MM"></div>
+      <div class="form-group"><label class="form-label">STATUS</label>
+        <select class="form-select" id="inv-status">
+          <option${item?.status==='OK'?' selected':''}>OK</option>
+          <option${item?.status==='LOW'?' selected':''}>LOW</option>
+          <option${item?.status==='CRITICAL'?' selected':''}>CRITICAL</option>
+        </select></div>
+    </div>
+    <div class="form-group"><label class="form-label">NOTES</label>
+      <textarea class="form-textarea" id="inv-notes" style="min-height:60px;">${esc(item?.notes||'')}</textarea></div>
+    ${editId?`<button class="btn btn-sm btn-danger" onclick="deleteInventoryItem('${editId}')">DELETE ITEM</button>`:''}`,
+    `<button class="btn btn-sm" onclick="saveInventoryItem('${editId||''}')">[ SAVE ]</button>
+     <button class="btn btn-sm" style="border-color:var(--bd);color:var(--td);" onclick="closeModal()">CANCEL</button>`
+  );
+}
+function editInventoryItem(id){ showAddInventoryItem(id); }
+function saveInventoryItem(editId){
+  const item={
+    id:editId||uid(),
+    name:document.getElementById('inv-name').value||'UNNAMED',
+    cat:document.getElementById('inv-cat').value,
+    qty:parseFloat(document.getElementById('inv-qty').value)||0,
+    unit:document.getElementById('inv-unit').value,
+    exp:document.getElementById('inv-exp').value,
+    status:document.getElementById('inv-status').value,
+    notes:document.getElementById('inv-notes').value,
+    updated:Date.now()
+  };
+  if(editId){
+    const idx=S.vault.inventory.findIndex(x=>x.id===editId);
+    if(idx>=0) S.vault.inventory[idx]=item;
+  } else { S.vault.inventory.push(item); }
+  saveVault(); closeModal(); renderInventory();
+}
+function deleteInventoryItem(id){
+  if(!confirm('DELETE THIS ITEM?')) return;
+  S.vault.inventory=S.vault.inventory.filter(x=>x.id!==id);
+  saveVault(); closeModal(); renderInventory();
+}
+
+// ═══════════════════════════════════════════════════════
+// MODULE: LOCATIONS
+// ═══════════════════════════════════════════════════════
+const LOC_TYPES=['CACHE','RALLY POINT','BUG-OUT DESTINATION','WATER SOURCE','MEDICAL',
+  'COMMS SITE','OBSERVATION POST','SAFE HOUSE','HAZARD','OTHER'];
+
+function renderLocations(){
+  const body=document.getElementById('loc-body');
+  const locs=S.vault.locations||[];
+  if(!locs.length){
+    body.innerHTML='<div style="color:var(--td);font-size:11px;text-align:center;padding:40px;">NO LOCATIONS LOGGED — ADD YOUR FIRST WAYPOINT</div>';
+    return;
+  }
+  let html='<table class="dtable"><thead><tr><th>DESIGNATION</th><th>TYPE</th><th>COORDINATES</th><th>MGRS</th><th>NOTES</th><th></th></tr></thead><tbody>';
+  locs.forEach(loc=>{
+    html+=`<tr>
+      <td style="color:var(--g);">${esc(loc.name)}</td>
+      <td><span class="tag tag-d">${esc(loc.type)}</span></td>
+      <td class="coord-display" style="font-size:12px;">${esc(loc.coords||'—')}</td>
+      <td style="font-family:var(--fn);font-size:11px;color:var(--a);">${esc(loc.mgrs||'—')}</td>
+      <td style="font-size:11px;color:var(--td);max-width:200px;">${esc(loc.notes||'—')}</td>
+      <td><button class="btn btn-sm" style="padding:2px 6px;font-size:9px;" onclick="editLocation('${loc.id}')">EDIT</button></td>
+    </tr>`;
+  });
+  html+='</tbody></table>';
+  body.innerHTML=html;
+}
+
+function showAddLocation(editId){
+  const loc=editId?S.vault.locations.find(x=>x.id===editId):null;
+  const typeOpts=LOC_TYPES.map(t=>`<option${loc&&loc.type===t?' selected':''}>${t}</option>`).join('');
+  showModal(editId?'EDIT LOCATION':'ADD LOCATION / WAYPOINT',`
+    <div class="grid-2">
+      <div class="form-group"><label class="form-label">DESIGNATION / CODE NAME</label>
+        <input type="text" class="form-input" id="loc-name" value="${esc(loc?.name||'')}" placeholder="ALPHA CACHE"></div>
+      <div class="form-group"><label class="form-label">TYPE</label>
+        <select class="form-select" id="loc-type">${typeOpts}</select></div>
+      <div class="form-group"><label class="form-label">LAT/LONG COORDINATES</label>
+        <input type="text" class="form-input" id="loc-coords" value="${esc(loc?.coords||'')}" placeholder="41.8781° N, 87.6298° W"></div>
+      <div class="form-group"><label class="form-label">MGRS GRID</label>
+        <input type="text" class="form-input" id="loc-mgrs" value="${esc(loc?.mgrs||'')}" placeholder="16TBK7694231042"></div>
+      <div class="form-group"><label class="form-label">BEARING FROM HOME (°)</label>
+        <input type="text" class="form-input" id="loc-bearing" value="${esc(loc?.bearing||'')}" placeholder="270° W"></div>
+      <div class="form-group"><label class="form-label">DISTANCE FROM HOME</label>
+        <input type="text" class="form-input" id="loc-dist" value="${esc(loc?.dist||'')}" placeholder="12 mi"></div>
+    </div>
+    <div class="form-group"><label class="form-label">NOTES / APPROACH DETAILS</label>
+      <textarea class="form-textarea" id="loc-notes" style="min-height:80px;">${esc(loc?.notes||'')}</textarea></div>
+    ${editId?`<button class="btn btn-sm btn-danger" onclick="deleteLocation('${editId}')">DELETE</button>`:''}`,
+    `<button class="btn btn-sm" onclick="saveLocation('${editId||''}')">[ SAVE ]</button>
+     <button class="btn btn-sm" style="border-color:var(--bd);color:var(--td);" onclick="closeModal()">CANCEL</button>`
+  );
+}
+function editLocation(id){ showAddLocation(id); }
+function saveLocation(editId){
+  const loc={
+    id:editId||uid(), name:document.getElementById('loc-name').value||'UNNAMED',
+    type:document.getElementById('loc-type').value, coords:document.getElementById('loc-coords').value,
+    mgrs:document.getElementById('loc-mgrs').value, bearing:document.getElementById('loc-bearing').value,
+    dist:document.getElementById('loc-dist').value, notes:document.getElementById('loc-notes').value,
+    updated:Date.now()
+  };
+  if(editId){ const i=S.vault.locations.findIndex(x=>x.id===editId); if(i>=0) S.vault.locations[i]=loc; }
+  else S.vault.locations.push(loc);
+  saveVault(); closeModal(); renderLocations();
+}
+function deleteLocation(id){
+  if(!confirm('DELETE THIS LOCATION?')) return;
+  S.vault.locations=S.vault.locations.filter(x=>x.id!==id);
+  saveVault(); closeModal(); renderLocations();
+}
+
+// ═══════════════════════════════════════════════════════
+// MODULE: COMMS
+// ═══════════════════════════════════════════════════════
+function renderComms(){
+  const body=document.getElementById('comms-body');
+  const comms=S.vault.comms||[];
+  let html=`<div class="grid-2" style="margin-bottom:16px;">
+    <div class="panel"><div class="panel-hdr">COMMS LOG (${comms.length} ENTRIES)</div>
+    <div class="panel-body" style="padding:0;">`;
+  if(!comms.length){
+    html+='<div style="padding:12px;font-size:11px;color:var(--td);">NO ENTRIES</div>';
+  } else {
+    html+='<table class="dtable"><thead><tr><th>CALLSIGN/CONTACT</th><th>TYPE</th><th>FREQ/CHANNEL</th><th>GROUP</th><th>NOTES</th><th></th></tr></thead><tbody>';
+    comms.forEach(c=>{
+      html+=`<tr>
+        <td style="color:var(--g);">${esc(c.callsign)}</td>
+        <td><span class="tag tag-d">${esc(c.type)}</span></td>
+        <td class="freq-badge">${esc(c.freq||'—')}</td>
+        <td style="font-size:10px;color:var(--td);">${esc(c.group||'—')}</td>
+        <td style="font-size:11px;max-width:160px;color:var(--td);">${esc(c.notes||'—')}</td>
+        <td><button class="btn btn-sm" style="padding:2px 6px;font-size:9px;" onclick="editComms('${c.id}')">EDIT</button></td>
+      </tr>`;
+    });
+    html+='</tbody></table>';
+  }
+  html+='</div></div>';
+  // Schedule window
+  html+=`<div class="panel"><div class="panel-hdr">COMM WINDOWS</div><div class="panel-body">
+    ${(S.vault.commsSchedule||[]).map(s=>`<div class="inv-row">
+      <span style="flex:1;color:var(--g);">${esc(s.name)}</span>
+      <span style="color:var(--a);">${esc(s.time)}</span>
+      <span style="color:var(--td);font-size:10px;margin-left:12px;">${esc(s.freq)}</span>
+    </div>`).join('')||'<div style="font-size:11px;color:var(--td);">NO WINDOWS SCHEDULED</div>'}
+    </div></div>`;
+  html+='</div>';
+  body.innerHTML=html;
+}
+
+function showAddComms(editId){
+  const c=editId?S.vault.comms.find(x=>x.id===editId):null;
+  showModal(editId?'EDIT COMMS ENTRY':'ADD COMMS ENTRY',`
+    <div class="grid-2">
+      <div class="form-group"><label class="form-label">CALLSIGN / CONTACT NAME</label>
+        <input type="text" class="form-input" id="c-callsign" value="${esc(c?.callsign||'')}" placeholder="BRAVO-6 / KD9XYZ"></div>
+      <div class="form-group"><label class="form-label">TYPE</label>
+        <select class="form-select" id="c-type">
+          <option${c?.type==='HAM'?' selected':''}>HAM</option>
+          <option${c?.type==='GMRS'?' selected':''}>GMRS</option>
+          <option${c?.type==='CB'?' selected':''}>CB</option>
+          <option${c?.type==='FRS'?' selected':''}>FRS</option>
+          <option${c?.type==='MURS'?' selected':''}>MURS</option>
+          <option${c?.type==='PHONE'?' selected':''}>PHONE</option>
+          <option${c?.type==='SATELLITE'?' selected':''}>SATELLITE</option>
+          <option${c?.type==='OTHER'?' selected':''}>OTHER</option>
+        </select></div>
+      <div class="form-group"><label class="form-label">FREQUENCY / CHANNEL</label>
+        <input type="text" class="form-input" id="c-freq" value="${esc(c?.freq||'')}" placeholder="146.520 MHz"></div>
+      <div class="form-group"><label class="form-label">CTCSS TONE / PL CODE</label>
+        <input type="text" class="form-input" id="c-tone" value="${esc(c?.tone||'')}" placeholder="100.0 Hz"></div>
+      <div class="form-group"><label class="form-label">GROUP / TEAM</label>
+        <input type="text" class="form-input" id="c-group" value="${esc(c?.group||'')}" placeholder="FAMILY / TEAM ALPHA"></div>
+      <div class="form-group"><label class="form-label">COMM WINDOW TIME (UTC)</label>
+        <input type="text" class="form-input" id="c-window" value="${esc(c?.window||'')}" placeholder="0600, 1200, 1800"></div>
+    </div>
+    <div class="form-group"><label class="form-label">NOTES / ALTERNATE FREQS</label>
+      <textarea class="form-textarea" id="c-notes" style="min-height:60px;">${esc(c?.notes||'')}</textarea></div>
+    ${editId?`<button class="btn btn-sm btn-danger" onclick="deleteComms('${editId}')">DELETE</button>`:''}`,
+    `<button class="btn btn-sm" onclick="saveComms('${editId||''}')">[ SAVE ]</button>
+     <button class="btn btn-sm" style="border-color:var(--bd);color:var(--td);" onclick="closeModal()">CANCEL</button>`
+  );
+}
+function editComms(id){ showAddComms(id); }
+function saveComms(editId){
+  const c={
+    id:editId||uid(), callsign:document.getElementById('c-callsign').value||'UNKNOWN',
+    type:document.getElementById('c-type').value, freq:document.getElementById('c-freq').value,
+    tone:document.getElementById('c-tone').value, group:document.getElementById('c-group').value,
+    window:document.getElementById('c-window').value, notes:document.getElementById('c-notes').value,
+    updated:Date.now()
+  };
+  if(editId){ const i=S.vault.comms.findIndex(x=>x.id===editId); if(i>=0) S.vault.comms[i]=c; }
+  else S.vault.comms.push(c);
+  saveVault(); closeModal(); renderComms();
+}
+function deleteComms(id){
+  if(!confirm('DELETE THIS ENTRY?')) return;
+  S.vault.comms=S.vault.comms.filter(x=>x.id!==id);
+  saveVault(); closeModal(); renderComms();
+}
+
+// ═══════════════════════════════════════════════════════
+// MODULE: MEDICAL
+// ═══════════════════════════════════════════════════════
+function renderMedical(){
+  updateMedCounts(); medTab(S.currentMedTab);
+}
+function updateMedCounts(){
+  const m=S.vault.medical||{};
+  const el=(id,arr)=>{ const e=document.getElementById(id); if(e) e.textContent=(arr?.length||0)+' entries'; };
+  el('med-rx-count',m.medications); el('med-al-count',m.allergies);
+  el('med-ct-count',m.contacts); el('med-jn-count',m.journal);
+}
+function medTab(tab){
+  S.currentMedTab=tab;
+  document.querySelectorAll('.split-left [data-mt]').forEach(el=>{
+    el.classList.toggle('active', el.getAttribute('data-mt')===tab);
+  });
+  const c=document.getElementById('med-content');
+  const m=S.vault.medical||{};
+  if(tab==='profile') c.innerHTML=renderMedProfile(m.profile||{});
+  else if(tab==='medications') c.innerHTML=renderMedRx(m.medications||[]);
+  else if(tab==='allergies') c.innerHTML=renderMedAllergies(m.allergies||[]);
+  else if(tab==='contacts') c.innerHTML=renderMedContacts(m.contacts||[]);
+  else if(tab==='journal') c.innerHTML=renderMedJournal(m.journal||[]);
+}
+function renderMedProfile(p){
+  return `<div style="margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">
+    <span style="font-size:11px;letter-spacing:2px;">PERSONAL MEDICAL PROFILE</span>
+    <button class="btn btn-sm" onclick="showEditMedProfile()">EDIT</button></div>
+  <div class="panel"><div class="panel-body">
+    <table class="dtable"><tbody>
+      <tr><td class="text-dim" style="width:160px;">FULL NAME</td><td>${esc(p.name||'—')}</td></tr>
+      <tr><td class="text-dim">DOB</td><td>${esc(p.dob||'—')}</td></tr>
+      <tr><td class="text-dim">BLOOD TYPE</td><td style="color:var(--r);font-size:14px;">${esc(p.blood||'—')}</td></tr>
+      <tr><td class="text-dim">HEIGHT / WEIGHT</td><td>${esc(p.hw||'—')}</td></tr>
+      <tr><td class="text-dim">CONDITIONS</td><td>${esc(p.conditions||'—')}</td></tr>
+      <tr><td class="text-dim">ORGAN DONOR</td><td>${esc(p.donor||'—')}</td></tr>
+      <tr><td class="text-dim">INSURANCE</td><td>${esc(p.insurance||'—')}</td></tr>
+      <tr><td class="text-dim">EMERGENCY CONTACT</td><td>${esc(p.emContact||'—')}</td></tr>
+    </tbody></table>
+  </div></div>`;
+}
+function showEditMedProfile(){
+  const p=S.vault.medical?.profile||{};
+  showModal('EDIT MEDICAL PROFILE',`
+    <div class="grid-2">
+      <div class="form-group"><label class="form-label">FULL NAME</label><input type="text" class="form-input" id="mp-name" value="${esc(p.name||'')}"></div>
+      <div class="form-group"><label class="form-label">DATE OF BIRTH</label><input type="text" class="form-input" id="mp-dob" value="${esc(p.dob||'')}" placeholder="YYYY-MM-DD"></div>
+      <div class="form-group"><label class="form-label">BLOOD TYPE</label>
+        <select class="form-select" id="mp-blood">
+          ${['—','A+','A-','B+','B-','AB+','AB-','O+','O-'].map(v=>`<option${p.blood===v?' selected':''}>${v}</option>`).join('')}
+        </select></div>
+      <div class="form-group"><label class="form-label">HEIGHT / WEIGHT</label><input type="text" class="form-input" id="mp-hw" value="${esc(p.hw||'')}" placeholder="6ft 175lbs"></div>
+      <div class="form-group"><label class="form-label">ORGAN DONOR</label>
+        <select class="form-select" id="mp-donor">
+          <option${p.donor==='YES'?' selected':''}>YES</option>
+          <option${p.donor==='NO'?' selected':''}>NO</option>
+          <option${p.donor==='UNSPECIFIED'?' selected':''}>UNSPECIFIED</option>
+        </select></div>
+      <div class="form-group"><label class="form-label">INSURANCE INFO</label><input type="text" class="form-input" id="mp-ins" value="${esc(p.insurance||'')}"></div>
+    </div>
+    <div class="form-group"><label class="form-label">MEDICAL CONDITIONS</label><textarea class="form-textarea" id="mp-cond" style="min-height:60px;">${esc(p.conditions||'')}</textarea></div>
+    <div class="form-group"><label class="form-label">EMERGENCY CONTACT</label><input type="text" class="form-input" id="mp-em" value="${esc(p.emContact||'')}"></div>`,
+    `<button class="btn btn-sm" onclick="saveMedProfile()">[ SAVE ]</button>
+     <button class="btn btn-sm" style="border-color:var(--bd);color:var(--td);" onclick="closeModal()">CANCEL</button>`
+  );
+}
+function saveMedProfile(){
+  if(!S.vault.medical) S.vault.medical={};
+  S.vault.medical.profile={
+    name:document.getElementById('mp-name').value,
+    dob:document.getElementById('mp-dob').value,
+    blood:document.getElementById('mp-blood').value,
+    hw:document.getElementById('mp-hw').value,
+    donor:document.getElementById('mp-donor').value,
+    insurance:document.getElementById('mp-ins').value,
+    conditions:document.getElementById('mp-cond').value,
+    emContact:document.getElementById('mp-em').value
+  };
+  saveVault(); closeModal(); medTab('profile');
+}
+function renderMedRx(meds){
+  let html=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+    <span style="font-size:11px;letter-spacing:2px;">MEDICATIONS (${meds.length})</span>
+    <button class="btn btn-sm" onclick="showAddMedRx()">+ ADD</button></div>`;
+  if(!meds.length) return html+'<div style="color:var(--td);font-size:11px;">NO MEDICATIONS LOGGED</div>';
+  html+='<table class="dtable"><thead><tr><th>MEDICATION</th><th>DOSAGE</th><th>FREQUENCY</th><th>PURPOSE</th><th>SUPPLY</th><th></th></tr></thead><tbody>';
+  meds.forEach(m=>{
+    html+=`<tr>
+      <td style="color:var(--g);">${esc(m.name)}</td>
+      <td>${esc(m.dose||'—')}</td><td>${esc(m.freq||'—')}</td>
+      <td style="color:var(--td);font-size:11px;">${esc(m.purpose||'—')}</td>
+      <td>${esc(m.supply||'—')}</td>
+      <td><button class="btn btn-sm btn-danger" style="padding:1px 6px;font-size:9px;" onclick="deleteMedRx('${m.id}')">✕</button></td>
+    </tr>`;
+  });
+  return html+'</tbody></table>';
+}
+function showAddMedRx(){
+  showModal('ADD MEDICATION',`
+    <div class="grid-2">
+      <div class="form-group"><label class="form-label">MEDICATION NAME</label><input type="text" class="form-input" id="rx-name" placeholder="Amoxicillin"></div>
+      <div class="form-group"><label class="form-label">DOSAGE</label><input type="text" class="form-input" id="rx-dose" placeholder="500mg"></div>
+      <div class="form-group"><label class="form-label">FREQUENCY</label><input type="text" class="form-input" id="rx-freq" placeholder="3x daily"></div>
+      <div class="form-group"><label class="form-label">ON-HAND SUPPLY</label><input type="text" class="form-input" id="rx-supply" placeholder="30 days"></div>
+    </div>
+    <div class="form-group"><label class="form-label">PURPOSE / NOTES</label><textarea class="form-textarea" id="rx-purpose" style="min-height:60px;"></textarea></div>`,
+    `<button class="btn btn-sm" onclick="saveMedRx()">[ SAVE ]</button>
+     <button class="btn btn-sm" style="border-color:var(--bd);color:var(--td);" onclick="closeModal()">CANCEL</button>`
+  );
+}
+function saveMedRx(){
+  if(!S.vault.medical) S.vault.medical={};
+  if(!S.vault.medical.medications) S.vault.medical.medications=[];
+  S.vault.medical.medications.push({
+    id:uid(), name:document.getElementById('rx-name').value,
+    dose:document.getElementById('rx-dose').value, freq:document.getElementById('rx-freq').value,
+    supply:document.getElementById('rx-supply').value, purpose:document.getElementById('rx-purpose').value
+  });
+  saveVault(); closeModal(); medTab('medications'); updateMedCounts();
+}
+function deleteMedRx(id){
+  if(!confirm('DELETE?')) return;
+  S.vault.medical.medications=S.vault.medical.medications.filter(x=>x.id!==id);
+  saveVault(); medTab('medications'); updateMedCounts();
+}
+function renderMedAllergies(al){
+  let html=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+    <span style="font-size:11px;letter-spacing:2px;">ALLERGIES & REACTIONS (${al.length})</span>
+    <button class="btn btn-sm" onclick="showAddMedAllergy()">+ ADD</button></div>`;
+  if(!al.length) return html+'<div style="color:var(--td);font-size:11px;">NO ALLERGIES LOGGED</div>';
+  html+='<table class="dtable"><thead><tr><th>ALLERGEN</th><th>SEVERITY</th><th>REACTION</th><th>TREATMENT</th><th></th></tr></thead><tbody>';
+  al.forEach(a=>{
+    const sev=a.severity==='SEVERE'?'tl5':a.severity==='MODERATE'?'tl3':'tl1';
+    html+=`<tr><td style="color:var(--g);">${esc(a.name)}</td>
+      <td><span class="tag ${sev}">${esc(a.severity||'MILD')}</span></td>
+      <td style="font-size:11px;">${esc(a.reaction||'—')}</td>
+      <td style="font-size:11px;color:var(--td);">${esc(a.treatment||'—')}</td>
+      <td><button class="btn btn-sm btn-danger" style="padding:1px 6px;font-size:9px;" onclick="deleteMedAllergy('${a.id}')">✕</button></td>
+    </tr>`;
+  });
+  return html+'</tbody></table>';
+}
+function showAddMedAllergy(){
+  showModal('ADD ALLERGY',`
+    <div class="grid-2">
+      <div class="form-group"><label class="form-label">ALLERGEN</label><input type="text" class="form-input" id="al-name" placeholder="Penicillin, Bee stings..."></div>
+      <div class="form-group"><label class="form-label">SEVERITY</label>
+        <select class="form-select" id="al-sev"><option>MILD</option><option>MODERATE</option><option>SEVERE</option></select></div>
+    </div>
+    <div class="form-group"><label class="form-label">REACTION SYMPTOMS</label><input type="text" class="form-input" id="al-react" placeholder="Hives, anaphylaxis..."></div>
+    <div class="form-group"><label class="form-label">TREATMENT / EPI-PEN?</label><input type="text" class="form-input" id="al-treat" placeholder="Epinephrine auto-injector, Benadryl..."></div>`,
+    `<button class="btn btn-sm" onclick="saveMedAllergy()">[ SAVE ]</button>
+     <button class="btn btn-sm" style="border-color:var(--bd);color:var(--td);" onclick="closeModal()">CANCEL</button>`
+  );
+}
+function saveMedAllergy(){
+  if(!S.vault.medical.allergies) S.vault.medical.allergies=[];
+  S.vault.medical.allergies.push({
+    id:uid(), name:document.getElementById('al-name').value,
+    severity:document.getElementById('al-sev').value,
+    reaction:document.getElementById('al-react').value,
+    treatment:document.getElementById('al-treat').value
+  });
+  saveVault(); closeModal(); medTab('allergies'); updateMedCounts();
+}
+function deleteMedAllergy(id){
+  if(!confirm('DELETE?')) return;
+  S.vault.medical.allergies=S.vault.medical.allergies.filter(x=>x.id!==id);
+  saveVault(); medTab('allergies'); updateMedCounts();
+}
+function renderMedContacts(cts){
+  let html=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+    <span style="font-size:11px;letter-spacing:2px;">MEDICAL CONTACTS (${cts.length})</span>
+    <button class="btn btn-sm" onclick="showAddMedContact()">+ ADD</button></div>`;
+  if(!cts.length) return html+'<div style="color:var(--td);font-size:11px;">NO CONTACTS LOGGED</div>';
+  html+='<table class="dtable"><thead><tr><th>NAME</th><th>ROLE</th><th>PHONE</th><th>NOTES</th><th></th></tr></thead><tbody>';
+  cts.forEach(c=>{
+    html+=`<tr><td style="color:var(--g);">${esc(c.name)}</td><td class="text-dim">${esc(c.role||'—')}</td>
+      <td>${esc(c.phone||'—')}</td><td style="font-size:11px;color:var(--td);">${esc(c.notes||'—')}</td>
+      <td><button class="btn btn-sm btn-danger" style="padding:1px 6px;font-size:9px;" onclick="deleteMedContact('${c.id}')">✕</button></td>
+    </tr>`;
+  });
+  return html+'</tbody></table>';
+}
+function showAddMedContact(){
+  showModal('ADD MEDICAL CONTACT',`
+    <div class="grid-2">
+      <div class="form-group"><label class="form-label">NAME</label><input type="text" class="form-input" id="mc-name"></div>
+      <div class="form-group"><label class="form-label">ROLE</label><input type="text" class="form-input" id="mc-role" placeholder="PCP, Specialist, Dentist..."></div>
+      <div class="form-group"><label class="form-label">PHONE</label><input type="text" class="form-input" id="mc-phone"></div>
+      <div class="form-group"><label class="form-label">ADDRESS</label><input type="text" class="form-input" id="mc-addr"></div>
+    </div>
+    <div class="form-group"><label class="form-label">NOTES</label><textarea class="form-textarea" id="mc-notes" style="min-height:60px;"></textarea></div>`,
+    `<button class="btn btn-sm" onclick="saveMedContact()">[ SAVE ]</button>
+     <button class="btn btn-sm" style="border-color:var(--bd);color:var(--td);" onclick="closeModal()">CANCEL</button>`
+  );
+}
+function saveMedContact(){
+  if(!S.vault.medical.contacts) S.vault.medical.contacts=[];
+  S.vault.medical.contacts.push({
+    id:uid(), name:document.getElementById('mc-name').value, role:document.getElementById('mc-role').value,
+    phone:document.getElementById('mc-phone').value, addr:document.getElementById('mc-addr').value,
+    notes:document.getElementById('mc-notes').value
+  });
+  saveVault(); closeModal(); medTab('contacts'); updateMedCounts();
+}
+function deleteMedContact(id){
+  if(!confirm('DELETE?')) return;
+  S.vault.medical.contacts=S.vault.medical.contacts.filter(x=>x.id!==id);
+  saveVault(); medTab('contacts'); updateMedCounts();
+}
+function renderMedJournal(entries){
+  let html=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+    <span style="font-size:11px;letter-spacing:2px;">MEDICAL JOURNAL (${entries.length})</span>
+    <button class="btn btn-sm" onclick="showAddMedJournal()">+ LOG ENTRY</button></div>`;
+  if(!entries.length) return html+'<div style="color:var(--td);font-size:11px;">NO JOURNAL ENTRIES</div>';
+  entries.slice().reverse().forEach(e=>{
+    html+=`<div class="panel" style="margin-bottom:10px;"><div class="panel-hdr">
+      <span style="color:var(--g);">${tsFormat(e.date)}</span>
+      <div><button class="btn btn-sm btn-danger" style="padding:1px 6px;font-size:9px;" onclick="deleteMedJournal('${e.id}')">✕</button></div>
+    </div><div class="panel-body" style="font-size:12px;line-height:1.7;color:var(--gd);">${esc(e.entry).replace(/\n/g,'<br>')}</div></div>`;
+  });
+  return html;
+}
+function showAddMedJournal(){
+  showModal('LOG MEDICAL ENTRY',`
+    <div class="form-group"><label class="form-label">DATE</label>
+      <input type="datetime-local" class="form-input" id="mj-date"></div>
+    <div class="form-group"><label class="form-label">JOURNAL ENTRY</label>
+      <textarea class="form-textarea" id="mj-entry" placeholder="Symptoms, treatment, observations..."></textarea></div>`,
+    `<button class="btn btn-sm" onclick="saveMedJournal()">[ SAVE ]</button>
+     <button class="btn btn-sm" style="border-color:var(--bd);color:var(--td);" onclick="closeModal()">CANCEL</button>`
+  );
+  const d=document.getElementById('mj-date');
+  if(d) d.value=new Date().toISOString().slice(0,16);
+}
+function saveMedJournal(){
+  if(!S.vault.medical.journal) S.vault.medical.journal=[];
+  S.vault.medical.journal.push({
+    id:uid(), date:new Date(document.getElementById('mj-date').value).getTime()||Date.now(),
+    entry:document.getElementById('mj-entry').value
+  });
+  saveVault(); closeModal(); medTab('journal'); updateMedCounts();
+}
+function deleteMedJournal(id){
+  if(!confirm('DELETE?')) return;
+  S.vault.medical.journal=S.vault.medical.journal.filter(x=>x.id!==id);
+  saveVault(); medTab('journal'); updateMedCounts();
+}
+
+// ═══════════════════════════════════════════════════════
+// MODULE: SITREP
+// ═══════════════════════════════════════════════════════
+const THREAT_LEVELS=['1-ROUTINE','2-ELEVATED','3-HIGH','4-CRITICAL','5-EMERGENCY'];
+const THREAT_CLASSES=['tl1','tl2','tl3','tl4','tl5'];
+
+function renderSitrep(){
+  const body=document.getElementById('sitrep-body');
+  const events=S.vault.sitrep||[];
+  let html=`<div class="grid-3" style="margin-bottom:16px;">
+    <div class="panel"><div class="panel-hdr">TOTAL EVENTS</div>
+      <div class="panel-body" style="font-size:24px;color:var(--g);">${events.length}</div></div>
+    <div class="panel"><div class="panel-hdr">HIGH/CRITICAL</div>
+      <div class="panel-body" style="font-size:24px;color:var(--r);">${events.filter(e=>['4-CRITICAL','5-EMERGENCY','3-HIGH'].includes(e.threat)).length}</div></div>
+    <div class="panel"><div class="panel-hdr">LAST 24H</div>
+      <div class="panel-body" style="font-size:24px;color:var(--a);">${events.filter(e=>Date.now()-e.ts<86400000).length}</div></div>
+  </div>`;
+  if(!events.length){
+    html+='<div style="color:var(--td);font-size:11px;text-align:center;padding:30px;">NO EVENTS LOGGED. AREA SECURE.</div>';
+  } else {
+    html+='<table class="dtable"><thead><tr><th>TIMESTAMP</th><th>THREAT</th><th>TYPE</th><th>SUMMARY</th><th>LOCATION</th><th></th></tr></thead><tbody>';
+    events.slice().sort((a,b)=>b.ts-a.ts).forEach(e=>{
+      const ti=THREAT_LEVELS.indexOf(e.threat);
+      const tc=THREAT_CLASSES[ti]||'tl1';
+      html+=`<tr>
+        <td style="font-size:11px;color:var(--td);">${tsFormat(e.ts)}</td>
+        <td><span class="tag ${tc}">${esc(e.threat||'1-ROUTINE')}</span></td>
+        <td class="text-dim" style="font-size:11px;">${esc(e.type||'—')}</td>
+        <td style="max-width:200px;">${esc(e.summary||'—')}</td>
+        <td style="font-size:11px;color:var(--td);">${esc(e.location||'—')}</td>
+        <td><button class="btn btn-sm btn-danger" style="padding:1px 6px;font-size:9px;" onclick="deleteSitrep('${e.id}')">✕</button></td>
+      </tr>`;
+    });
+    html+='</tbody></table>';
+  }
+  body.innerHTML=html;
+}
+function showAddSitrep(){
+  showModal('LOG SITREP EVENT',`
+    <div class="grid-2">
+      <div class="form-group"><label class="form-label">DATE/TIME</label>
+        <input type="datetime-local" class="form-input" id="sr-ts"></div>
+      <div class="form-group"><label class="form-label">THREAT LEVEL</label>
+        <select class="form-select" id="sr-threat">
+          ${THREAT_LEVELS.map(t=>`<option>${t}</option>`).join('')}
+        </select></div>
+      <div class="form-group"><label class="form-label">EVENT TYPE</label>
+        <select class="form-select" id="sr-type">
+          <option>OBSERVATION</option><option>INTRUSION</option><option>NATURAL DISASTER</option>
+          <option>CIVIL UNREST</option><option>MEDICAL</option><option>SUPPLY ISSUE</option>
+          <option>COMMS FAILURE</option><option>SECURITY BREACH</option><option>OTHER</option>
+        </select></div>
+      <div class="form-group"><label class="form-label">LOCATION</label>
+        <input type="text" class="form-input" id="sr-loc" placeholder="Grid ref / description"></div>
+    </div>
+    <div class="form-group"><label class="form-label">SUMMARY (5-LINE SITREP)</label>
+      <textarea class="form-textarea" id="sr-summary" placeholder="LINE 1: Who\nLINE 2: What\nLINE 3: When\nLINE 4: Where\nLINE 5: Action taken"></textarea></div>`,
+    `<button class="btn btn-sm" onclick="saveSitrep()">[ LOG EVENT ]</button>
+     <button class="btn btn-sm" style="border-color:var(--bd);color:var(--td);" onclick="closeModal()">CANCEL</button>`
+  );
+  const d=document.getElementById('sr-ts');
+  if(d) d.value=new Date().toISOString().slice(0,16);
+}
+function saveSitrep(){
+  S.vault.sitrep.push({
+    id:uid(), ts:new Date(document.getElementById('sr-ts').value).getTime()||Date.now(),
+    threat:document.getElementById('sr-threat').value,
+    type:document.getElementById('sr-type').value,
+    location:document.getElementById('sr-loc').value,
+    summary:document.getElementById('sr-summary').value
+  });
+  saveVault(); closeModal(); renderSitrep();
+}
+function deleteSitrep(id){
+  if(!confirm('DELETE THIS EVENT LOG?')) return;
+  S.vault.sitrep=S.vault.sitrep.filter(x=>x.id!==id);
+  saveVault(); renderSitrep();
+}
+
+// ═══════════════════════════════════════════════════════
+// MODULE: SETTINGS
+// ═══════════════════════════════════════════════════════
+function renderSettings(){
+  const s=S.vault.settings||{};
+  document.getElementById('settings-body').innerHTML=`
+  <div class="grid-2">
+    <div>
+      <div class="panel"><div class="panel-hdr">SECURITY</div><div class="panel-body">
+        <div class="setting-row">
+          <div><div class="setting-label">AUTO-LOCK TIMER</div>
+            <div class="setting-desc">Lock vault after N minutes of inactivity</div></div>
+          <input type="number" class="num-input" id="s-autolock" value="${s.autoLock||5}" min="1" max="60" onchange="settingSave()"> MIN
+        </div>
+        <div class="setting-row">
+          <div><div class="setting-label">CLIPBOARD CLEAR DELAY</div>
+            <div class="setting-desc">Auto-wipe clipboard after copy (seconds)</div></div>
+          <input type="number" class="num-input" id="s-clipclear" value="${s.clipClear||30}" min="5" max="300" onchange="settingSave()"> SEC
+        </div>
+        <div class="setting-row">
+          <div><div class="setting-label">FAILED ATTEMPT WIPE</div>
+            <div class="setting-desc">Wipe vault after N failures (0=disabled)</div></div>
+          <input type="number" class="num-input" id="s-failwipe" value="${s.failWipe||0}" min="0" max="20" onchange="settingSave()">
+        </div>
+        <div class="setting-row">
+          <div><div class="setting-label">DURESS VAULT</div>
+            <div class="setting-desc">Second decoy vault enabled</div></div>
+          <span class="tag ${s.duressEnabled?'tag-g':'tag-d'}">${s.duressEnabled?'ENABLED':'DISABLED'}</span>
+        </div>
+      </div></div>
+      <div class="panel" style="margin-top:12px;"><div class="panel-hdr">VAULT MANAGEMENT</div><div class="panel-body">
+        <div class="btn-row">
+          <button class="btn btn-sm" onclick="exportVault()">[ EXPORT ENCRYPTED BACKUP ]</button>
+          <button class="btn btn-sm" onclick="importVault()">[ IMPORT BACKUP ]</button>
+        </div>
+        <div class="btn-row" style="margin-top:8px;">
+          <button class="btn btn-sm" onclick="changePassword()">[ CHANGE MASTER KEY ]</button>
+        </div>
+        <div class="btn-row" style="margin-top:16px;border-top:1px solid var(--bd);padding-top:16px;">
+          <button class="btn btn-sm btn-danger" onclick="confirmWipe()">[ WIPE ALL DATA ]</button>
+        </div>
+      </div></div>
+    </div>
+    <div>
+      <div class="panel"><div class="panel-hdr">VAULT INFORMATION</div><div class="panel-body">
+        <table class="dtable"><tbody>
+          <tr><td class="text-dim">ENCRYPTION</td><td>AES-256-GCM</td></tr>
+          <tr><td class="text-dim">KEY DERIVATION</td><td>PBKDF2-SHA256</td></tr>
+          <tr><td class="text-dim">KDF ITERATIONS</td><td>250,000</td></tr>
+          <tr><td class="text-dim">STORAGE</td><td>LOCAL (OFFLINE)</td></tr>
+          <tr><td class="text-dim">NETWORK ACCESS</td><td style="color:var(--g);">NONE</td></tr>
+          <tr><td class="text-dim">VAULT MODE</td><td style="color:${S.isDecoy?'var(--a)':'var(--g)'};">${S.isDecoy?'DECOY':'PRIMARY'}</td></tr>
+          <tr><td class="text-dim">CREATED</td><td>${tsFormat(S.vault.created)}</td></tr>
+          <tr><td class="text-dim">NOTES</td><td>${S.vault.notes?.length||0}</td></tr>
+          <tr><td class="text-dim">INVENTORY ITEMS</td><td>${S.vault.inventory?.length||0}</td></tr>
+          <tr><td class="text-dim">LOCATIONS</td><td>${S.vault.locations?.length||0}</td></tr>
+          <tr><td class="text-dim">SITREP EVENTS</td><td>${S.vault.sitrep?.length||0}</td></tr>
+        </tbody></table>
+      </div></div>
+      <div class="panel" style="margin-top:12px;"><div class="panel-hdr">PANIC COMMANDS</div><div class="panel-body">
+        <div style="font-size:11px;line-height:1.8;color:var(--td);">
+          On the lock screen, typing <code style="color:var(--a);">WIPE:</code> as a password prefix followed by any characters will trigger immediate vault destruction.<br><br>
+          <span style="color:var(--r);">WIPE: — destroys all vault data immediately. No recovery possible.</span>
+        </div>
+      </div></div>
+    </div>
+  </div>`;
+}
+function settingSave(){
+  S.vault.settings.autoLock=parseInt(document.getElementById('s-autolock').value)||5;
+  S.vault.settings.clipClear=parseInt(document.getElementById('s-clipclear').value)||30;
+  S.vault.settings.failWipe=parseInt(document.getElementById('s-failwipe').value)||0;
+  S.settings=S.vault.settings; saveVault(); resetLockTimer(); setStatus('SETTINGS SAVED');
+}
+
+async function exportVault(){
+  const enc=localStorage.getItem(SK.VAULT); if(!enc){ setStatus('NO VAULT TO EXPORT','s-err'); return; }
+  const salt=localStorage.getItem(SK.SALT);
+  const exp=JSON.stringify({iv:'ironvault-backup-v2',vault:enc,salt,ts:Date.now()});
+  const blob=new Blob([exp],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url;
+  a.download='ironvault-backup-'+new Date().toISOString().slice(0,10)+'.ivbak';
+  a.click(); URL.revokeObjectURL(url);
+  setStatus('ENCRYPTED BACKUP EXPORTED');
+}
+function importVault(){
+  showModal('IMPORT ENCRYPTED BACKUP',`
+    <div style="font-size:11px;color:var(--a);margin-bottom:14px;border:1px solid var(--a);padding:10px;">
+      WARNING: This will OVERWRITE your current vault. Ensure you have a backup before proceeding.
+    </div>
+    <div class="form-group"><label class="form-label">SELECT .ivbak FILE</label>
+      <input type="file" class="form-input" id="import-file" accept=".ivbak,.json" style="padding:5px;"></div>`,
+    `<button class="btn btn-sm btn-amber" onclick="doImport()">[ IMPORT & OVERWRITE ]</button>
+     <button class="btn btn-sm" style="border-color:var(--bd);color:var(--td);" onclick="closeModal()">CANCEL</button>`
+  );
+}
+function doImport(){
+  const file=document.getElementById('import-file').files[0]; if(!file){ return; }
+  const r=new FileReader();
+  r.onload=e=>{
+    try {
+      const data=JSON.parse(e.target.result);
+      if(data.iv!=='ironvault-backup-v2') throw new Error('Invalid backup file');
+      localStorage.setItem(SK.VAULT,data.vault);
+      localStorage.setItem(SK.SALT,data.salt);
+      closeModal(); lockVault();
+      setLockStatus('BACKUP IMPORTED — RE-AUTHENTICATE','s-ok');
+    } catch(err){ alert('INVALID BACKUP FILE: '+err.message); }
+  };
+  r.readAsText(file);
+}
+function changePassword(){
+  showModal('CHANGE MASTER KEY',`
+    <div class="form-group"><label class="form-label">CURRENT KEY</label>
+      <input type="password" class="form-input" id="cp-old" autocomplete="current-password"></div>
+    <div class="form-group"><label class="form-label">NEW KEY (12+ characters)</label>
+      <input type="password" class="form-input" id="cp-new1" autocomplete="new-password"></div>
+    <div class="form-group"><label class="form-label">CONFIRM NEW KEY</label>
+      <input type="password" class="form-input" id="cp-new2" autocomplete="new-password"></div>
+    <div id="cp-err" style="color:var(--r);font-size:11px;"></div>`,
+    `<button class="btn btn-sm" onclick="doChangePw()">[ CHANGE KEY ]</button>
+     <button class="btn btn-sm" style="border-color:var(--bd);color:var(--td);" onclick="closeModal()">CANCEL</button>`
+  );
+}
+async function doChangePw(){
+  const old=document.getElementById('cp-old').value;
+  const n1=document.getElementById('cp-new1').value;
+  const n2=document.getElementById('cp-new2').value;
+  const err=document.getElementById('cp-err');
+  if(n1!==n2){ err.textContent='NEW KEYS DO NOT MATCH'; return; }
+  if(n1.length<12){ err.textContent='NEW KEY MUST BE 12+ CHARACTERS'; return; }
+  const res=await loadAndDecrypt(old);
+  if(!res){ err.textContent='CURRENT KEY INCORRECT'; return; }
+  const newSalt=genSalt();
+  const newKey=await deriveKey(n1,newSalt);
+  const enc=await encryptVault(S.vault,newKey);
+  localStorage.setItem(SK.SALT,saltToB64(newSalt));
+  localStorage.setItem(SK.VAULT,enc);
+  S.key=newKey;
+  closeModal(); setStatus('MASTER KEY CHANGED — RE-DERIVE COMPLETE');
+}
+function confirmWipe(){
+  showModal('⚠ CONFIRM VAULT WIPE',`
+    <div style="color:var(--r);font-size:12px;line-height:1.8;text-align:center;padding:20px;">
+      THIS WILL PERMANENTLY DESTROY ALL VAULT DATA.<br>
+      ALL NOTES, CHECKLISTS, INVENTORY, AND RECORDS WILL BE WIPED.<br>
+      THIS CANNOT BE UNDONE.<br><br>
+      TYPE <code style="color:var(--a);">CONFIRM WIPE</code> TO PROCEED.
+    </div>
+    <div class="form-group"><input type="text" class="form-input" id="wipe-confirm" placeholder="CONFIRM WIPE" style="text-align:center;"></div>`,
+    `<button class="btn btn-sm btn-danger" onclick="doWipe()">[ DESTROY VAULT ]</button>
+     <button class="btn btn-sm" style="border-color:var(--bd);color:var(--td);" onclick="closeModal()">ABORT</button>`
+  );
+}
+function doWipe(){
+  if(document.getElementById('wipe-confirm').value==='CONFIRM WIPE'){
+    wipeVault(false);
+  } else { alert('TYPE "CONFIRM WIPE" EXACTLY TO PROCEED'); }
+}
+
+// ═══════════════════════════════════════════════════════
+// MODULE: FIELD MANUAL — PRE-LOADED REFERENCE CONTENT
+// ═══════════════════════════════════════════════════════
+const REFERENCE_DATA=[
+{cat:'WATER',title:'WATER PROCUREMENT & PURIFICATION',content:`
+<strong>RULE OF THREES:</strong> Survival priority: 3 min without air, 3 hrs without shelter (in harsh weather), 3 days without water, 3 weeks without food.<br><br>
+<strong>DAILY REQUIREMENT:</strong> Minimum 2L/person/day. Double in heat/exertion. Triple for active field operations.<br><br>
+<strong>PURIFICATION METHODS:</strong><br>
+<strong>1. Boiling (Most Reliable)</strong><br>
+• Sea level: Rolling boil for 1 full minute<br>
+• Above 6,500 ft: Rolling boil for 3 minutes<br>
+• Kills: bacteria, viruses, protozoa. Does NOT remove chemicals or heavy metals.<br><br>
+<strong>2. Chemical Treatment</strong><br>
+• Unscented bleach (5-8% sodium hypochlorite): 8 drops/gallon clear water; 16 drops/gallon cloudy. Wait 30 min.<br>
+• Iodine tabs: 1 tab per liter clear water; 2 tabs cloudy. Wait 30 min (60 min cold water).<br>
+• Aquatabs (NaDCC): Per package instructions. Effective against bacteria and viruses. Does NOT kill Cryptosporidium.<br><br>
+<strong>3. Filtration</strong><br>
+• 0.1 micron: Removes bacteria and protozoa (Giardia, Cryptosporidium). Sawyer Squeeze, LifeStraw.<br>
+• 0.01 micron: Removes viruses. Required in areas with poor sanitation.<br>
+• Combine filtration + chemical for full-spectrum protection.<br><br>
+<strong>COLLECTION SOURCES (priority):</strong><br>
+1. Moving water (streams, springs) — always purify<br>
+2. Rain collection — relatively clean; contamination from collection surface<br>
+3. Morning dew — gather via absorbent cloth<br>
+4. Transpiration bags — tie clear bag over leafy branch<br>
+5. Solar still — requires 24+ hrs; minimal yield<br>
+6. Snow/ice — melt before drinking; melting in mouth causes dangerous heat loss<br><br>
+<strong>WATER STORAGE:</strong><br>
+• Store in food-grade containers (HDPE #2, PETE #1). Never use milk jugs.<br>
+• Recommended: 1 gallon/person/day minimum stored supply<br>
+• Rotate every 6-12 months; commercially sealed water 5+ years<br>
+• Add 1/4 tsp bleach per gallon when refilling non-commercial containers<br><br>
+<strong>FIELD-EXPEDIENT FILTRATION (emergency):</strong><br>
+Layer in container bottom-to-top: pebbles → coarse sand → fine sand → charcoal → cloth. ALWAYS boil or chemically treat after makeshift filtration.
+`},
+{cat:'FIRE',title:'FIRE STARTING — METHODS & MATERIALS',content:`
+<strong>FIRE TRIANGLE:</strong> Fuel + Heat + Oxygen. Remove any one — fire dies.<br><br>
+<strong>FIRE STRUCTURE (build small to large):</strong><br>
+• <strong>Tinder:</strong> Catches first spark/flame. Must be bone dry. Examples: birch bark, dried grass, cattail fluff, cedar bark shreds, fatwood scrapings, dryer lint, char cloth.<br>
+• <strong>Kindling:</strong> Finger-thick sticks. Add progressively larger pieces once tinder catches.<br>
+• <strong>Fuel:</strong> Wrist-to-arm diameter logs. Hardwoods burn longer/hotter. Softwoods start easier.<br><br>
+<strong>FIRE STRUCTURES:</strong><br>
+• <strong>Teepee:</strong> Best for quick, hot fire. Good for boiling water.<br>
+• <strong>Log cabin:</strong> Long-burning. Good for sustained heat and cooking.<br>
+• <strong>Star fire:</strong> Minimal wood management. Push logs in as they burn.<br>
+• <strong>Trench fire:</strong> Concealment / wind protection. Dig 6" trench, fire inside.<br><br>
+<strong>IGNITION METHODS:</strong><br>
+<strong>1. Lighter (BIC type)</strong> — Most reliable. Carry minimum 3. Store dry.<br>
+<strong>2. Ferrocerium Rod</strong> — Waterproof. Works indefinitely. Sparks at ~3,000°F.<br>
+• Strike at 30-45° angle toward tinder nest. Create spark shower, not single spark.<br>
+<strong>3. Waterproof Matches</strong> — Strike on rough surface only. Store in waterproof case.<br>
+<strong>4. Magnifying Lens</strong> — Sunlight only. Focus to point on dark tinder. Slow but reliable in clear conditions.<br>
+<strong>5. Bow Drill (Primitive)</strong><br>
+• Heartboard/fireboard woods: willow, cottonwood, yucca, cedar, mullein<br>
+• Spindle: same wood or slightly harder than board<br>
+• Technique: firm downward pressure + fast horizontal strokes + consistent rhythm<br>
+• Create coal in notch; transfer to tinder bundle; blow gently from below<br>
+<strong>6. Flint & Steel</strong><br>
+• High-carbon steel (back of fixed blade) struck against flint, chert, or quartzite<br>
+• Catch sparks on char cloth; transfer to tinder bundle<br><br>
+<strong>NATURAL FIRESTARTERS:</strong><br>
+• Fatwood: resin-saturated pine heartwood. Burns wet. Found at base of dead stumps.<br>
+• Birch bark: contains oil. Burns even when damp.<br>
+• Tinder fungus (Fomes fomentarius): smoldering tinder material.<br>
+• Pine resin: highly flammable. Use sparingly.<br><br>
+<strong>FIRE IN RAIN:</strong><br>
+• Gather tinder from under logs and bark before rain starts<br>
+• Use upside-down pieces; dry inner surfaces<br>
+• Build platform of green logs to elevate fire from wet ground<br>
+• Use chemical fire starters (WetFire, Esbit tabs)
+`},
+{cat:'SHELTER',title:'EMERGENCY SHELTER — CONSTRUCTION & SITING',content:`
+<strong>SITING RULES (STOP method):</strong><br>
+<strong>S</strong>top and assess. <strong>T</strong>hink before acting. <strong>O</strong>bserve terrain, wind, hazards. <strong>P</strong>lan construction.<br><br>
+<strong>SITE SELECTION CRITERIA:</strong><br>
+• Elevated, dry ground — avoid drainage paths, valley floors<br>
+• Natural windbreak (rock face, ridge, tree line) to lee (downwind) side<br>
+• Proximity to water (not too close — insects, flooding risk)<br>
+• Concealment if OPSEC matters<br>
+• Avoid dead trees, widow-makers, cliff edges, flood zones<br>
+• South-facing slope in northern hemisphere = more solar gain<br><br>
+<strong>DEBRIS HUT (Best primitive shelter):</strong><br>
+• Ridge pole: 10ft. Rest one end on stump/fork at 3ft height, other on ground<br>
+• Lay ribs along both sides of pole (like fish skeleton)<br>
+• Layer debris (leaves, pine needles, bark): minimum 3ft thick on all sides<br>
+• Goal: No daylight visible inside; dead air space = insulation<br>
+• Size: Only as large as your body — smaller = warmer<br>
+• Entry: Small, covered with debris door-plug<br>
+• Time required: 2-4 hours<br><br>
+<strong>TARP CONFIGURATIONS:</strong><br>
+• A-frame: Two anchor points, ridge line, tarp draped over. Fast. Good rain protection.<br>
+• Lean-to: Single high anchor line, front open. Good with fire in front.<br>
+• Plow point: Diamond shape, one corner pegged forward, one back, sides staked. Best in wind.<br>
+• Basha: One high corner, opposite corner pegged to ground. Asymmetric. Versatile.<br><br>
+<strong>INSULATION PRINCIPLES:</strong><br>
+• Ground insulation is MORE critical than overhead. Cold ground pulls heat rapidly.<br>
+• Minimum 4" of dry debris between body and ground<br>
+• Pine boughs, dry leaves, cattail down all effective<br>
+• Layer sleeping materials; trap dead air between layers<br><br>
+<strong>EMERGENCY MYLAR USAGE:</strong><br>
+• Reflective side toward body heat source<br>
+• Avoid direct contact with skin — condensation issue<br>
+• Puncture-proof tape (Gorilla tape) repairs tears<br>
+• Two blankets: one under, one over = significant warmth improvement
+`},
+{cat:'FIRST AID',title:'TACTICAL FIELD MEDICINE — MARCH PROTOCOL',content:`
+<strong>MARCH PROTOCOL (Tactical Combat Casualty Care sequence):</strong><br><br>
+<strong class="march-letter">M</strong> — MASSIVE HEMORRHAGE<br>
+• Arterial bleeding: bright red, pulsing. Life-threatening within minutes.<br>
+• <strong>Tourniquet (TQ):</strong> Apply 2-3" above wound on limb. Tighten until bleeding stops. Note time. Do NOT remove in field.<br>
+• <strong>Wound Packing:</strong> For junctional wounds (groin, armpit, neck). Pack gauze (preferably hemostatic: QuikClot, Combat Gauze) tightly into wound. Apply direct pressure 3 min minimum.<br>
+• <strong>Pressure Dressing:</strong> Cover packed wound. Israeli bandage / OLAES recommended.<br><br>
+<strong class="march-letter">A</strong> — AIRWAY<br>
+• Unconscious/unresponsive: Jaw thrust (suspected spinal injury) or head-tilt-chin-lift<br>
+• Recovery position: Left lateral decubitus (on their side) to prevent aspiration<br>
+• Nasal airway adjunct (NPA): Measure from nostril to earlobe. Lube with vaseline. Insert bevel toward septum.<br>
+• Surgical airway: Last resort. 1-2" horizontal incision through cricothyroid membrane.<br><br>
+<strong class="march-letter">R</strong> — RESPIRATION<br>
+• Tension pneumothorax signs: absent breath sounds one side, tracheal deviation, deteriorating SpO2<br>
+• Needle decompression: 14G needle, 2nd intercostal space, midclavicular line OR 4th-5th ICS, anterior axillary line<br>
+• Open chest wound (sucking chest wound): 3-sided occlusive seal (Hyfin Chest Seal). Leave one side open to release pressure.<br><br>
+<strong class="march-letter">C</strong> — CIRCULATION / SHOCK<br>
+• Hypovolemic shock signs: altered mental status, rapid weak pulse, pale/cool/moist skin, thirst<br>
+• Lay flat, elevate legs 8-12" (unless head/chest injury)<br>
+• Keep warm — hypothermia worsens coagulopathy<br>
+• If trained: IV/IO access; lactated Ringer's or normal saline<br><br>
+<strong class="march-letter">H</strong> — HYPOTHERMIA / HEAD INJURY<br>
+• Hypothermia prevention: Remove wet clothing, wrap in hypothermia prevention kit or blankets<br>
+• Head injury: Keep C-spine neutral. Do NOT hyperventilate unless herniation signs (blown pupil, posturing).<br>
+• Glasgow Coma Scale: Eyes(1-4) + Verbal(1-5) + Motor(1-6). Score ≤8 = severe TBI.<br><br>
+<strong>CPR (Layperson):</strong><br>
+• 30 compressions : 2 rescue breaths. Rate: 100-120/min. Depth: 2-2.4"<br>
+• Compression-only CPR acceptable if untrained in rescue breaths<br>
+• AED: Power on, follow prompts. Apply as soon as available.<br><br>
+<strong>BURNS:</strong><br>
+• Cool with room-temp water 20 min (NOT ice). Remove jewelry/clothing from area.<br>
+• Cover loosely with sterile non-stick dressing. Do NOT burst blisters.<br>
+• Rule of 9s: Head=9%, each arm=9%, chest=9%, abdomen=9%, each thigh=9%, each lower leg=9%, genitals=1%<br><br>
+<strong>FRACTURES:</strong><br>
+• Immobilize joint above and below fracture<br>
+• Improvised splint: SAM splint, sticks, trekking poles, sleeping pad sections<br>
+• Check CMS (Circulation, Motor, Sensation) before and after splinting<br>
+• Open fracture: Cover with moist sterile dressing. Do NOT push bone back in.
+`},
+{cat:'NAVIGATION',title:'LAND NAVIGATION — MAP, COMPASS, GRID',content:`
+<strong>COMPASS TYPES:</strong><br>
+• <strong>Baseplate (Orienteering)</strong>: Best for map work. Suunto A-10, Silva Ranger.<br>
+• <strong>Lensatic (Military)</strong>: More durable. Better for field bearings. M1950 USGI.<br><br>
+<strong>TAKING A BEARING:</strong><br>
+1. Point direction-of-travel arrow at target<br>
+2. Rotate bezel until N aligns with magnetic needle<br>
+3. Read bearing at index line<br>
+4. Declination adjustment: Magnetic vs. True North. Declination varies by location. East declination: subtract from magnetic. West: add.<br><br>
+<strong>MGRS GRID COORDINATES:</strong><br>
+• Format: Grid Zone → 100km Square → Easting → Northing<br>
+• Example: 16TBK 76942 31042 (8-digit grid)<br>
+• Read RIGHT then UP (Easting first, then Northing)<br>
+• 6-digit grid: ~100m accuracy. 8-digit: ~10m accuracy. 10-digit: ~1m accuracy<br>
+• MGRS is used on 1:24,000 (7.5 minute) USGS topographic maps<br><br>
+<strong>DEAD RECKONING:</strong><br>
+• Track: starting point → bearing → distance traveled<br>
+• Pace count: count every time LEFT foot hits ground. Average male 62-66 paces per 100m on flat terrain.<br>
+• Adjust for terrain: multiply pace count by 1.1-1.3 for slopes/brush<br>
+• Use pace beads (ranger beads) to track distance: 9 small beads × 100m + 4 large beads × 1,000m<br><br>
+<strong>TERRAIN ASSOCIATION:</strong><br>
+• Identify 5 major terrain features: Hill, Valley, Ridge, Depression, Saddle<br>
+• Minor features: Draw, Spur, Cliff, Cut, Fill<br>
+• Match map contour lines to ground. Close lines = steep; wide = gentle slope.<br>
+• Identify 3 features on ground AND map simultaneously before moving<br><br>
+<strong>CELESTIAL NAVIGATION:</strong><br>
+• <strong>North Star (Polaris)</strong>: Find Big Dipper. Follow lip of bowl × 5 = Polaris. True North.<br>
+• <strong>Southern Cross</strong> (Southern Hemisphere): Extend long axis × 4.5 toward horizon = South Celestial Pole<br>
+• <strong>Shadow tip method</strong>: Mark tip of shadow. Wait 15 min. Mark again. Line between marks = west (first) to east (second).<br>
+• <strong>Watch method</strong>: Point hour hand at sun. Bisect angle between hour hand and 12 o'clock = South (Northern Hemisphere).<br><br>
+<strong>MAP READING ESSENTIALS:</strong><br>
+• Contour interval: Stated in map margin. Standard USGS 1:24,000 = 40ft.<br>
+• Map scale 1:24,000 = 1 inch on map = 2,000 feet on ground<br>
+• Color codes: Brown=contours, Blue=water, Green=vegetation, Black=man-made, Red=highways<br>
+• Marginal info: Always check date, datum, magnetic declination
+`},
+{cat:'COMMS',title:'COMMUNICATIONS — FREQUENCIES & PROTOCOLS',content:`
+<strong>NATO PHONETIC ALPHABET:</strong><br>
+<table class="ref-table"><thead><tr><th>LETTER</th><th>PHONETIC</th><th>LETTER</th><th>PHONETIC</th></tr></thead><tbody>
+<tr><td>A</td><td>ALPHA</td><td>N</td><td>NOVEMBER</td></tr>
+<tr><td>B</td><td>BRAVO</td><td>O</td><td>OSCAR</td></tr>
+<tr><td>C</td><td>CHARLIE</td><td>P</td><td>PAPA</td></tr>
+<tr><td>D</td><td>DELTA</td><td>Q</td><td>QUEBEC</td></tr>
+<tr><td>E</td><td>ECHO</td><td>R</td><td>ROMEO</td></tr>
+<tr><td>F</td><td>FOXTROT</td><td>S</td><td>SIERRA</td></tr>
+<tr><td>G</td><td>GOLF</td><td>T</td><td>TANGO</td></tr>
+<tr><td>H</td><td>HOTEL</td><td>U</td><td>UNIFORM</td></tr>
+<tr><td>I</td><td>INDIA</td><td>V</td><td>VICTOR</td></tr>
+<tr><td>J</td><td>JULIET</td><td>W</td><td>WHISKEY</td></tr>
+<tr><td>K</td><td>KILO</td><td>X</td><td>X-RAY</td></tr>
+<tr><td>L</td><td>LIMA</td><td>Y</td><td>YANKEE</td></tr>
+<tr><td>M</td><td>MIKE</td><td>Z</td><td>ZULU</td></tr>
+</tbody></table><br>
+<strong>MORSE CODE:</strong><br>
+<table class="ref-table"><thead><tr><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th><th>G</th><th>H</th><th>I</th><th>J</th><th>K</th><th>L</th><th>M</th></tr></thead>
+<tbody><tr><td>·−</td><td>−···</td><td>−·−·</td><td>−··</td><td>·</td><td>··−·</td><td>−−·</td><td>····</td><td>··</td><td>·−−−</td><td>−·−</td><td>·−··</td><td>−−</td></tr></tbody></table>
+<table class="ref-table"><thead><tr><th>N</th><th>O</th><th>P</th><th>Q</th><th>R</th><th>S</th><th>T</th><th>U</th><th>V</th><th>W</th><th>X</th><th>Y</th><th>Z</th></tr></thead>
+<tbody><tr><td>−·</td><td>−−−</td><td>·−−·</td><td>−−·−</td><td>·−·</td><td>···</td><td>−</td><td>··−</td><td>···−</td><td>·−−</td><td>−··−</td><td>−·−−</td><td>−−··</td></tr></tbody></table>
+<br><strong>SOS: · · · − − − · · ·</strong><br><br>
+<strong>HAM RADIO — KEY FREQUENCIES (MHz):</strong><br>
+<table class="ref-table"><thead><tr><th>BAND</th><th>FREQUENCY</th><th>USE</th></tr></thead><tbody>
+<tr><td>160m</td><td>1.800-2.000</td><td>Emergency, long-range night</td></tr>
+<tr><td>80m</td><td>3.500-4.000</td><td>Regional, emergency nets</td></tr>
+<tr><td>40m</td><td>7.000-7.300</td><td>DX, daytime domestic</td></tr>
+<tr><td>20m</td><td>14.000-14.350</td><td>Primary DX / worldwide</td></tr>
+<tr><td>2m</td><td>144.000-148.000</td><td>Local/regional, simplex: 146.520</td></tr>
+<tr><td>70cm</td><td>420.000-450.000</td><td>Local, repeaters, digital</td></tr>
+</tbody></table>
+<br><strong>NATIONAL SIMPLEX CALLING FREQUENCIES:</strong><br>
+• 2m FM Simplex: <code>146.520 MHz</code> (National)<br>
+• 70cm FM Simplex: <code>446.000 MHz</code> (National)<br>
+• CB Radio Ch. 9: <code>27.065 MHz</code> (Emergency/travelers)<br>
+• CB Radio Ch. 19: <code>27.185 MHz</code> (Highway truckers)<br>
+• MURS Ch. 3: <code>154.600 MHz</code> (No license required)<br>
+• GMRS/FRS Ch. 1: <code>462.5625 MHz</code><br><br>
+<strong>RADIO PROTOCOL (NATO standard):</strong><br>
+• RADIO CHECK: "Station, this is [callsign], radio check, over."<br>
+• ROGER: Message received and understood.<br>
+• WILCO: Will comply.<br>
+• OVER: Transmission complete, reply expected.<br>
+• OUT: Transmission complete, no reply expected.<br>
+• BREAK: Pause in transmission; more to follow.<br>
+• SAY AGAIN: Repeat last transmission.<br>
+• SITREP: Situation Report.<br>
+• MEDEVAC: Medical Evacuation request.<br>
+• CASEVAC: Casualty Evacuation (non-medical aircraft).
+`},
+{cat:'SECURITY',title:'SECURITY & OPSEC FUNDAMENTALS',content:`
+<strong>OPSEC — OPERATIONS SECURITY (5-Step Process):</strong><br>
+1. Identify critical information (what must stay secret)<br>
+2. Analyze threats (who wants this information)<br>
+3. Analyze vulnerabilities (how could they get it)<br>
+4. Assess risk (likelihood × impact)<br>
+5. Apply countermeasures<br><br>
+<strong>DIGITAL OPSEC:</strong><br>
+• Do not post prep locations, supplies, or plans on social media<br>
+• Disable location services on devices<br>
+• Use encrypted comms (Signal, ProtonMail) for sensitive coordination<br>
+• EXIF data in photos contains GPS coordinates — strip before sharing<br>
+• Burner devices/SIMs for sensitive coordination<br>
+• Faraday cage (metal container, mylar bag) blocks device tracking<br><br>
+<strong>PHYSICAL SECURITY — LAYERED DEFENSE:</strong><br>
+<strong>Layer 1 — Early Warning:</strong><br>
+• Motion-sensor lighting (solar)<br>
+• Observation posts (OP) covering approach routes<br>
+• Noise/tripwire alerts (fishing line + cans) on perimeter<br>
+• Watch schedule: minimum 2-hour shifts, never alone<br><br>
+<strong>Layer 2 — Barrier:</strong><br>
+• Fencing, thorned plantings (roses, hawthorn)<br>
+• Vehicle barriers (berms, bollards, concrete blocks)<br>
+• Reinforced doors: Grade 1 deadbolts, security plates, hinge pins<br><br>
+<strong>Layer 3 — Active Defense:</strong><br>
+• Designated fighting positions with cover (not just concealment)<br>
+• Pre-designated fields of fire; interlocking sectors<br>
+• Rehearsed immediate action drills with all household members<br><br>
+<strong>PATROL BASE SETUP:</strong><br>
+• Perimeter: 360° defense. Each position covers adjacent positions' flanks.<br>
+• No fires, no lights, minimal noise during occupation<br>
+• Challenge/password system: time-based, 3-part (challenge/password/running password)<br>
+• Standard challenge: Number + answer = pre-agreed sum (challenge "SEVEN" → answer "FOUR" if 11 is the day's code)<br><br>
+<strong>CACHE SECURITY:</strong><br>
+• Never cache at your primary location<br>
+• Minimum 3 caches: primary, alternate, emergency<br>
+• Waterproof containers (ammo cans, PVC pipe sealed with end caps)<br>
+• Record location in MGRS, verify multiple times before burial<br>
+• Use innocuous landmarks; do not create obvious disturbance
+`},
+{cat:'SIGNALS',title:'SIGNALS — SOS & GROUND-TO-AIR',content:`
+<strong>UNIVERSAL DISTRESS SIGNALS:</strong><br>
+• Three of anything: 3 shots, 3 whistle blasts, 3 fires in triangle, 3 flashes of light<br>
+• International SOS: · · · − − − · · · (Morse)<br>
+• Audio SOS: 3 short, 3 long, 3 short. Pause 1 min. Repeat.<br><br>
+<strong>SIGNAL MIRROR:</strong><br>• Range: up to 10 miles in clear conditions; 100+ miles in optimal conditions<br>
+• Aim: Hold mirror near eye. Create reflection patch on ground. Move to target aircraft/person.<br>
+• Two-hole mirror: look through hole, align reflection dot with target through hole<br>
+• No mirror: shiny surface (CD, foil, tin lid) works<br><br>
+<strong>SIGNAL FIRES:</strong><br>
+• Rule of 3: Triangle pattern with ~100ft spacing<br>
+• Day: Create white smoke (green vegetation, rubber, oil-soaked rags on fire)<br>
+• Night: Create bright orange flame (dry wood, accelerant)<br>
+• Smoke signal color matters: White = visible against dark terrain. Dark = visible against snow/desert.<br><br>
+<strong>GROUND-TO-AIR SIGNALS (standard symbols, min 10ft size):</strong><br>
+<table class="ref-table"><thead><tr><th>SYMBOL</th><th>MEANING</th></tr></thead><tbody>
+<tr><td style="font-size:18px;color:var(--g);">V</td><td>Require assistance</td></tr>
+<tr><td style="font-size:18px;color:var(--g);">X</td><td>Require medical assistance</td></tr>
+<tr><td style="font-size:18px;color:var(--g);">→</td><td>Moving this direction</td></tr>
+<tr><td style="font-size:18px;color:var(--g);">F</td><td>Need food and water</td></tr>
+<tr><td style="font-size:18px;color:var(--g);">LL</td><td>All is well</td></tr>
+<tr><td style="font-size:18px;color:var(--g);">N</td><td>No / Negative</td></tr>
+<tr><td style="font-size:18px;color:var(--g);">Y</td><td>Yes / Affirmative</td></tr>
+</tbody></table><br>
+<strong>CONSTRUCTION:</strong> Use rocks, logs, material contrast. Make symbols at least 10ft long. Add arrow indicating direction of travel.<br><br>
+<strong>WHISTLE SIGNALS:</strong><br>
+• 3 blasts: Distress/call for help<br>
+• 2 blasts: Direction/answer (returning signal to 3 blasts)<br>
+• 1 blast: Freeze/stop (group signal)<br>
+• Continuous: Danger, immediate threat<br><br>
+<strong>STROBE LIGHTS:</strong><br>
+• Standard: one flash per second (maritime/aviation SOS pattern)<br>
+• IR strobe: visible only through night vision; use when operating with NVG-equipped friendlies
+`},
+{cat:'CBRN',title:'CBRN — CHEMICAL / BIOLOGICAL / RADIOLOGICAL / NUCLEAR',content:`
+<strong>DETECTION PRINCIPLES:</strong><br>
+• Chemical: Smell (almond=HCN, new-mown hay=phosgene, garlic/mustard=blister agents), eye/skin irritation, casualties in open without apparent wounds<br>
+• Biological: Delayed effect (hours to days). Unusual disease clusters. Unexplained aerosols. Animal die-offs.<br>
+• Radiological: Requires dosimeter/Geiger counter. Invisible, odorless. Symptoms delayed 24-48 hrs.<br>
+• Nuclear: Flash, blast, thermal pulse, EMP. Fallout (visible ash/dust) follows within 15-30 min downwind.<br><br>
+<strong>IMMEDIATE ACTIONS (NBC attack):</strong><br>
+1. Mask/shelter immediately — don't wait for confirmation<br>
+2. Move upwind/uphill from suspected release point<br>
+3. Alert others; initiate MOPP gear if available<br>
+4. Decontaminate if exposed (see below)<br>
+5. Report: SALUTE format (Size, Activity, Location, Unit, Time, Equipment)<br><br>
+<strong>MOPP LEVELS (Mission Oriented Protective Posture):</strong><br>
+• MOPP 0: Gear ready, not worn<br>
+• MOPP 1: Protective suit worn; mask/gloves/boots carried<br>
+• MOPP 2: Suit + boots<br>
+• MOPP 3: Suit + boots + mask<br>
+• MOPP 4: Full protection — suit + boots + mask + gloves<br><br>
+<strong>IMPROVISED PROTECTION:</strong><br>
+• Respiratory: N95 mask (particulate), activated carbon mask (chemical)<br>
+• Eyes: Safety goggles or swimming goggles<br>
+• Skin: Full clothing coverage, tape all gaps (gloves, boots, collar)<br>
+• Shelter-in-place: Seal windows/doors with plastic sheeting + duct tape. Turn off HVAC. Works 2-4 hours.<br><br>
+<strong>FIELD DECONTAMINATION:</strong><br>
+• Chemical: Remove clothing (cuts 80% exposure), flush with large amounts of water 15+ min.<br>
+  Diluted bleach (0.5%) for skin; rinse after 1 min to prevent burns.<br>
+• Radiological: Remove clothing (cuts 80%), shower thoroughly with soap and water.<br>
+  Do NOT scrub skin. Pat dry. Cover fresh food, water sources.<br><br>
+<strong>NUCLEAR FALLOUT SURVIVAL:</strong><br>
+• Time: Most dangerous 24-48 hrs. After 7× time, radiation reduces 90%.<br>
+• Distance: Maximize. Fallout pattern is downwind, elongated (cigar shape).<br>
+• Shielding: Mass between you and fallout. Underground best. Dense materials (concrete, earth, lead).<br>
+• KI (Potassium Iodide): Protects thyroid from radioactive iodine ONLY. Take per instructions.<br>
+• Dosimeter: Essential for ongoing monitoring. Threshold action level: 75 R/day.
+`},
+{cat:'FOOD',title:'FOOD PROCUREMENT & PRESERVATION',content:`
+<strong>PRIORITY ORDER:</strong> Food is last in survival priority. The body can function 3+ weeks without food.<br>
+Caloric needs in field conditions: 2,000-4,000 cal/day depending on activity level.<br><br>
+<strong>FORAGING — UNIVERSAL EDIBILITY TEST (UET):</strong><br>
+This test takes 24 hours. Do NOT rely solely on memory of edible plants.<br>
+1. Separate plant parts (roots, stems, leaves, flowers separately)<br>
+2. Smell: Strong unpleasant odor = reject<br>
+3. Skin contact test: Rub crushed part on inner forearm 15 min. Wait 8 hrs. If irritation = discard.<br>
+4. Touch to lips 3 min. Tingling/burning = discard.<br>
+5. Place on tongue 15 min. No effect = chew small amount.<br>
+6. Chew and hold in mouth 15 min. Burning/bitterness = discard.<br>
+7. Swallow small amount. Wait 8 hrs. No adverse reaction = eat small quantity.<br>
+<strong>AVOID:</strong> Umbrella-shaped flower clusters (carrot family — many deadly), beans/seeds in pods, milky/cloudy sap, plants with 3-leaf groups, bitter almond smell, grainy/soapy texture.<br><br>
+<strong>RELIABLE EDIBLE PLANTS (North America):</strong><br>
+• Cattail: Roots (starch), young shoots (raw/cooked), pollen (flour substitute), green seed heads (corn-like)<br>
+• Dandelion: Entire plant edible. Leaves raw/cooked, roots roasted (coffee substitute)<br>
+• Acorns: Leach tannins (soak in multiple changes of water over 24 hrs), then grind to flour<br>
+• Wild garlic/ramps: Strong garlic smell confirms ID (unlike poisonous look-alikes)<br>
+• Pine inner bark (cambium): White, sweet. Spring harvest. Caloric emergency food.<br>
+• Purslane: Succulent, small round leaves, excellent nutrition. Found in disturbed soils.<br><br>
+<strong>SMALL GAME TRAPPING:</strong><br>
+• Snares: Set on active trails (scat, tracks, fur). 3-4" diameter loop, 8-10" off ground for rabbits.<br>
+• Wire gauge: 22-gauge single-strand wire (rabbits); 20-gauge (larger animals)<br>
+• Location: Narrow passages, water sources, feeding areas<br>
+• Set minimum 6-10 snares; check every 2-4 hours<br>
+• Legal consideration: Most jurisdictions require license for trapping<br><br>
+<strong>FOOD PRESERVATION FIELD METHODS:</strong><br>
+• <strong>Jerky/dried meat:</strong> Cut 1/4" strips with grain. Salt heavily. Dry at 165°F+ (oven) or smoke until brittle.<br>
+• <strong>Smoking:</strong> Cold smoke (below 90°F) = flavor; Hot smoke (160-200°F) = preservation.<br>
+• <strong>Caching (cold):</strong> Cache food away from camp. Hang 10ft up, 4ft from trunk (bear country).<br>
+• <strong>Root cellaring:</strong> 32-40°F, 90-95% humidity ideal for root vegetables, apples, cabbage.<br>
+• <strong>Lacto-fermentation:</strong> Salt + vegetables + time. No heat or equipment needed. Sauerkraut, kimchi.
+`},
+{cat:'KNOTS',title:'ESSENTIAL KNOTS & LASHINGS',content:`
+<strong>THE 6 ESSENTIAL FIELD KNOTS:</strong><br><br>
+<strong>1. SQUARE KNOT (Joining two ropes of equal diameter)</strong><br>
+Right over left, left over right. Flat, symmetrical. Pull both ends to test.<br>
+Use: Bandages, binding, joining lines. Do NOT use for load-bearing without backup.<br><br>
+<strong>2. BOWLINE (Fixed loop that won't tighten under load)</strong><br>
+"Rabbit comes out of the hole, around the tree, back into the hole."<br>
+Form small loop in standing end. Pass working end up through loop, around behind standing part, back down through loop. Pull standing end to tighten.<br>
+Use: Rescue harness, anchor, securing load. Strong and easy to untie after loading.<br><br>
+<strong>3. CLOVE HITCH (Quick anchor to post/rail/tree)</strong><br>
+Two wraps around post. Second wrap crosses over first. Tuck under last wrap.<br>
+Use: Starting and finishing lashings, temporary anchor. Slides under prolonged single-direction load — add half-hitches as backup.<br><br>
+<strong>4. FIGURE-8 STOPPER (Prevents rope from passing through eye/pulley)</strong><br>
+Overhand loop. Bring working end through back of loop. Pull to form number 8.<br>
+Figure-8 Follow-through: Used for climbing harness tie-in.<br><br>
+<strong>5. TAUT-LINE HITCH (Adjustable loop — tension on main line)</strong><br>
+Pass line around anchor. Wrap working end twice around standing part inside loop. Wrap once outside loop. Tighten. Slide to adjust tension.<br>
+Use: Tent guylines, adjustable anchor points.<br><br>
+<strong>6. TIMBER HITCH (Temporary drag/haul attachment to log)</strong><br>
+Wrap around timber. Tuck working end under standing part. Spiral 3× around own part. Pull standing end to tighten.<br>
+Add half-hitch forward of timber hitch for directional stability.<br><br>
+<strong>LASHINGS:</strong><br>
+• <strong>Square lashing:</strong> Bind two poles at right angles. Clove hitch on vertical → 3 wraps around both (alternating sides) → 3 frapping turns → clove hitch on horizontal. Use for camp furniture, stretchers.<br>
+• <strong>Diagonal lashing:</strong> For poles that cross but aren't at right angles. Timber hitch around both poles diagonally → 3 wraps each diagonal → 3 frapping turns → clove hitch.<br>
+• <strong>Shear lashing:</strong> Bind two parallel poles for bipod/A-frame. Clove hitch → 6-8 loose wraps → 3 frapping turns between poles → clove hitch.
+`},
+];
+
+function renderReference(){
+  const body=document.getElementById('ref-body');
+  const cats=[...new Set(REFERENCE_DATA.map(r=>r.cat))];
+  let activecat='ALL';
+  function buildRef(filter){
+    const filtered=filter==='ALL'?REFERENCE_DATA:REFERENCE_DATA.filter(r=>r.cat===filter);
+    let html=`<div class="ref-cats"><button class="ref-cat-btn${activecat==='ALL'?' active':''}" onclick="filterRef('ALL')">ALL</button>`;
+    cats.forEach(c=>{html+=`<button class="ref-cat-btn${activecat===c?' active':''}" onclick="filterRef('${c}')">${c}</button>`;});
+    html+='</div>';
+    filtered.forEach((r,i)=>{
+      html+=`<div class="ref-entry">
+        <div class="ref-entry-hdr" onclick="toggleRef(this)">
+          <span><span class="tag tag-d" style="margin-right:8px;">${r.cat}</span>${r.title}</span>
+          <span>▼</span>
+        </div>
+        <div class="ref-entry-body${i===0?' open':''}"><div style="padding:0;">${r.content}</div></div>
+      </div>`;
+    });
+    return html;
+  }
+  window.filterRef=function(cat){ activecat=cat; body.innerHTML=buildRef(cat); };
+  window.toggleRef=function(hdr){
+    const body=hdr.nextSibling; body.classList.toggle('open');
+    hdr.lastChild.textContent=body.classList.contains('open')?'▲':'▼';
+  };
+  body.innerHTML=buildRef('ALL');
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER ALL MODULES
+// ═══════════════════════════════════════════════════════
+function renderAllModules(){
+  renderNotes();
+  renderChecklists();
+  renderInventory();
+  renderReference();
+  renderLocations();
+  renderComms();
+  renderMedical();
+  renderSitrep();
+  renderSettings();
+}
+
+// ─── HTML ESCAPE ────────────────────────────────────────
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ─── INIT CHECK ─────────────────────────────────────────
+window.addEventListener('load',()=>{
+  const meta=localStorage.getItem(SK.META);
+  if(!meta){
+    document.getElementById('btn-first-run').style.display='block';
+  } else {
+    document.getElementById('btn-first-run').style.display='none';
+  }
+  // Disable text selection globally
+  document.addEventListener('selectstart', e=>{ if(!e.target.matches('input,textarea')) e.preventDefault(); });
+});
+
+</script>
+
+
+</body><mozbar-toolbar data-wxt-shadow-root="" class="dark"><template shadowrootmode="open">
+<!-- saved from url=(0108)https://galaxy-prod.tlcdn.com/gen/user_2w3ESEJeOmWwLyZeRtOGgR7Zo9U/b848058b-c02e-41e0-86ad-9dc3b12f09e2.html -->
+<html><head><style>/* WXT Shadow Root Reset */ :host{all:initial !important;}
+:host,:host{--background: #ffffff;--foreground: #09090b;--card: #ffffff;--card-foreground: #09090b;--popover: #ffffff;--popover-foreground: #09090b;--primary: #3b82f6;--primary-foreground: #ffffff;--secondary: #f4f4f5;--secondary-foreground: #18181b;--muted: #f4f4f5;--muted-foreground: #52525b;--accent: #f4f4f5;--accent-foreground: #18181b;--destructive: #dc2626;--destructive-foreground: #ffffff;--border: #e4e4e7;--input: #e4e4e7;--ring: #a1a1aa;--radius: .5rem;--radius-xl: calc(var(--radius) + 4px);--radius-lg: var(--radius);--radius-md: calc(var(--radius) - 2px);--radius-sm: calc(var(--radius) - 4px);--chart-1: #3b82f6;--chart-2: #22c55e;--chart-3: #eab308;--chart-4: #ef4444;--chart-5: #a855f7;--sidebar: #fafafa;--sidebar-foreground: #3f3f46;--sidebar-primary: #18181b;--sidebar-primary-foreground: #fafafa;--sidebar-accent: #f4f4f5;--sidebar-accent-foreground: #18181b;--sidebar-border: #e4e4e7;--sidebar-ring: #3b82f6;--color-background: var(--background);--color-foreground: var(--foreground);--color-card: var(--card);--color-card-foreground: var(--card-foreground);--color-popover: var(--popover);--color-popover-foreground: var(--popover-foreground);--color-primary: var(--primary);--color-primary-foreground: var(--primary-foreground);--color-secondary: var(--secondary);--color-secondary-foreground: var(--secondary-foreground);--color-muted: var(--muted);--color-muted-foreground: var(--muted-foreground);--color-accent: var(--accent);--color-accent-foreground: var(--accent-foreground);--color-destructive: var(--destructive);--color-destructive-foreground: var(--destructive-foreground);--color-border: var(--border);--color-input: var(--input);--color-ring: var(--ring);--color-chart-1: var(--chart-1);--color-chart-2: var(--chart-2);--color-chart-3: var(--chart-3);--color-chart-4: var(--chart-4);--color-chart-5: var(--chart-5);--color-sidebar: var(--sidebar);--color-sidebar-foreground: var(--sidebar-foreground);--color-sidebar-primary: var(--sidebar-primary);--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);--color-sidebar-accent: var(--sidebar-accent);--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);--color-sidebar-border: var(--sidebar-border);--color-sidebar-ring: var(--sidebar-ring)}.dark,:host(.dark){--background: #09090b;--foreground: #fafafa;--card: #09090b;--card-foreground: #fafafa;--popover: #09090b;--popover-foreground: #fafafa;--primary: #2563eb;--primary-foreground: #ffffff;--secondary: #27272a;--secondary-foreground: #fafafa;--muted: #18181b;--muted-foreground: #d4d4d8;--accent: #18181b;--accent-foreground: #fafafa;--destructive: #dc2626;--destructive-foreground: #ffffff;--border: #27272a;--input: #27272a;--ring: #52525b;--chart-1: #3b82f6;--chart-2: #22c55e;--chart-3: #eab308;--chart-4: #ef4444;--chart-5: #a855f7;--sidebar: #18181b;--sidebar-foreground: #f4f4f5;--sidebar-primary: #3b82f6;--sidebar-primary-foreground: #ffffff;--sidebar-accent: #27272a;--sidebar-accent-foreground: #f4f4f5;--sidebar-border: #27272a;--sidebar-ring: #3b82f6;--color-background: var(--background);--color-foreground: var(--foreground);--color-card: var(--card);--color-card-foreground: var(--card-foreground);--color-popover: var(--popover);--color-popover-foreground: var(--popover-foreground);--color-primary: var(--primary);--color-primary-foreground: var(--primary-foreground);--color-secondary: var(--secondary);--color-secondary-foreground: var(--secondary-foreground);--color-muted: var(--muted);--color-muted-foreground: var(--muted-foreground);--color-accent: var(--accent);--color-accent-foreground: var(--accent-foreground);--color-destructive: var(--destructive);--color-destructive-foreground: var(--destructive-foreground);--color-border: var(--border);--color-input: var(--input);--color-ring: var(--ring);--color-chart-1: var(--chart-1);--color-chart-2: var(--chart-2);--color-chart-3: var(--chart-3);--color-chart-4: var(--chart-4);--color-chart-5: var(--chart-5);--color-sidebar: var(--sidebar);--color-sidebar-foreground: var(--sidebar-foreground);--color-sidebar-primary: var(--sidebar-primary);--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);--color-sidebar-accent: var(--sidebar-accent);--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);--color-sidebar-border: var(--sidebar-border);--color-sidebar-ring: var(--sidebar-ring)}.spam-low{--spam-color: #22c55e;--spam-bg: #dcfce7}.spam-medium{--spam-color: #eab308;--spam-bg: #fef9c3}.spam-high{--spam-color: #ef4444;--spam-bg: #fee2e2}.dark .spam-low,:host(.dark) .spam-low{--spam-bg: #14532d}.dark .spam-medium,:host(.dark) .spam-medium{--spam-bg: #713f12}.dark .spam-high,:host(.dark) .spam-high{--spam-bg: #7f1d1d}.mozbar-base{font-family:ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji";font-size:14px;line-height:1.5;color:var(--foreground);background-color:var(--background);box-sizing:border-box}.mozbar-base *,.mozbar-base *:before,.mozbar-base *:after{box-sizing:border-box}.mozbar-base button{font-family:inherit;font-size:inherit;line-height:inherit;cursor:pointer;border:none;background:transparent;padding:0;margin:0}.mozbar-base *:focus-visible{outline:2px solid var(--ring);outline-offset:2px;border-radius:var(--radius-sm)}#mozbar-toolbar-wrapper{font-family:ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji";font-size:14px;line-height:1.5;color:var(--foreground);box-sizing:border-box}#mozbar-toolbar-wrapper *,#mozbar-toolbar-wrapper *:before,#mozbar-toolbar-wrapper *:after{box-sizing:border-box}#mozbar-toolbar-wrapper button{font-family:inherit;font-size:inherit;line-height:inherit;cursor:pointer;border:none;background:transparent;padding:0;margin:0}</style></head><body style="color-scheme: initial; forced-color-adjust: initial; math-depth: initial; position-anchor: initial; text-size-adjust: initial; appearance: initial; color: initial; font-feature-settings: initial; font-kerning: initial; font-language-override: initial; font-optical-sizing: initial; font-palette: initial; font-size: initial; font-size-adjust: initial; font-stretch: initial; font-style: initial; font-synthesis: initial; font-variant: initial; font-variation-settings: initial; font-weight: initial; position-area: initial; text-orientation: initial; text-rendering: initial; text-spacing-trim: initial; -webkit-font-smoothing: initial; -webkit-locale: initial; -webkit-text-orientation: initial; -webkit-writing-mode: initial; writing-mode: initial; zoom: initial; accent-color: initial; place-content: initial; place-items: initial; place-self: initial; alignment-baseline: initial; anchor-name: initial; anchor-scope: initial; animation-composition: initial; animation: initial; animation-trigger: initial; app-region: initial; aspect-ratio: initial; backdrop-filter: initial; backface-visibility: initial; background: initial; background-blend-mode: initial; baseline-shift: initial; baseline-source: initial; block-size: initial; border-block: initial; border: initial; border-radius: initial; border-collapse: initial; border-end-end-radius: initial; border-end-start-radius: initial; border-inline: initial; border-shape: initial; border-start-end-radius: initial; border-start-start-radius: initial; inset: initial; box-decoration-break: initial; box-shadow: initial; box-sizing: initial; break-after: initial; break-before: initial; break-inside: initial; buffered-rendering: initial; caption-side: initial; caret-animation: initial; caret-color: initial; caret-shape: initial; clear: initial; clip: initial; clip-path: initial; clip-rule: initial; color-interpolation: initial; color-interpolation-filters: initial; color-rendering: initial; columns: initial; column-fill: initial; gap: initial; rule-break: initial; rule: initial; rule-inset: initial; rule-visibility-items: initial; column-span: initial; contain: initial; contain-intrinsic-block-size: initial; contain-intrinsic-size: initial; contain-intrinsic-inline-size: initial; container: initial; content: initial; content-visibility: initial; corner-shape: initial; corner-block-end-shape: initial; corner-block-start-shape: initial; counter-increment: initial; counter-reset: initial; counter-set: initial; cursor: initial; cx: initial; cy: initial; d: initial; dominant-baseline: initial; dynamic-range-limit: initial; empty-cells: initial; field-sizing: initial; fill: initial; fill-opacity: initial; fill-rule: initial; filter: initial; flex: initial; flex-flow: initial; float: initial; flood-color: initial; flood-opacity: initial; grid: initial; grid-area: initial; height: initial; hyphenate-character: initial; hyphenate-limit-chars: initial; hyphens: initial; image-orientation: initial; image-rendering: initial; initial-letter: initial; inline-size: initial; inset-block: initial; inset-inline: initial; interactivity: initial; interest-delay: initial; interpolate-size: initial; isolation: initial; letter-spacing: initial; lighting-color: initial; line-break: initial; line-height: initial; list-style: initial; margin-block: initial; margin: initial; margin-inline: initial; marker: initial; mask: initial; mask-type: initial; math-shift: initial; math-style: initial; max-block-size: initial; max-height: initial; max-inline-size: initial; max-width: initial; min-block-size: initial; min-height: initial; min-inline-size: initial; min-width: initial; mix-blend-mode: initial; object-fit: initial; object-position: initial; object-view-box: initial; offset: initial; opacity: initial; order: initial; orphans: initial; outline: initial; outline-offset: initial; overflow-anchor: initial; overflow-block: initial; overflow-clip-margin: initial; overflow-inline: initial; overflow-wrap: initial; overflow: initial; overlay: initial; overscroll-behavior-block: initial; overscroll-behavior-inline: initial; overscroll-behavior: initial; padding-block: initial; padding: initial; padding-inline: initial; page: initial; page-orientation: initial; paint-order: initial; perspective: initial; perspective-origin: initial; pointer-events: initial; position-try: initial; position-visibility: initial; print-color-adjust: initial; quotes: initial; r: initial; reading-flow: initial; reading-order: initial; resize: initial; rotate: initial; ruby-align: initial; ruby-position: initial; rule-overlap: initial; rx: initial; ry: initial; scale: initial; scroll-behavior: initial; scroll-initial-target: initial; scroll-margin-block: initial; scroll-margin: initial; scroll-margin-inline: initial; scroll-marker-group: initial; scroll-padding-block: initial; scroll-padding: initial; scroll-padding-inline: initial; scroll-snap-align: initial; scroll-snap-stop: initial; scroll-snap-type: initial; scroll-target-group: initial; scroll-timeline: initial; scrollbar-color: initial; scrollbar-gutter: initial; scrollbar-width: initial; shape-image-threshold: initial; shape-margin: initial; shape-outside: initial; shape-rendering: initial; size: initial; speak: initial; stop-color: initial; stop-opacity: initial; stroke: initial; stroke-dasharray: initial; stroke-dashoffset: initial; stroke-linecap: initial; stroke-linejoin: initial; stroke-miterlimit: initial; stroke-opacity: initial; stroke-width: initial; tab-size: initial; table-layout: initial; text-align: initial; text-align-last: initial; text-anchor: initial; text-autospace: initial; text-box: initial; text-combine-upright: initial; text-decoration: initial; text-decoration-skip-ink: initial; text-emphasis: initial; text-emphasis-position: initial; text-indent: initial; text-justify: initial; text-overflow: initial; text-shadow: initial; text-transform: initial; text-underline-offset: initial; text-underline-position: initial; text-wrap: initial; timeline-scope: initial; timeline-trigger: initial; touch-action: initial; transform: initial; transform-box: initial; transform-origin: initial; transform-style: initial; transition: initial; translate: initial; trigger-scope: initial; user-select: initial; vector-effect: initial; vertical-align: initial; view-timeline: initial; view-transition-class: initial; view-transition-group: initial; view-transition-name: initial; view-transition-scope: initial; visibility: initial; border-spacing: initial; -webkit-box-align: initial; -webkit-box-decoration-break: initial; -webkit-box-direction: initial; -webkit-box-flex: initial; -webkit-box-ordinal-group: initial; -webkit-box-orient: initial; -webkit-box-pack: initial; -webkit-box-reflect: initial; -webkit-line-break: initial; -webkit-line-clamp: initial; -webkit-mask-box-image: initial; -webkit-rtl-ordering: initial; -webkit-ruby-position: initial; -webkit-tap-highlight-color: initial; -webkit-text-combine: initial; -webkit-text-decorations-in-effect: initial; -webkit-text-fill-color: initial; -webkit-text-security: initial; -webkit-text-stroke: initial; -webkit-user-drag: initial; white-space-collapse: initial; widows: initial; width: initial; will-change: initial; word-break: initial; word-spacing: initial; x: initial; y: initial; display: block; position: relative; z-index: 2147483647; font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, sans-serif;"><div id="mozbar-toolbar-wrapper"></div></body></html></template></mozbar-toolbar></html>

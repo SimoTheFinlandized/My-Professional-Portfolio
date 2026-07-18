@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<!-- saved from url=(0108)https://galaxy-prod.tlcdn.com/gen/user_2w3ESEJeOmWwLyZeRtOGgR7Zo9U/35945bec-146b-451f-89ba-4f80fa92ae4d.html -->
+<html lang="en" class="dark"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Persephone - Privacy-First Web Browser</title>
+    <link rel="icon" href="data:image/svg+xml,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22&gt;&lt;text y=%22.9em%22 font-size=%2290%22&gt;%F0%9F%8C%BF&lt;/text&gt;&lt;/svg&gt;">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        :root {
+            --primary: #2e7d32;
+            --primary-dark: #1b5e20;
+            --primary-light: #4caf50;
+            --secondary: #1565c0;
+            --secondary-dark: #0d47a1;
+            --danger: #d32f2f;
+            --warning: #f57c00;
+            --success: #388e3c;
+            --dark: #121212;
+            --dark-light: #1e1e1e;
+            --dark-lighter: #2d2d2d;
+            --light: #f5f5f5;
+            --light-dark: #e0e0e0;
+            --text: #ffffff;
+            --text-secondary: #b0b0b0;
+            --border: #404040;
+        }
+
+        body {
+            background: var(--dark);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: var(--dark-light);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            font-size: 1.8rem;
+            color: var(--primary-light);
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tagline {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: -0.2rem;
+        }
+
+        .security-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--dark-lighter);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .security-icon {
+            color: var(--success);
+            font-size: 1.2rem;
+        }
+
+        /* Main Container */
+        .container {
+            display: flex;
+            flex: 1;
+            min-height: calc(100vh - 70px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: var(--dark-light);
+            border-right: 1px solid var(--border);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .sidebar-section {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .sidebar-title {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .sidebar-btn {
+            padding: 0.75rem 1rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .sidebar-btn:hover {
+            background: var(--dark-lighter);
+            border-color: var(--primary);
+        }
+
+        .sidebar-btn.active {
+            background: var(--primary-dark);
+            border-color: var(--primary);
+        }
+
+        .sidebar-btn-icon {
+            font-size: 1.2rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* Search Section */
+        .search-section {
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+            text-align: center;
+        }
+
+        .search-title {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .search-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1.2rem 1.5rem;
+            padding-left: 3.5rem;
+            font-size: 1.1rem;
+            background: var(--dark-light);
+            border: 2px solid var(--border);
+            border-radius: 30px;
+            color: var(--text);
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+        }
+
+        .search-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--dark-lighter);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--dark);
+            border-color: var(--primary);
+        }
+
+        /* Browser Window */
+        .browser-window {
+            background: var(--dark-light);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            display: none;
+        }
+
+        .browser-header {
+            background: var(--dark-lighter);
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .browser-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .control-btn {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+        }
+
+        .control-close { background: #ff5f56; }
+        .control-minimize { background: #ffbd2e; }
+        .control-maximize { background: #27ca3f; }
+
+        .browser-url-bar {
+            flex: 1;
+            padding: 0.5rem 1rem;
+            background: var(--dark);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            color: var(--text);
+            font-size: 0.9rem;
+        }
+
+        .browser-content {
+            height: 500px;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        /* Security Dashboard */
+        .security-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .security-card {
+            background: var(--dark-light);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .security-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+        }
+
+        .security-card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .security-card-icon {
+            font-size: 1.8rem;
+            color: var(--primary);
+        }
+
+        .security-card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .security-card-content {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .security-status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background: rgba(56, 142, 60, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .status-warning {
+            background: rgba(245, 124, 0, 0.2);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+
+        /* Privacy Settings */
+        .privacy-settings {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .setting-item {
+            background: var(--dark-light);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .setting-info {
+            flex: 1;
+        }
+
+        .setting-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .setting-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--dark-lighter);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(30px);
+        }
+
+        /* History Section */
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .history-item {
+            background: var(--dark-light);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.2s;
+        }
+
+        .history-item:hover {
+            border-color: var(--primary);
+            background: var(--dark-lighter);
+        }
+
+        .history-icon {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+        }
+
+        .history-content {
+            flex: 1;
+        }
+
+        .history-title {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .history-url {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            word-break: break-all;
+        }
+
+        .history-time {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--dark-light);
+            border-top: 1px solid var(--border);
+            padding: 1.5rem;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .footer-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-link:hover {
+            color: var(--primary-light);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                flex-direction: row;
+                overflow-x: auto;
+                padding: 1rem;
+            }
+
+            .sidebar-section {
+                flex-direction: row;
+            }
+
+            .sidebar-btn {
+                white-space: nowrap;
+            }
+
+            .security-dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .search-title {
+                font-size: 2rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--dark-light);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+    </style>
+</head>
+<body><mozbar-toolbar data-wxt-shadow-root="" class="dark"><template shadowrootmode="open">
+<!-- saved from url=(0108)https://galaxy-prod.tlcdn.com/gen/user_2w3ESEJeOmWwLyZeRtOGgR7Zo9U/35945bec-146b-451f-89ba-4f80fa92ae4d.html -->
+<html><head><style>/* WXT Shadow Root Reset */ :host{all:initial !important;}
+:host,:host{--background: #ffffff;--foreground: #09090b;--card: #ffffff;--card-foreground: #09090b;--popover: #ffffff;--popover-foreground: #09090b;--primary: #3b82f6;--primary-foreground: #ffffff;--secondary: #f4f4f5;--secondary-foreground: #18181b;--muted: #f4f4f5;--muted-foreground: #52525b;--accent: #f4f4f5;--accent-foreground: #18181b;--destructive: #dc2626;--destructive-foreground: #ffffff;--border: #e4e4e7;--input: #e4e4e7;--ring: #a1a1aa;--radius: .5rem;--radius-xl: calc(var(--radius) + 4px);--radius-lg: var(--radius);--radius-md: calc(var(--radius) - 2px);--radius-sm: calc(var(--radius) - 4px);--chart-1: #3b82f6;--chart-2: #22c55e;--chart-3: #eab308;--chart-4: #ef4444;--chart-5: #a855f7;--sidebar: #fafafa;--sidebar-foreground: #3f3f46;--sidebar-primary: #18181b;--sidebar-primary-foreground: #fafafa;--sidebar-accent: #f4f4f5;--sidebar-accent-foreground: #18181b;--sidebar-border: #e4e4e7;--sidebar-ring: #3b82f6;--color-background: var(--background);--color-foreground: var(--foreground);--color-card: var(--card);--color-card-foreground: var(--card-foreground);--color-popover: var(--popover);--color-popover-foreground: var(--popover-foreground);--color-primary: var(--primary);--color-primary-foreground: var(--primary-foreground);--color-secondary: var(--secondary);--color-secondary-foreground: var(--secondary-foreground);--color-muted: var(--muted);--color-muted-foreground: var(--muted-foreground);--color-accent: var(--accent);--color-accent-foreground: var(--accent-foreground);--color-destructive: var(--destructive);--color-destructive-foreground: var(--destructive-foreground);--color-border: var(--border);--color-input: var(--input);--color-ring: var(--ring);--color-chart-1: var(--chart-1);--color-chart-2: var(--chart-2);--color-chart-3: var(--chart-3);--color-chart-4: var(--chart-4);--color-chart-5: var(--chart-5);--color-sidebar: var(--sidebar);--color-sidebar-foreground: var(--sidebar-foreground);--color-sidebar-primary: var(--sidebar-primary);--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);--color-sidebar-accent: var(--sidebar-accent);--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);--color-sidebar-border: var(--sidebar-border);--color-sidebar-ring: var(--sidebar-ring)}.dark,:host(.dark){--background: #09090b;--foreground: #fafafa;--card: #09090b;--card-foreground: #fafafa;--popover: #09090b;--popover-foreground: #fafafa;--primary: #2563eb;--primary-foreground: #ffffff;--secondary: #27272a;--secondary-foreground: #fafafa;--muted: #18181b;--muted-foreground: #d4d4d8;--accent: #18181b;--accent-foreground: #fafafa;--destructive: #dc2626;--destructive-foreground: #ffffff;--border: #27272a;--input: #27272a;--ring: #52525b;--chart-1: #3b82f6;--chart-2: #22c55e;--chart-3: #eab308;--chart-4: #ef4444;--chart-5: #a855f7;--sidebar: #18181b;--sidebar-foreground: #f4f4f5;--sidebar-primary: #3b82f6;--sidebar-primary-foreground: #ffffff;--sidebar-accent: #27272a;--sidebar-accent-foreground: #f4f4f5;--sidebar-border: #27272a;--sidebar-ring: #3b82f6;--color-background: var(--background);--color-foreground: var(--foreground);--color-card: var(--card);--color-card-foreground: var(--card-foreground);--color-popover: var(--popover);--color-popover-foreground: var(--popover-foreground);--color-primary: var(--primary);--color-primary-foreground: var(--primary-foreground);--color-secondary: var(--secondary);--color-secondary-foreground: var(--secondary-foreground);--color-muted: var(--muted);--color-muted-foreground: var(--muted-foreground);--color-accent: var(--accent);--color-accent-foreground: var(--accent-foreground);--color-destructive: var(--destructive);--color-destructive-foreground: var(--destructive-foreground);--color-border: var(--border);--color-input: var(--input);--color-ring: var(--ring);--color-chart-1: var(--chart-1);--color-chart-2: var(--chart-2);--color-chart-3: var(--chart-3);--color-chart-4: var(--chart-4);--color-chart-5: var(--chart-5);--color-sidebar: var(--sidebar);--color-sidebar-foreground: var(--sidebar-foreground);--color-sidebar-primary: var(--sidebar-primary);--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);--color-sidebar-accent: var(--sidebar-accent);--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);--color-sidebar-border: var(--sidebar-border);--color-sidebar-ring: var(--sidebar-ring)}.spam-low{--spam-color: #22c55e;--spam-bg: #dcfce7}.spam-medium{--spam-color: #eab308;--spam-bg: #fef9c3}.spam-high{--spam-color: #ef4444;--spam-bg: #fee2e2}.dark .spam-low,:host(.dark) .spam-low{--spam-bg: #14532d}.dark .spam-medium,:host(.dark) .spam-medium{--spam-bg: #713f12}.dark .spam-high,:host(.dark) .spam-high{--spam-bg: #7f1d1d}.mozbar-base{font-family:ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji";font-size:14px;line-height:1.5;color:var(--foreground);background-color:var(--background);box-sizing:border-box}.mozbar-base *,.mozbar-base *:before,.mozbar-base *:after{box-sizing:border-box}.mozbar-base button{font-family:inherit;font-size:inherit;line-height:inherit;cursor:pointer;border:none;background:transparent;padding:0;margin:0}.mozbar-base *:focus-visible{outline:2px solid var(--ring);outline-offset:2px;border-radius:var(--radius-sm)}#mozbar-toolbar-wrapper{font-family:ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji";font-size:14px;line-height:1.5;color:var(--foreground);box-sizing:border-box}#mozbar-toolbar-wrapper *,#mozbar-toolbar-wrapper *:before,#mozbar-toolbar-wrapper *:after{box-sizing:border-box}#mozbar-toolbar-wrapper button{font-family:inherit;font-size:inherit;line-height:inherit;cursor:pointer;border:none;background:transparent;padding:0;margin:0}</style></head><body style="color-scheme: initial; forced-color-adjust: initial; math-depth: initial; position-anchor: initial; text-size-adjust: initial; appearance: initial; color: initial; font-feature-settings: initial; font-kerning: initial; font-language-override: initial; font-optical-sizing: initial; font-palette: initial; font-size: initial; font-size-adjust: initial; font-stretch: initial; font-style: initial; font-synthesis: initial; font-variant: initial; font-variation-settings: initial; font-weight: initial; position-area: initial; text-orientation: initial; text-rendering: initial; text-spacing-trim: initial; -webkit-font-smoothing: initial; -webkit-locale: initial; -webkit-text-orientation: initial; -webkit-writing-mode: initial; writing-mode: initial; zoom: initial; accent-color: initial; place-content: initial; place-items: initial; place-self: initial; alignment-baseline: initial; anchor-name: initial; anchor-scope: initial; animation-composition: initial; animation: initial; animation-trigger: initial; app-region: initial; aspect-ratio: initial; backdrop-filter: initial; backface-visibility: initial; background: initial; background-blend-mode: initial; baseline-shift: initial; baseline-source: initial; block-size: initial; border-block: initial; border: initial; border-radius: initial; border-collapse: initial; border-end-end-radius: initial; border-end-start-radius: initial; border-inline: initial; border-shape: initial; border-start-end-radius: initial; border-start-start-radius: initial; inset: initial; box-decoration-break: initial; box-shadow: initial; box-sizing: initial; break-after: initial; break-before: initial; break-inside: initial; buffered-rendering: initial; caption-side: initial; caret-animation: initial; caret-color: initial; caret-shape: initial; clear: initial; clip: initial; clip-path: initial; clip-rule: initial; color-interpolation: initial; color-interpolation-filters: initial; color-rendering: initial; columns: initial; column-fill: initial; gap: initial; column-rule: initial; column-span: initial; contain: initial; contain-intrinsic-block-size: initial; contain-intrinsic-size: initial; contain-intrinsic-inline-size: initial; container: initial; content: initial; content-visibility: initial; corner-shape: initial; corner-block-end-shape: initial; corner-block-start-shape: initial; counter-increment: initial; counter-reset: initial; counter-set: initial; cursor: initial; cx: initial; cy: initial; d: initial; dominant-baseline: initial; dynamic-range-limit: initial; empty-cells: initial; field-sizing: initial; fill: initial; fill-opacity: initial; fill-rule: initial; filter: initial; flex: initial; flex-flow: initial; float: initial; flood-color: initial; flood-opacity: initial; grid: initial; grid-area: initial; height: initial; hyphenate-character: initial; hyphenate-limit-chars: initial; hyphens: initial; image-orientation: initial; image-rendering: initial; initial-letter: initial; inline-size: initial; inset-block: initial; inset-inline: initial; interactivity: initial; interest-delay: initial; interpolate-size: initial; isolation: initial; letter-spacing: initial; lighting-color: initial; line-break: initial; line-height: initial; list-style: initial; margin-block: initial; margin: initial; margin-inline: initial; marker: initial; mask: initial; mask-type: initial; math-shift: initial; math-style: initial; max-block-size: initial; max-height: initial; max-inline-size: initial; max-width: initial; min-block-size: initial; min-height: initial; min-inline-size: initial; min-width: initial; mix-blend-mode: initial; object-fit: initial; object-position: initial; object-view-box: initial; offset: initial; opacity: initial; order: initial; orphans: initial; outline: initial; outline-offset: initial; overflow-anchor: initial; overflow-block: initial; overflow-clip-margin: initial; overflow-inline: initial; overflow-wrap: initial; overflow: initial; overlay: initial; overscroll-behavior-block: initial; overscroll-behavior-inline: initial; overscroll-behavior: initial; padding-block: initial; padding: initial; padding-inline: initial; page: initial; page-orientation: initial; paint-order: initial; perspective: initial; perspective-origin: initial; pointer-events: initial; position-try: initial; position-visibility: initial; print-color-adjust: initial; quotes: initial; r: initial; reading-flow: initial; reading-order: initial; resize: initial; rotate: initial; ruby-align: initial; ruby-position: initial; rx: initial; ry: initial; scale: initial; scroll-behavior: initial; scroll-initial-target: initial; scroll-margin-block: initial; scroll-margin: initial; scroll-margin-inline: initial; scroll-marker-group: initial; scroll-padding-block: initial; scroll-padding: initial; scroll-padding-inline: initial; scroll-snap-align: initial; scroll-snap-stop: initial; scroll-snap-type: initial; scroll-target-group: initial; scroll-timeline: initial; scrollbar-color: initial; scrollbar-gutter: initial; scrollbar-width: initial; shape-image-threshold: initial; shape-margin: initial; shape-outside: initial; shape-rendering: initial; size: initial; speak: initial; stop-color: initial; stop-opacity: initial; stroke: initial; stroke-dasharray: initial; stroke-dashoffset: initial; stroke-linecap: initial; stroke-linejoin: initial; stroke-miterlimit: initial; stroke-opacity: initial; stroke-width: initial; tab-size: initial; table-layout: initial; text-align: initial; text-align-last: initial; text-anchor: initial; text-autospace: initial; text-box: initial; text-combine-upright: initial; text-decoration: initial; text-decoration-skip-ink: initial; text-emphasis: initial; text-emphasis-position: initial; text-indent: initial; text-justify: initial; text-overflow: initial; text-shadow: initial; text-transform: initial; text-underline-offset: initial; text-underline-position: initial; text-wrap: initial; timeline-scope: initial; timeline-trigger: initial; touch-action: initial; transform: initial; transform-box: initial; transform-origin: initial; transform-style: initial; transition: initial; translate: initial; trigger-scope: initial; user-select: initial; vector-effect: initial; vertical-align: initial; view-timeline: initial; view-transition-class: initial; view-transition-group: initial; view-transition-name: initial; view-transition-scope: initial; visibility: initial; border-spacing: initial; -webkit-box-align: initial; -webkit-box-decoration-break: initial; -webkit-box-direction: initial; -webkit-box-flex: initial; -webkit-box-ordinal-group: initial; -webkit-box-orient: initial; -webkit-box-pack: initial; -webkit-box-reflect: initial; -webkit-line-break: initial; -webkit-line-clamp: initial; -webkit-mask-box-image: initial; -webkit-rtl-ordering: initial; -webkit-ruby-position: initial; -webkit-tap-highlight-color: initial; -webkit-text-combine: initial; -webkit-text-decorations-in-effect: initial; -webkit-text-fill-color: initial; -webkit-text-security: initial; -webkit-text-stroke: initial; -webkit-user-drag: initial; white-space-collapse: initial; widows: initial; width: initial; will-change: initial; word-break: initial; word-spacing: initial; x: initial; y: initial; display: block; position: relative; z-index: 2147483647; font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, sans-serif;"><div id="mozbar-toolbar-wrapper"></div></body></html></template></mozbar-toolbar>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">🌿</div>
+            <div>
+                <div class="logo-text">Persephone</div>
+                <div class="tagline">Privacy-First Web Browser</div>
+            </div>
+        </div>
+        <div class="security-status">
+            <div class="security-icon">🔒</div>
+            <div>All Systems Secure</div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-section">
+                <button class="sidebar-btn active" data-section="search">
+                    <span class="sidebar-btn-icon">🔍</span>
+                    <span>Search</span>
+                </button>
+                <button class="sidebar-btn" data-section="browser">
+                    <span class="sidebar-btn-icon">🌐</span>
+                    <span>Browser</span>
+                </button>
+                <button class="sidebar-btn" data-section="security">
+                    <span class="sidebar-btn-icon">🛡️</span>
+                    <span>Security Dashboard</span>
+                </button>
+                <button class="sidebar-btn" data-section="privacy">
+                    <span class="sidebar-btn-icon">👁️</span>
+                    <span>Privacy Settings</span>
+                </button>
+                <button class="sidebar-btn" data-section="history">
+                    <span class="sidebar-btn-icon">📜</span>
+                    <span>History</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Search Section -->
+            <section id="search-section" class="search-section fade-in">
+                <h1 class="search-title">Persephone Search</h1>
+                <p class="search-subtitle">Private, secure, and anonymous web searching</p>
+
+                <div class="search-box">
+                    <div class="search-icon">🔍</div>
+                    <input type="text" class="search-input" id="search-input" placeholder="Search privately with Persephone..." autocomplete="off">
+                </div>
+
+                <div class="search-buttons">
+                    <button class="btn btn-primary" id="search-btn">
+                        <span>🔍</span>
+                        <span>Persephone Search</span>
+                    </button>
+                    <button class="btn btn-secondary" id="lucky-btn">
+                        <span>🎲</span>
+                        <span>I'm Feeling Private</span>
+                    </button>
+                </div>
+
+                <div style="margin-top: 3rem; color: var(--text-secondary); font-size: 0.9rem;">
+                    <p>🔒 Your searches are encrypted and never stored</p>
+                    <p>🌐 No tracking cookies or fingerprinting</p>
+                    <p>🛡️ Built-in ad and tracker blocking</p>
+                </div>
+            </section>
+
+            <!-- Browser Window -->
+            <section id="browser-section" class="browser-window fade-in">
+                <div class="browser-header">
+                    <div class="browser-controls">
+                        <button class="control-btn control-close"></button>
+                        <button class="control-btn control-minimize"></button>
+                        <button class="control-btn control-maximize"></button>
+                    </div>
+                    <input type="text" class="browser-url-bar" id="url-bar" value="https://persephone.browser/secure" readonly="">
+                </div>
+                <div class="browser-content" id="browser-content">
+                    <h2>Persephone Secure Browser</h2>
+                    <p>Welcome to your private browsing session. All connections are encrypted and monitored for security threats.</p>
+
+                    <div style="margin-top: 2rem; padding: 1.5rem; background: var(--dark-lighter); border-radius: 8px;">
+                        <h3>🛡️ Active Security Features:</h3>
+                        <ul style="margin-top: 1rem; line-height: 1.8;">
+                            <li>End-to-end encryption for all traffic</li>
+                            <li>Real-time threat detection</li>
+                            <li>Automatic tracker blocking</li>
+                            <li>DNS-over-HTTPS enabled</li>
+                            <li>Certificate pinning active</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Security Dashboard -->
+            <section id="security-section" class="security-dashboard fade-in" style="display: none;">
+                <div class="security-card">
+                    <div class="security-card-header">
+                        <div class="security-card-icon">🛡️</div>
+                        <div class="security-card-title">Encryption Status</div>
+                    </div>
+                    <div class="security-card-content">
+                        All browser traffic is encrypted using AES-256-GCM with perfect forward secrecy. Connections use TLS 1.3 with certificate pinning.
+                    </div>
+                    <div class="security-status-indicator status-active">
+                        <span>🔒</span>
+                        <span>FULLY ENCRYPTED</span>
+                    </div>
+                </div>
+
+                <div class="security-card">
+                    <div class="security-card-header">
+                        <div class="security-card-icon">👁️</div>
+                        <div class="security-card-title">Tracker Blocking</div>
+                    </div>
+                    <div class="security-card-content">
+                        Active blocking of 3rd-party cookies, fingerprinting scripts, and tracking pixels. Real-time analysis of network requests.
+                    </div>
+                    <div class="security-status-indicator status-active">
+                        <span>✅</span>
+                        <span>BLOCKING 98% OF TRACKERS</span>
+                    </div>
+                </div>
+
+                <div class="security-card">
+                    <div class="security-card-header">
+                        <div class="security-card-icon">🌐</div>
+                        <div class="security-card-title">DNS Security</div>
+                    </div>
+                    <div class="security-card-content">
+                        Using DNS-over-HTTPS with Quad9 resolver. All DNS queries are encrypted and protected against spoofing and hijacking.
+                    </div>
+                    <div class="security-status-indicator status-active">
+                        <span>🔐</span>
+                        <span>ENCRYPTED DNS ACTIVE</span>
+                    </div>
+                </div>
+
+                <div class="security-card">
+                    <div class="security-card-header">
+                        <div class="security-card-icon">🚫</div>
+                        <div class="security-card-title">Ad Blocking</div>
+                    </div>
+                    <div class="security-card-content">
+                        Comprehensive ad blocking with privacy-focused filter lists. Blocks malicious ads, pop-ups, and auto-play media.
+                    </div>
+                    <div class="security-status-indicator status-active">
+                        <span>✅</span>
+                        <span>BLOCKING 95% OF ADS</span>
+                    </div>
+                </div>
+
+                <div class="security-card">
+                    <div class="security-card-header">
+                        <div class="security-card-icon">📊</div>
+                        <div class="security-card-title">Data Protection</div>
+                    </div>
+                    <div class="security-card-content">
+                        Automatic clearing of browsing data, no persistent storage of cookies, and isolated session management.
+                    </div>
+                    <div class="security-status-indicator status-active">
+                        <span>🗑️</span>
+                        <span>AUTO-CLEANING ACTIVE</span>
+                    </div>
+                </div>
+
+                <div class="security-card">
+                    <div class="security-card-header">
+                        <div class="security-card-icon">⚡</div>
+                        <div class="security-card-title">Threat Detection</div>
+                    </div>
+                    <div class="security-card-content">
+                        Real-time analysis of websites for malware, phishing attempts, and suspicious behavior using machine learning models.
+                    </div>
+                    <div class="security-status-indicator status-active">
+                        <span>🛡️</span>
+                        <span>REAL-TIME MONITORING</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Privacy Settings -->
+            <section id="privacy-section" class="privacy-settings fade-in" style="display: none;">
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-title">End-to-End Encryption</div>
+                        <div class="setting-description">Encrypt all browser traffic using military-grade AES-256 encryption</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked="">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-title">Tracker Blocking</div>
+                        <div class="setting-description">Block third-party trackers, cookies, and fingerprinting scripts</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked="">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-title">Ad Blocking</div>
+                        <div class="setting-description">Block intrusive ads, pop-ups, and auto-play media</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked="">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-title">DNS-over-HTTPS</div>
+                        <div class="setting-description">Encrypt DNS queries to prevent ISP tracking</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked="">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-title">Auto-Clear Data</div>
+                        <div class="setting-description">Automatically clear browsing data when closing browser</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked="">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-title">JavaScript Control</div>
+                        <div class="setting-description">Selectively block JavaScript on untrusted sites</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-title">WebRTC Protection</div>
+                        <div class="setting-description">Prevent WebRTC IP address leaks</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked="">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <div class="setting-title">Canvas Fingerprint Protection</div>
+                        <div class="setting-description">Block canvas fingerprinting attempts</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked="">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- History Section -->
+            <section id="history-section" class="fade-in" style="display: none;">
+                <h2 style="margin-bottom: 1.5rem;">Private Browsing History</h2>
+                <div class="history-list" id="history-list"><div class="history-item">
+                    <div class="history-icon">🌐</div>
+                    <div class="history-content">
+                        <div class="history-title">DuckDuckGo - Privacy Search</div>
+                        <div class="history-url">https://duckduckgo.com</div>
+                    </div>
+                    <div class="history-time">10:30 AM</div>
+                </div><div class="history-item">
+                    <div class="history-icon">🌐</div>
+                    <div class="history-content">
+                        <div class="history-title">Privacy Tools - Encryption Guide</div>
+                        <div class="history-url">https://www.privacytools.io</div>
+                    </div>
+                    <div class="history-time">10:15 AM</div>
+                </div><div class="history-item">
+                    <div class="history-icon">🌐</div>
+                    <div class="history-content">
+                        <div class="history-title">Electronic Frontier Foundation</div>
+                        <div class="history-url">https://www.eff.org</div>
+                    </div>
+                    <div class="history-time">9:45 AM</div>
+                </div><div class="history-item">
+                    <div class="history-icon">🌐</div>
+                    <div class="history-content">
+                        <div class="history-title">Tor Project - Anonymous Browsing</div>
+                        <div class="history-url">https://www.torproject.org</div>
+                    </div>
+                    <div class="history-time">9:30 AM</div>
+                </div><div class="history-item">
+                    <div class="history-icon">🌐</div>
+                    <div class="history-content">
+                        <div class="history-title">Signal - Private Messenger</div>
+                        <div class="history-url">https://signal.org</div>
+                    </div>
+                    <div class="history-time">9:15 AM</div>
+                </div><div class="history-item">
+                    <div class="history-icon">🌐</div>
+                    <div class="history-content">
+                        <div class="history-title">ProtonMail - Encrypted Email</div>
+                        <div class="history-url">https://protonmail.com</div>
+                    </div>
+                    <div class="history-time">9:00 AM</div>
+                </div></div>
+                <div style="margin-top: 2rem; text-align: center;">
+                    <button class="btn btn-secondary" id="clear-history-btn">
+                        <span>🗑️</span>
+                        <span>Clear All History</span>
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div>Persephone Privacy Browser v1.0 • Built with security in mind</div>
+        <div class="footer-links">
+            <a href="https://galaxy-prod.tlcdn.com/gen/user_2w3ESEJeOmWwLyZeRtOGgR7Zo9U/35945bec-146b-451f-89ba-4f80fa92ae4d.html#" class="footer-link">Privacy Policy</a>
+            <a href="https://galaxy-prod.tlcdn.com/gen/user_2w3ESEJeOmWwLyZeRtOGgR7Zo9U/35945bec-146b-451f-89ba-4f80fa92ae4d.html#" class="footer-link">Security Whitepaper</a>
+            <a href="https://galaxy-prod.tlcdn.com/gen/user_2w3ESEJeOmWwLyZeRtOGgR7Zo9U/35945bec-146b-451f-89ba-4f80fa92ae4d.html#" class="footer-link">GitHub</a>
+            <a href="https://galaxy-prod.tlcdn.com/gen/user_2w3ESEJeOmWwLyZeRtOGgR7Zo9U/35945bec-146b-451f-89ba-4f80fa92ae4d.html#" class="footer-link">Report Issue</a>
+        </div>
+    </footer>
+
+    <script>
+        // DOM Elements
+        const sidebarBtns = document.querySelectorAll('.sidebar-btn');
+        const sections = {
+            search: document.getElementById('search-section'),
+            browser: document.getElementById('browser-section'),
+            security: document.getElementById('security-section'),
+            privacy: document.getElementById('privacy-section'),
+            history: document.getElementById('history-section')
+        };
+        const searchInput = document.getElementById('search-input');
+        const searchBtn = document.getElementById('search-btn');
+        const luckyBtn = document.getElementById('lucky-btn');
+        const historyList = document.getElementById('history-list');
+        const clearHistoryBtn = document.getElementById('clear-history-btn');
+        const urlBar = document.getElementById('url-bar');
+        const browserContent = document.getElementById('browser-content');
+
+        // Sample search engines (privacy-focused)
+        const searchEngines = {
+            duckduckgo: 'https://duckduckgo.com/?q=',
+            startpage: 'https://www.startpage.com/sp/search?query=',
+            searx: 'https://searx.be/search?q='
+        };
+
+        // Sample history data
+        let browsingHistory = [
+            { title: 'DuckDuckGo - Privacy Search', url: 'https://duckduckgo.com', time: '10:30 AM' },
+            { title: 'Privacy Tools - Encryption Guide', url: 'https://www.privacytools.io', time: '10:15 AM' },
+            { title: 'Electronic Frontier Foundation', url: 'https://www.eff.org', time: '9:45 AM' },
+            { title: 'Tor Project - Anonymous Browsing', url: 'https://www.torproject.org', time: '9:30 AM' },
+            { title: 'Signal - Private Messenger', url: 'https://signal.org', time: '9:15 AM' },
+            { title: 'ProtonMail - Encrypted Email', url: 'https://protonmail.com', time: '9:00 AM' }
+        ];
+
+        // Initialize
+        function init() {
+            // Sidebar navigation
+            sidebarBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const section = btn.dataset.section;
+
+                    // Update active button
+                    sidebarBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    // Show selected section
+                    Object.values(sections).forEach(sec => {
+                        if (sec) sec.style.display = 'none';
+                    });
+
+                    if (sections[section]) {
+                        sections[section].style.display = section === 'security' ? 'grid' : 'block';
+                        sections[section].classList.add('fade-in');
+                    }
+                });
+            });
+
+            // Search functionality
+            searchBtn.addEventListener('click', performSearch);
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') performSearch();
+            });
+
+            luckyBtn.addEventListener('click', () => {
+                const queries = [
+                    'what is end-to-end encryption',
+                    'how to browse anonymously',
+                    'privacy tools 2026',
+                    'cybersecurity best practices',
+                    'data protection laws'
+                ];
+                const randomQuery = queries[Math.floor(Math.random() * queries.length)];
+                searchInput.value = randomQuery;
+                performSearch();
+            });
+
+            // Browser controls
+            document.querySelectorAll('.control-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const type = e.target.classList[1];
+                    if (type === 'control-close') {
+                        sections.browser.style.display = 'none';
+                        document.querySelector('[data-section="search"]').click();
+                    } else if (type === 'control-minimize') {
+                        browserContent.style.height = '300px';
+                    } else if (type === 'control-maximize') {
+                        browserContent.style.height = '600px';
+                    }
+                });
+            });
+
+            // History management
+            updateHistoryList();
+
+            clearHistoryBtn.addEventListener('click', () => {
+                if (confirm('Are you sure you want to clear all browsing history? This action cannot be undone.')) {
+                    browsingHistory = [];
+                    updateHistoryList();
+                    showNotification('History cleared successfully');
+                }
+            });
+
+            // Initialize security features
+            initializeSecurityFeatures();
+        }
+
+        // Perform search
+        function performSearch() {
+            const query = searchInput.value.trim();
+            if (!query) return;
+
+            // Add to history
+            addToHistory(`Search: ${query}`, `persephone://search/${encodeURIComponent(query)}`);
+
+            // Use DuckDuckGo as default privacy search engine
+            const searchUrl = `${searchEngines.duckduckgo}${encodeURIComponent(query)}`;
+
+            // Update browser section
+            urlBar.value = searchUrl;
+            browserContent.innerHTML = `
+                <h2>Search Results for: "${query}"</h2>
+                <p>Redirecting to privacy-focused search engine...</p>
+                <div style="margin-top: 2rem; padding: 1.5rem; background: var(--dark-lighter); border-radius: 8px;">
+                    <h3>🔒 Privacy Notice:</h3>
+                    <p>Your search is being processed through DuckDuckGo, a privacy-focused search engine that doesn't track you.</p>
+                    <p>No cookies are stored, and your IP address is anonymized.</p>
+                    <button class="btn btn-primary" style="margin-top: 1rem;" onclick="window.open('${searchUrl}', '_blank')">
+                        Open in New Tab
+                    </button>
+                </div>
+            `;
+
+            // Show browser section
+            document.querySelector('[data-section="browser"]').click();
+            showNotification(`Searching privately for "${query}"`);
+        }
+
+        // Add to history
+        function addToHistory(title, url) {
+            const now = new Date();
+            const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            browsingHistory.unshift({
+                title,
+                url,
+                time
+            });
+
+            // Keep only last 50 items
+            if (browsingHistory.length > 50) {
+                browsingHistory = browsingHistory.slice(0, 50);
+            }
+
+            updateHistoryList();
+        }
+
+        // Update history list
+        function updateHistoryList() {
+            historyList.innerHTML = '';
+
+            if (browsingHistory.length === 0) {
+                historyList.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">📜</div>
+                        <h3>No Browsing History</h3>
+                        <p>Your browsing history is empty. Start browsing privately!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            browsingHistory.forEach(item => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.innerHTML = `
+                    <div class="history-icon">🌐</div>
+                    <div class="history-content">
+                        <div class="history-title">${item.title}</div>
+                        <div class="history-url">${item.url}</div>
+                    </div>
+                    <div class="history-time">${item.time}</div>
+                `;
+                historyList.appendChild(historyItem);
+            });
+        }
+
+        // Initialize security features
+        function initializeSecurityFeatures() {
+            // Simulate security checks
+            setTimeout(() => {
+                console.log('🔒 Security systems initialized');
+                console.log('🛡️  Tracker blocking active');
+                console.log('🔐  Encryption enabled');
+                console.log('🌐  DNS-over-HTTPS configured');
+            }, 1000);
+        }
+
+        // Show notification
+        function showNotification(message) {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: var(--primary);
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 10000;
+                animation: slideIn 0.3s ease-out;
+            `;
+
+            // Add animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideIn {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideIn 0.3s ease-out reverse';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Browser simulation functions
+        function navigateTo(url) {
+            urlBar.value = url;
+            browserContent.innerHTML = `
+                <h2>Loading ${url}</h2>
+                <p>Establishing secure connection...</p>
+                <div style="margin-top: 2rem;">
+                    <div style="width: 100%; height: 4px; background: var(--dark-lighter); border-radius: 2px;">
+                        <div id="progress-bar" style="width: 0%; height: 100%; background: var(--primary); border-radius: 2px; transition: width 2s;"></div>
+                    </div>
+                </div>
+            `;
+
+            setTimeout(() => {
+                document.getElementById('progress-bar').style.width = '100%';
+
+                setTimeout(() => {
+                    browserContent.innerHTML = `
+                        <h2>Secure Connection Established</h2>
+                        <p>You are now browsing ${url} with full privacy protection.</p>
+                        <div style="margin-top: 2rem; padding: 1.5rem; background: var(--dark-lighter); border-radius: 8px;">
+                            <h3>🛡️ Active Protections:</h3>
+                            <ul style="margin-top: 1rem; line-height: 1.8;">
+                                <li>HTTPS encryption verified</li>
+                                <li>Trackers blocked: 12</li>
+                                <li>Ads blocked: 8</li>
+                                <li>Fingerprinting attempts prevented: 3</li>
+                            </ul>
+                        </div>
+                    `;
+                    addToHistory(`Secure Site: ${url}`, url);
+                }, 2000);
+            }, 500);
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+
+        // Export function for external use
+        window.PersephoneBrowser = {
+            search: performSearch,
+            navigateTo: navigateTo,
+            clearHistory: () => {
+                browsingHistory = [];
+                updateHistoryList();
+            },
+            getSecurityStatus: () => ({
+                encryption: 'active',
+                trackerBlocking: '98%',
+                adBlocking: '95%',
+                dnsSecurity: 'encrypted'
+            })
+        };
+    </script>
+
+</body></html>

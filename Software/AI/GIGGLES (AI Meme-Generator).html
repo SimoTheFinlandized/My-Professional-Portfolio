@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GIGGLES - Meme Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        #meme-form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        input[type="text"], input[type="submit"] {
+            padding: 10px;
+            margin: 5px 0;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        input[type="submit"] {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        input[type="submit"]:hover:not(:disabled) {
+            background-color: #0056b3;
+        }
+        input[type="submit"]:disabled {
+            background-color: #999;
+            cursor: not-allowed;
+        }
+        #error-message {
+            color: red;
+            font-weight: bold;
+            margin-top: 10px;
+            min-height: 1.2em;
+            text-align: center;
+        }
+        #meme-output {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+        #meme-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 10px;
+            display: none;
+        }
+        #loading {
+            font-weight: bold;
+            color: #007bff;
+            display: none;
+            margin-bottom: 10px;
+        }
+        #actions {
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            padding: 8px 15px;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #28a745;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #19692c;
+        }
+        @media (max-width: 480px) {
+            #meme-form {
+                max-width: 100%;
+            }
+            input[type="text"], input[type="submit"], button {
+                width: 100%;
+                font-size: 1rem;
+            }
+            #actions {
+                flex-direction: column;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>GIGGLES - Meme Generator</h1>
+    <div id="meme-form">
+        <input type="text" id="topic" placeholder="Enter a topic for your meme" required />
+        <input type="text" id="topText" placeholder="Top text" required />
+        <input type="text" id="bottomText" placeholder="Bottom text" required />
+        <input type="submit" id="generate" value="Generate Meme" />
+        <div id="error-message"></div>
+    </div>
+    <div id="meme-output">
+        <div id="loading">Generating meme, please wait...</div>
+        <img id="meme-image" src="" alt="Generated Meme" />
+        <div id="actions" style="display:none;">
+            <button id="copy-url-btn" title="Copy meme URL">Copy URL</button>
+            <button id="download-btn" title="Download meme">Download</button>
+        </div>
+    </div>
+
+    <script>
+        const generateBtn = document.getElementById('generate');
+        const memeImage = document.getElementById('meme-image');
+        const loadingIndicator = document.getElementById('loading');
+        const errorMessage = document.getElementById('error-message');
+        const copyUrlBtn = document.getElementById('copy-url-btn');
+        const downloadBtn = document.getElementById('download-btn');
+        const actionsDiv = document.getElementById('actions');
+
+        function validateInputs() {
+            errorMessage.textContent = '';
+            const topic = document.getElementById('topic').value.trim();
+            const topText = document.getElementById('topText').value.trim();
+            const bottomText = document.getElementById('bottomText').value.trim();
+            if (!topic || !topText || !bottomText) {
+                errorMessage.textContent = 'All fields are required.';
+                return false;
+            }
+            return { topic, topText, bottomText };
+        }
+
+        generateBtn.addEventListener('click', async function() {
+            const inputs = validateInputs();
+            if (!inputs) {
+                return;
+            }
+            generateBtn.disabled = true;
+            loadingIndicator.style.display = 'block';
+            memeImage.style.display = 'none';
+            actionsDiv.style.display = 'none';
+            try {
+                const memeUrl = await generateMeme(inputs.topic, inputs.topText, inputs.bottomText);
+                memeImage.src = memeUrl;
+                memeImage.style.display = 'block';
+                actionsDiv.style.display = 'flex';
+                errorMessage.textContent = '';
+            } catch (error) {
+                errorMessage.textContent = 'Failed to generate meme. Please try again later.';
+                console.error(error);
+            } finally {
+                loadingIndicator.style.display = 'none';
+                generateBtn.disabled = false;
+            }
+        });
+
+        copyUrlBtn.addEventListener('click', () => {
+            if (memeImage.src) {
+                navigator.clipboard.writeText(memeImage.src).then(() => {
+                    alert('Meme URL copied to clipboard!');
+                }).catch(() => {
+                    alert('Failed to copy meme URL.');
+                });
+            }
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            if (memeImage.src) {
+                const a = document.createElement('a');
+                a.href = memeImage.src;
+                a.download = 'meme.jpg';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
+        });
+
+        // Note: This example fixes the OpenAI API use to generate meme text only,
+        // but image generation still relies on imgflip API.
+        async function generateMeme(topic, topText, bottomText) {
+            // Removed actual OpenAI call for security.
+            // Assume a simpler placeholder approach; real integration requires a backend.
+
+            // Construct Imgflip URL with hardcoded meme template ID
+            const imgflipUsername = 'YOUR_IMGFLIP_USERNAME';  // Put your username here securely
+            const imgflipPassword = 'YOUR_IMGFLIP_PASSWORD';  // Put your password here securely
+
+            if (!(imgflipUsername && imgflipPassword)) {
+                throw new Error('Imgflip credentials are missing.');
+            }
+
+            const memeUrl = `https://api.imgflip.com/caption_image?template_id=112126428&username=${encodeURIComponent(imgflipUsername)}&password=${encodeURIComponent(imgflipPassword)}&text0=${encodeURIComponent(topText)}&text1=${encodeURIComponent(bottomText)}`;
+
+            const response = await fetch(memeUrl, { method: 'POST' });
+            const data = await response.json();
+
+            if (!data.success) {
+                throw new Error(data.error_message || 'Imgflip API error');
+            }
+
+            return data.data.url;
+        }
+    </script>
+</body>
+</html>

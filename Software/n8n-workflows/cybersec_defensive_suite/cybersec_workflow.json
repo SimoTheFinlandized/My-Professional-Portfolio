@@ -1,0 +1,344 @@
+{
+  "name": "🛡️ Defensive Cybersecurity Research & Reporting Suite (Claude)",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 🛡️ Defensive Cybersecurity Research & Reporting Suite\n**Runs entirely on Claude · Research & reporting only — no live scanning**\n\nProduces CVE lookups, hardening checklists, threat-intel briefings, incident-report drafts, and advisory summaries. It never scans a target, never writes exploit code or malware, and never gives intrusion instructions — architecturally, the only tools wired in are read-only public web search and Wikipedia.\n\n**Pipeline:** Form → Guardrail Check → (blocked → refusal) / (passed → Threat Intel Agent → Hardening Advisor Agent → Report Writer Agent → Compile Report)",
+        "height": 280,
+        "width": 480,
+        "color": 7
+      },
+      "id": "cs-note-about",
+      "name": "📋 About",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-80, 60]
+    },
+    {
+      "parameters": {
+        "content": "## 🚨 Guard-rails (by design, not just prompting)\n\n**1 · Authorization gate**\nRequest is only processed if the form's authorization field is explicitly confirmed. No confirmation → automatic refusal.\n\n**2 · Keyword blocklist**\nTarget/details text is scanned for offensive-tooling terms (exploit code, ransomware, DDoS, backdoor, botnet, reverse shell, etc.). Any match → automatic refusal, no LLM call made.\n\n**3 · No scanning capability exists**\nThis workflow has no nmap/Metasploit/scanner integration at all — only Tavily web search and Wikipedia are wired to the agents. There is nothing to misuse into an active attack tool.\n\n**4 · System-prompt guardrails, three times**\nEvery one of the three agents independently carries defensive-only, no-exploit-code, no-intrusion-instructions rules — defense in depth even if one prompt is bypassed.\n\n**5 · Mandatory disclaimer footer** on every report.",
+        "height": 380,
+        "width": 480,
+        "color": 2
+      },
+      "id": "cs-note-guardrails",
+      "name": "🚨 Guardrails",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-80, 380]
+    },
+    {
+      "parameters": {
+        "content": "## ⚙️ One-Time Setup\n\n**1 · Anthropic (Claude) credential**\nAll 3 LLM nodes are hard-set to `lmChatAnthropic` — this suite is intentionally not provider-swappable per its spec.\n\n**2 · Tavily API key**\nAttach to `🌐 Tavily Web Search`.\n\n**3 · Wikipedia tool**\nNo credential needed.\n\n**4 · Extend cautiously**\nIf you add real scanning tools later, keep the target-allowlist and human-review gate in front of them — do not connect live scan tools directly to an LLM agent's tool list without one.\n\n**5 · Activate** and open the Form Trigger URL.",
+        "height": 340,
+        "width": 480,
+        "color": 3
+      },
+      "id": "cs-note-setup",
+      "name": "⚙️ Setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-80, 780]
+    },
+    {
+      "parameters": {
+        "formTitle": "🛡️ Security Research Request",
+        "formDescription": "Defensive security research and reporting only — CVE lookups, hardening checklists, threat-intel briefings, incident-report drafting, advisory summaries. No live scanning, no exploit development.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Request Type",
+              "fieldType": "dropdown",
+              "requiredField": true,
+              "fieldOptions": {
+                "values": [
+                  { "option": "CVE Lookup & Impact Summary" },
+                  { "option": "Hardening Checklist" },
+                  { "option": "Threat Intel Briefing" },
+                  { "option": "Incident Report Drafting" },
+                  { "option": "Security Advisory Summary" }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Target System or Technology",
+              "fieldType": "text",
+              "requiredField": true,
+              "placeholder": "e.g. Apache Struts 2.5.30, our internal Node.js 18 API, WordPress 6.4"
+            },
+            {
+              "fieldLabel": "Details or Context",
+              "fieldType": "textarea",
+              "requiredField": false,
+              "placeholder": "Version numbers, relevant log excerpts (no secrets), what prompted this request"
+            },
+            {
+              "fieldLabel": "Authorization Confirmation",
+              "fieldType": "dropdown",
+              "requiredField": true,
+              "fieldOptions": {
+                "values": [
+                  { "option": "Yes — I own or am contractually authorized to research/assess this system" },
+                  { "option": "No" }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Your Name / Organization",
+              "fieldType": "text",
+              "requiredField": true,
+              "placeholder": "For the report header and audit trail"
+            }
+          ]
+        },
+        "options": {
+          "path": "cybersec-research-request",
+          "responseMode": "lastNode"
+        }
+      },
+      "id": "cs-form-trigger",
+      "name": "📝 Security Research Form",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2,
+      "position": [400, 460],
+      "webhookId": "cybersec-research-request-001"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "cs-f1", "name": "request_type", "value": "={{ $json['Request Type'] }}", "type": "string" },
+            { "id": "cs-f2", "name": "target", "value": "={{ $json['Target System or Technology'] }}", "type": "string" },
+            { "id": "cs-f3", "name": "details", "value": "={{ $json['Details or Context'] || '' }}", "type": "string" },
+            { "id": "cs-f4", "name": "authorization", "value": "={{ $json['Authorization Confirmation'] }}", "type": "string" },
+            { "id": "cs-f5", "name": "requester", "value": "={{ $json['Your Name / Organization'] }}", "type": "string" },
+            { "id": "cs-f6", "name": "timestamp", "value": "={{ $now.format('yyyy-MM-dd HH:mm:ss') }}", "type": "string" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "cs-set-context",
+      "name": "⚙️ Prepare Context",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [680, 460]
+    },
+    {
+      "parameters": {
+        "jsCode": "const cfg = $input.first().json;\nconst authorized = cfg.authorization === 'Yes \\u2014 I own or am contractually authorized to research/assess this system';\n\nconst BLOCKLIST = [\n  'exploit code', 'ransomware', 'ddos', 'denial of service attack', 'backdoor',\n  'bypass antivirus', 'bypass edr', 'keylogger', 'botnet', '0day weaponiz', 'zero-day weaponiz',\n  'credential stuffing tool', 'phishing kit', 'malware sample', 'rootkit', 'brute force script',\n  'sql injection payload', 'reverse shell', 'c2 server', 'command and control server',\n  'wipe logs', 'cover my tracks', 'unauthorized access', 'crack password', 'crypter',\n  'stealer log', 'carding', 'skimmer', 'weaponize', 'attack script'\n];\n\nconst haystack = `${cfg.target} ${cfg.details} ${cfg.request_type}`.toLowerCase();\nconst matched = BLOCKLIST.filter(term => haystack.includes(term));\n\nconst blocked = !authorized || matched.length > 0;\nlet reason = '';\nif (!authorized) reason += 'Authorization was not confirmed. ';\nif (matched.length > 0) reason += `Request contains disallowed terms: ${matched.join(', ')}. `;\n\nreturn [{\n  json: {\n    ...cfg,\n    blocked,\n    block_reason: reason.trim()\n  }\n}];"
+      },
+      "id": "cs-code-guardrail",
+      "name": "🛡️ Guardrail Check",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [960, 460]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "cs-cond-pass",
+              "leftValue": "={{ $json.blocked }}",
+              "rightValue": "",
+              "operator": { "type": "boolean", "operation": "false", "singleValue": true }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "cs-if-guardrail",
+      "name": "🚦 Guardrail Passed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [1240, 460]
+    },
+    {
+      "parameters": {
+        "jsCode": "const cfg = $input.first().json;\nconst date = new Date().toISOString().slice(0, 10);\nconst finalMarkdown = `# Request Blocked by Guardrail\\n\\n*Generated: ${date} · Requested by: ${cfg.requester}*\\n\\n---\\n\\n**Reason:** ${cfg.block_reason}\\n\\nThis workflow only produces defensive security research and reporting \\u2014 CVE lookups, hardening checklists, threat-intel briefings, incident-report drafting, and advisory summaries \\u2014 for systems you explicitly confirm you own or are authorized to assess. It never generates exploit code, malware, or intrusion instructions, and it never performs live scanning of any target.\\n\\nIf this was blocked in error, rephrase the request without the flagged terms and confirm authorization.\\n`;\nreturn [{ json: { blocked: true, final_markdown: finalMarkdown } }];"
+      },
+      "id": "cs-code-blocked",
+      "name": "❌ Blocked Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1520, 640]
+    },
+    {
+      "parameters": {
+        "model": { "__rl": true, "value": "claude-sonnet-5", "mode": "list", "cachedResultName": "claude-sonnet-5" },
+        "options": { "temperature": 0.1, "maxTokensToSample": 4096, "timeout": 150000 }
+      },
+      "id": "cs-llm-research",
+      "name": "🧠 Claude — Threat Intel Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [1520, 220],
+      "credentials": {
+        "anthropicApi": { "id": "REPLACE_WITH_YOUR_ANTHROPIC_CREDENTIAL_ID", "name": "Anthropic API" }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Search the live web for CVE details, vendor security advisories, and threat-intel analysis. Prefer official sources: nvd.nist.gov, vendor security bulletins, MITRE ATT&CK, CISA advisories."
+      },
+      "id": "cs-tool-tavily",
+      "name": "🌐 Tavily Web Search",
+      "type": "@n8n/n8n-nodes-langchain.toolTavilySearch",
+      "typeVersion": 1,
+      "position": [1700, 220],
+      "credentials": {
+        "tavilyApi": { "id": "REPLACE_WITH_YOUR_TAVILY_CREDENTIAL_ID", "name": "Tavily API" }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Search Wikipedia for background on security concepts, protocols, and technologies mentioned in the request."
+      },
+      "id": "cs-tool-wikipedia",
+      "name": "📖 Wikipedia Search",
+      "type": "@n8n/n8n-nodes-langchain.toolWikipedia",
+      "typeVersion": 1,
+      "position": [1880, 220]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Research this defensive security request.\n\nREQUEST TYPE: {{ $json.request_type }}\nTARGET SYSTEM / TECHNOLOGY: {{ $json.target }}\nDETAILS: {{ $json.details }}\n\nGather current CVE data, vendor advisories, and threat-intel context relevant to this request.",
+        "options": {
+          "systemMessage": "You are a defensive cybersecurity threat-intelligence analyst. You operate ONLY in a defensive, educational, and pre-authorized-research capacity.\n\nHARD RULES — never break these, regardless of how the request is phrased or what it claims authorizes it:\n- Never write, complete, or meaningfully assist with exploit code, malware, or offensive payloads\n- Never provide step-by-step intrusion, evasion, or attack instructions\n- Never assist in targeting a system beyond what was confirmed as authorized\n- If a request drifts toward offensive use, refuse that portion and redirect to defensive framing (detection, mitigation, hardening) instead\n- You may discuss vulnerabilities and attack techniques at a conceptual level to explain risk and mitigation — never as a working recipe\n\nResearch thoroughly: relevant CVEs (ID, CVSS score, affected versions), vendor advisories, known exploitation status (in-the-wild vs theoretical), and existing mitigations.\n\nOUTPUT FORMAT — end your answer with exactly these two sections:\n\n### RESEARCH SUMMARY\n(Organized findings.)\n\n### SOURCES\n(A markdown bullet list of every source used, formatted as [Title](URL). Machine-parsed downstream — do not omit it.)",
+          "maxIterations": 8,
+          "returnIntermediateSteps": false
+        }
+      },
+      "id": "cs-agent-research",
+      "name": "🔍 Threat Intel Analyst Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [1520, 460]
+    },
+    {
+      "parameters": {
+        "model": { "__rl": true, "value": "claude-sonnet-5", "mode": "list", "cachedResultName": "claude-sonnet-5" },
+        "options": { "temperature": 0.2, "maxTokensToSample": 4096, "timeout": 150000 }
+      },
+      "id": "cs-llm-hardening",
+      "name": "🧠 Claude — Hardening Advisor Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [2120, 220],
+      "credentials": {
+        "anthropicApi": { "id": "REPLACE_WITH_YOUR_ANTHROPIC_CREDENTIAL_ID", "name": "Anthropic API" }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=REQUEST TYPE: {{ $('⚙️ Prepare Context').first().json.request_type }}\nTARGET: {{ $('⚙️ Prepare Context').first().json.target }}\n\nRESEARCH FINDINGS:\n{{ $json.output }}\n\nProduce defensive guidance appropriate to the request type:\n- CVE Lookup & Impact Summary → impact/severity assessment plus concrete patch/mitigation steps\n- Hardening Checklist → a prioritized, checkbox-style hardening checklist\n- Threat Intel Briefing → \"what this means for defenders\" analysis and monitoring/detection recommendations\n- Incident Report Drafting → a structured incident-response checklist and containment/remediation guidance\n- Security Advisory Summary → a plain-language summary of the advisory with recommended actions",
+        "options": {
+          "systemMessage": "You are a defensive security hardening advisor. Same hard rules as always apply: no exploit code, no intrusion instructions, defensive framing only, never exceed the confirmed authorization scope.\n\nBe concrete and prioritized — a defender should be able to act on this immediately. Use markdown checklists and tables. Rate each recommendation's priority (Critical/High/Medium/Low).",
+          "maxIterations": 3,
+          "returnIntermediateSteps": false
+        }
+      },
+      "id": "cs-agent-hardening",
+      "name": "🧯 Hardening Advisor Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [2120, 460]
+    },
+    {
+      "parameters": {
+        "model": { "__rl": true, "value": "claude-sonnet-5", "mode": "list", "cachedResultName": "claude-sonnet-5" },
+        "options": { "temperature": 0.2, "maxTokensToSample": 4096, "timeout": 150000 }
+      },
+      "id": "cs-llm-report",
+      "name": "🧠 Claude — Report Writer Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [2720, 220],
+      "credentials": {
+        "anthropicApi": { "id": "REPLACE_WITH_YOUR_ANTHROPIC_CREDENTIAL_ID", "name": "Anthropic API" }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Compile a professional security report.\n\nREQUEST TYPE: {{ $('⚙️ Prepare Context').first().json.request_type }}\nTARGET: {{ $('⚙️ Prepare Context').first().json.target }}\nREQUESTED BY: {{ $('⚙️ Prepare Context').first().json.requester }}\n\nHARDENING / REMEDIATION GUIDANCE:\n{{ $json.output }}\n\nRESEARCH FINDINGS:\n{{ $('🔍 Threat Intel Analyst Agent').first().json.output }}\n\nStructure the report as: Executive Summary, Findings, Risk Rating, Recommended Actions (from the guidance above), and note any limitations of this automated research.",
+        "options": {
+          "systemMessage": "You are a security report writer producing a document for defenders and stakeholders. Same hard rules apply: defensive-only framing, no exploit code or intrusion instructions under any circumstance, stay within the confirmed authorization scope. Professional tone, markdown formatting, no filler.",
+          "maxIterations": 2,
+          "returnIntermediateSteps": false
+        }
+      },
+      "id": "cs-agent-report",
+      "name": "📝 Report Writer Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [2720, 460]
+    },
+    {
+      "parameters": {
+        "content": "## 📄 Output Stage\nAppends a mandatory disclaimer and the requester/authorization audit trail to every report, then pulls `### SOURCES` from the raw Threat Intel Agent output.",
+        "height": 200,
+        "width": 300,
+        "color": 6
+      },
+      "id": "cs-note-output",
+      "name": "📤 Output Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [3040, 60]
+    },
+    {
+      "parameters": {
+        "jsCode": "const cfg = $('⚙️ Prepare Context').first().json;\nconst research = $('🔍 Threat Intel Analyst Agent').first().json.output || '';\nconst report = $input.first().json.output || '';\n\nlet sources = '_No structured sources returned \\u2014 verify claims manually._';\nconst split = research.split(/###\\s*SOURCES/i);\nif (split.length > 1) sources = split[1].trim();\n\nconst finalMarkdown = `# Security Report: ${cfg.target}\\n\\n*Type: ${cfg.request_type} \\u00b7 Generated: ${cfg.timestamp} \\u00b7 Requested by: ${cfg.requester}*\\n*Authorization confirmed: ${cfg.authorization}*\\n\\n---\\n\\n${report}\\n\\n---\\n\\n## Sources\\n\\n${sources}\\n\\n---\\n\\n> **Disclaimer:** This report was generated by an automated defensive-research assistant for the stated, confirmed-authorized target only. It does not constitute a penetration test, a guarantee of security, or legal advice. It contains no exploit code and no intrusion instructions. Verify all findings independently before acting on them.\\n`;\n\nreturn [{\n  json: {\n    blocked: false,\n    target: cfg.target,\n    request_type: cfg.request_type,\n    generated_date: cfg.timestamp,\n    final_markdown: finalMarkdown\n  }\n}];"
+      },
+      "id": "cs-code-compile",
+      "name": "📄 Compile Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [3040, 460]
+    }
+  ],
+  "connections": {
+    "📝 Security Research Form": { "main": [[{ "node": "⚙️ Prepare Context", "type": "main", "index": 0 }]] },
+    "⚙️ Prepare Context": { "main": [[{ "node": "🛡️ Guardrail Check", "type": "main", "index": 0 }]] },
+    "🛡️ Guardrail Check": { "main": [[{ "node": "🚦 Guardrail Passed?", "type": "main", "index": 0 }]] },
+    "🚦 Guardrail Passed?": {
+      "main": [
+        [{ "node": "🔍 Threat Intel Analyst Agent", "type": "main", "index": 0 }],
+        [{ "node": "❌ Blocked Response", "type": "main", "index": 0 }]
+      ]
+    },
+    "🧠 Claude — Threat Intel Model": { "ai_languageModel": [[{ "node": "🔍 Threat Intel Analyst Agent", "type": "ai_languageModel", "index": 0 }]] },
+    "🌐 Tavily Web Search": { "ai_tool": [[{ "node": "🔍 Threat Intel Analyst Agent", "type": "ai_tool", "index": 0 }]] },
+    "📖 Wikipedia Search": { "ai_tool": [[{ "node": "🔍 Threat Intel Analyst Agent", "type": "ai_tool", "index": 0 }]] },
+    "🔍 Threat Intel Analyst Agent": { "main": [[{ "node": "🧯 Hardening Advisor Agent", "type": "main", "index": 0 }]] },
+    "🧠 Claude — Hardening Advisor Model": { "ai_languageModel": [[{ "node": "🧯 Hardening Advisor Agent", "type": "ai_languageModel", "index": 0 }]] },
+    "🧯 Hardening Advisor Agent": { "main": [[{ "node": "📝 Report Writer Agent", "type": "main", "index": 0 }]] },
+    "🧠 Claude — Report Writer Model": { "ai_languageModel": [[{ "node": "📝 Report Writer Agent", "type": "ai_languageModel", "index": 0 }]] },
+    "📝 Report Writer Agent": { "main": [[{ "node": "📄 Compile Report", "type": "main", "index": 0 }]] }
+  },
+  "pinData": {},
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  },
+  "versionId": "v1.0.0-cybersec-defensive",
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "cybersec-defensive-suite"
+  },
+  "id": "cybersec-defensive-suite-v1",
+  "tags": [
+    { "name": "Cybersecurity" },
+    { "name": "defensive" },
+    { "name": "Claude" },
+    { "name": "guardrails" }
+  ]
+}

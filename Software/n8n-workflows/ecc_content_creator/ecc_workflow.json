@@ -1,0 +1,341 @@
+{
+  "name": "ECC — Educational Content Creator (Humanized)",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 🎓 ECC — Educational Content Creator\n**Model-agnostic · Tavily-researched · Built-in Humanizer**\n\nGenerates research-backed, source-cited educational content in any author's voice, then runs it through a prompt-based humanization pass to remove AI \"tells\" before output.\n\n**Pipeline:** Form → Research Agent (Tavily+Wikipedia) → Writer Agent → Humanizer Agent → Compile Output\n\nExtend the last node with Google Docs / Notion / WordPress / file-save nodes for your own publishing pipeline.",
+        "height": 260,
+        "width": 460,
+        "color": 7
+      },
+      "id": "ecc-note-about",
+      "name": "📋 About",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-80, 60]
+    },
+    {
+      "parameters": {
+        "content": "## ⚙️ One-Time Setup\n\n**1 · Chat Model credential**\nThis template ships with `lmChatOpenAi` on all 3 LLM nodes. Swap the node type for `lmChatAnthropic`, `lmChatGoogleGemini`, etc. to change providers — no other node needs to change.\n\n**2 · Tavily API key**\nCredentials → New → `Tavily API`. Free tier at tavily.com. Attach to `🌐 Tavily Web Search`.\n\n**3 · Wikipedia tool**\nNo credential needed — works out of the box as a free fallback source.\n\n**4 · Humanizer intensity**\nControlled by the form field — Light / Standard / Aggressive — passed straight into the Humanizer Agent's system prompt.\n\n**5 · Publishing**\nThe workflow ends at `🎨 Format & Compile Output`. Add a Google Docs / Notion / WordPress / HTTP node after it to auto-publish.\n\n**6 · Activate** and open the Form Trigger URL.",
+        "height": 380,
+        "width": 460,
+        "color": 3
+      },
+      "id": "ecc-note-setup",
+      "name": "⚙️ Setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-80, 380]
+    },
+    {
+      "parameters": {
+        "content": "## 🔍 Research Stage\nLangChain Agent + tools:\n\n• **Tavily** live web search\n• **Wikipedia** background/foundational facts\n\nAgent is instructed to close its answer with a `### SOURCES` section — this is what gets pulled into the final References list, independent of what the writer keeps inline.",
+        "height": 220,
+        "width": 300,
+        "color": 5
+      },
+      "id": "ecc-note-research",
+      "name": "🔍 Research Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [960, 60]
+    },
+    {
+      "parameters": {
+        "content": "## 🤖 AI Stage\nTwo-pass generation:\n\n**Pass 1 — Writer Agent**\nDrafts full content in the author's voice, citing research inline.\n\n**Pass 2 — Humanizer Agent**\nRewrites for burstiness, removes AI-cliché phrases, adds personality — intensity set by form input.",
+        "height": 220,
+        "width": 300,
+        "color": 4
+      },
+      "id": "ecc-note-ai",
+      "name": "🤖 AI Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1600, 60]
+    },
+    {
+      "parameters": {
+        "formTitle": "✏️ ECC Content Generator",
+        "formDescription": "Generate humanized, research-backed educational content in your voice for any platform.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Topic",
+              "fieldType": "text",
+              "requiredField": true,
+              "placeholder": "e.g. Stoic Philosophy, Personal Finance, Machine Learning"
+            },
+            {
+              "fieldLabel": "Content Type",
+              "fieldType": "dropdown",
+              "requiredField": true,
+              "fieldOptions": {
+                "values": [
+                  { "option": "Short Post (300-500 words)" },
+                  { "option": "Long Article (800-1500 words)" },
+                  { "option": "Educational Thread" },
+                  { "option": "E-book Chapter (1000-2000 words)" },
+                  { "option": "Video Script" },
+                  { "option": "Podcast Script" },
+                  { "option": "Course Lesson" }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Platform",
+              "fieldType": "dropdown",
+              "requiredField": true,
+              "fieldOptions": {
+                "values": [
+                  { "option": "Reddit" },
+                  { "option": "Instagram" },
+                  { "option": "Facebook" },
+                  { "option": "Twitter/X" },
+                  { "option": "YouTube" },
+                  { "option": "Blog/Article" },
+                  { "option": "Google Docs" }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Author Name",
+              "fieldType": "text",
+              "requiredField": true,
+              "placeholder": "Your full name or pen name"
+            },
+            {
+              "fieldLabel": "Author Voice & Style",
+              "fieldType": "textarea",
+              "requiredField": true,
+              "placeholder": "Describe your writing voice in detail. Example: conversational but rigorous, first-person, mixes casual slang with precise vocabulary, opinionated but evidence-based."
+            },
+            {
+              "fieldLabel": "Keywords (comma-separated)",
+              "fieldType": "text",
+              "requiredField": false,
+              "placeholder": "e.g. mindset, productivity, first principles"
+            },
+            {
+              "fieldLabel": "Target Word Count",
+              "fieldType": "number",
+              "requiredField": false,
+              "placeholder": "800"
+            },
+            {
+              "fieldLabel": "Humanizer Intensity",
+              "fieldType": "dropdown",
+              "requiredField": false,
+              "fieldOptions": {
+                "values": [
+                  { "option": "Light" },
+                  { "option": "Standard" },
+                  { "option": "Aggressive" }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {
+          "path": "ecc-generate",
+          "responseMode": "lastNode"
+        }
+      },
+      "id": "ecc-form-trigger",
+      "name": "📝 Content Request Form",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2,
+      "position": [400, 400],
+      "webhookId": "ecc-content-request-001"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "ecc-f1", "name": "topic", "value": "={{ $json['Topic'] }}", "type": "string" },
+            { "id": "ecc-f2", "name": "content_type", "value": "={{ $json['Content Type'] }}", "type": "string" },
+            { "id": "ecc-f3", "name": "platform", "value": "={{ $json['Platform'] }}", "type": "string" },
+            { "id": "ecc-f4", "name": "author_name", "value": "={{ $json['Author Name'] }}", "type": "string" },
+            { "id": "ecc-f5", "name": "author_voice", "value": "={{ $json['Author Voice & Style'] }}", "type": "string" },
+            { "id": "ecc-f6", "name": "keywords", "value": "={{ $json['Keywords (comma-separated)'] || '' }}", "type": "string" },
+            { "id": "ecc-f7", "name": "word_count", "value": "={{ $json['Target Word Count'] || 800 }}", "type": "number" },
+            { "id": "ecc-f8", "name": "humanizer_intensity", "value": "={{ $json['Humanizer Intensity'] || 'Standard' }}", "type": "string" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ecc-set-inputs",
+      "name": "⚙️ Set Inputs",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [680, 400]
+    },
+    {
+      "parameters": {
+        "model": { "__rl": true, "value": "gpt-4o", "mode": "list", "cachedResultName": "gpt-4o" },
+        "options": { "temperature": 0.2, "maxTokens": 3000, "timeout": 120000 }
+      },
+      "id": "ecc-llm-research",
+      "name": "🧠 Research LLM (swap provider here)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [680, 180],
+      "credentials": {
+        "openAiApi": { "id": "REPLACE_WITH_YOUR_LLM_CREDENTIAL_ID", "name": "OpenAI API" }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Search the live web for current facts, statistics, and examples about the topic. Use for anything time-sensitive or requiring verifiable sources."
+      },
+      "id": "ecc-tool-tavily",
+      "name": "🌐 Tavily Web Search",
+      "type": "@n8n/n8n-nodes-langchain.toolTavilySearch",
+      "typeVersion": 1,
+      "position": [860, 180],
+      "credentials": {
+        "tavilyApi": { "id": "REPLACE_WITH_YOUR_TAVILY_CREDENTIAL_ID", "name": "Tavily API" }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Search Wikipedia for foundational background, definitions, and established facts about the topic."
+      },
+      "id": "ecc-tool-wikipedia",
+      "name": "📖 Wikipedia Search",
+      "type": "@n8n/n8n-nodes-langchain.toolWikipedia",
+      "typeVersion": 1,
+      "position": [1040, 180]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Research this topic thoroughly for an educational piece:\n\nTOPIC: {{ $json.topic }}\nKEYWORDS: {{ $json.keywords }}\nCONTENT TYPE: {{ $json.content_type }}\n\nFind current facts, statistics, expert perspectives, and concrete examples. Use both tools available to you — Tavily for current/live information, Wikipedia for foundational background.",
+        "options": {
+          "systemMessage": "You are a meticulous research assistant for an educational content creator. Make 3-6 targeted searches covering: core facts/definitions, current data or statistics, real-world examples, and any common misconceptions worth addressing.\n\nOUTPUT FORMAT — always end your answer with exactly these two sections:\n\n### RESEARCH SUMMARY\n(A dense, well-organized brief of everything found, ready for a writer to draw from.)\n\n### SOURCES\n(A markdown bullet list of every source used, formatted as [Title](URL). This section is machine-parsed downstream — do not omit it, do not add commentary inside it.)",
+          "maxIterations": 6,
+          "returnIntermediateSteps": false
+        }
+      },
+      "id": "ecc-agent-research",
+      "name": "🔍 Research Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [960, 400]
+    },
+    {
+      "parameters": {
+        "model": { "__rl": true, "value": "gpt-4o", "mode": "list", "cachedResultName": "gpt-4o" },
+        "options": { "temperature": 0.85, "maxTokens": 3000, "timeout": 120000 }
+      },
+      "id": "ecc-llm-writer",
+      "name": "🧠 Writer LLM (swap provider here)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [1280, 180],
+      "credentials": {
+        "openAiApi": { "id": "REPLACE_WITH_YOUR_LLM_CREDENTIAL_ID", "name": "OpenAI API" }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Write the complete {{ $('⚙️ Set Inputs').item.json.content_type }} now for {{ $('⚙️ Set Inputs').item.json.platform }}.\n\nTOPIC: {{ $('⚙️ Set Inputs').item.json.topic }}\nTARGET LENGTH: {{ $('⚙️ Set Inputs').item.json.word_count }} words\nKEYWORDS TO WEAVE IN NATURALLY: {{ $('⚙️ Set Inputs').item.json.keywords }}\n\nRESEARCH TO DRAW FROM (cite facts inline as markdown links [Title](URL)):\n{{ $json.output }}\n\nStart immediately — no preamble, no \"Here is...\" framing.",
+        "options": {
+          "systemMessage": "=You are an educational content creator writing on behalf of the author described below. Write entirely as this author, in first person.\n\nAUTHOR PROFILE:\nName: {{ $('⚙️ Set Inputs').item.json.author_name }}\nVoice & Personality: {{ $('⚙️ Set Inputs').item.json.author_voice }}\n\nWRITING RULES — apply every one:\n1. First person throughout, natural contractions (don't, I've, you'll)\n2. Include at least one personal observation or real-world example\n3. Ask at least one rhetorical question somewhere\n4. Vary sentence length drastically — mix short punchy sentences with longer flowing ones\n5. State opinions clearly: \"I think\", \"my honest take\", \"in my experience\"\n6. Cite every factual claim with an inline markdown link from the research provided\n7. NEVER use these words/phrases: delve, fascinating, it's worth noting, in conclusion, furthermore, utilize, comprehensive, game-changer, groundbreaking, revolutionary, multifaceted, in the realm of, at the end of the day, dive deep, needless to say, pivotal, embark, leverage (as a verb), underscore, robust, in today's fast-paced world, it goes without saying",
+          "maxIterations": 3,
+          "returnIntermediateSteps": false
+        }
+      },
+      "id": "ecc-agent-writer",
+      "name": "✍️ Content Writer Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [1280, 400]
+    },
+    {
+      "parameters": {
+        "model": { "__rl": true, "value": "gpt-4o", "mode": "list", "cachedResultName": "gpt-4o" },
+        "options": { "temperature": 0.7, "maxTokens": 3500, "timeout": 120000 }
+      },
+      "id": "ecc-llm-humanizer",
+      "name": "🧠 Humanizer LLM (swap provider here)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [1880, 180],
+      "credentials": {
+        "openAiApi": { "id": "REPLACE_WITH_YOUR_LLM_CREDENTIAL_ID", "name": "OpenAI API" }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.output }}",
+        "options": {
+          "systemMessage": "=You are a professional editor who removes all traces of AI-generated writing while preserving every fact and citation exactly as given.\n\nHUMANIZATION INTENSITY: {{ $('⚙️ Set Inputs').item.json.humanizer_intensity }}\n(Light = light touch, fix only the most obvious AI tells. Standard = full checklist below. Aggressive = full checklist plus restructure paragraphs freely and add more personality/asides.)\n\nAPPLY THIS CHECKLIST:\n\nWORD & PHRASE FIXES:\n- \"however\" → \"but\"/\"though\" or restructure\n- \"furthermore/moreover/additionally\" → \"also\"/\"plus\" or a new sentence\n- \"it's worth noting/it's important to note\" → delete entirely\n- \"utilize\" → \"use\", \"leverage\" (verb) → \"use\"/\"apply\"\n- \"in conclusion/to summarize\" → natural wrap-up language\n- Any \"In recent years...\" opener → rewrite to start mid-thought\n\nSTRUCTURE FIXES:\n- If the first sentence sets up context before saying anything interesting, rewrite to open mid-thought\n- Break up any paragraph that reads like a bulleted fact-list into conversational sentences\n- Add at least one moment where the author gently pushes back on conventional wisdom\n\nPERSONALITY LAYER:\n- Add 1-2 brief parenthetical asides that feel unscripted\n- Use at least one em dash for a dramatic pause\n- Include one single-sentence paragraph for emphasis\n- End with a forward-looking thought, challenge, or question — not a summary recap\n\nCRITICAL: Do not alter, remove, or invent any factual claim or citation link. Return ONLY the edited content, no preamble.",
+          "maxIterations": 2,
+          "returnIntermediateSteps": false
+        }
+      },
+      "id": "ecc-agent-humanizer",
+      "name": "🎭 Humanizer Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [1880, 400]
+    },
+    {
+      "parameters": {
+        "content": "## 📤 Output Stage\nPulls the `### SOURCES` block straight from the Research Agent's raw output (not the humanized draft) so citations survive rewriting intact.\n\nReturns title, humanized content, word count, and a References section as one markdown document.",
+        "height": 200,
+        "width": 300,
+        "color": 6
+      },
+      "id": "ecc-note-output",
+      "name": "📤 Output Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [2160, 60]
+    },
+    {
+      "parameters": {
+        "jsCode": "const cfg = $('⚙️ Set Inputs').item.json;\nconst humanized = ($input.first().json.output || '').trim();\nconst researchRaw = $('🔍 Research Agent').item.json.output || '';\n\nlet sources = '_No structured sources returned — verify claims manually._';\nconst split = researchRaw.split(/###\\s*SOURCES/i);\nif (split.length > 1) {\n  sources = split[1].trim();\n}\n\nconst date = new Date().toISOString().slice(0, 10);\nconst wordCount = humanized.split(/\\s+/).filter(Boolean).length;\n\nconst finalMarkdown = `# ${cfg.topic}\\n\\n*By ${cfg.author_name} · ${date} · Platform: ${cfg.platform}*\\n\\n---\\n\\n${humanized}\\n\\n---\\n\\n## Sources\\n\\n${sources}\\n`;\n\nreturn [{\n  json: {\n    title: cfg.topic,\n    author: cfg.author_name,\n    platform: cfg.platform,\n    content_type: cfg.content_type,\n    humanizer_intensity: cfg.humanizer_intensity,\n    word_count: wordCount,\n    generated_date: date,\n    final_markdown: finalMarkdown\n  }\n}];"
+      },
+      "id": "ecc-code-compile",
+      "name": "🎨 Format & Compile Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2160, 400]
+    }
+  ],
+  "connections": {
+    "📝 Content Request Form": { "main": [[{ "node": "⚙️ Set Inputs", "type": "main", "index": 0 }]] },
+    "⚙️ Set Inputs": { "main": [[{ "node": "🔍 Research Agent", "type": "main", "index": 0 }]] },
+    "🧠 Research LLM (swap provider here)": { "ai_languageModel": [[{ "node": "🔍 Research Agent", "type": "ai_languageModel", "index": 0 }]] },
+    "🌐 Tavily Web Search": { "ai_tool": [[{ "node": "🔍 Research Agent", "type": "ai_tool", "index": 0 }]] },
+    "📖 Wikipedia Search": { "ai_tool": [[{ "node": "🔍 Research Agent", "type": "ai_tool", "index": 0 }]] },
+    "🔍 Research Agent": { "main": [[{ "node": "✍️ Content Writer Agent", "type": "main", "index": 0 }]] },
+    "🧠 Writer LLM (swap provider here)": { "ai_languageModel": [[{ "node": "✍️ Content Writer Agent", "type": "ai_languageModel", "index": 0 }]] },
+    "✍️ Content Writer Agent": { "main": [[{ "node": "🎭 Humanizer Agent", "type": "main", "index": 0 }]] },
+    "🧠 Humanizer LLM (swap provider here)": { "ai_languageModel": [[{ "node": "🎭 Humanizer Agent", "type": "ai_languageModel", "index": 0 }]] },
+    "🎭 Humanizer Agent": { "main": [[{ "node": "🎨 Format & Compile Output", "type": "main", "index": 0 }]] }
+  },
+  "pinData": {},
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  },
+  "versionId": "v1.0.0-ecc",
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "ecc-content-creator"
+  },
+  "id": "ecc-content-creator-v1",
+  "tags": [
+    { "name": "ECC" },
+    { "name": "education" },
+    { "name": "content-creation" },
+    { "name": "ai-humanizer" }
+  ]
+}

@@ -1,0 +1,1158 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduContent AI - Social Media Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&amp;family=Bricolage+Grotesque:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #1a1a24;
+            --bg-elevated: #22222e;
+            --accent-coral: #ff6b6b;
+            --accent-mint: #4ecdc4;
+            --accent-gold: #ffd93d;
+            --accent-lavender: #a29bfe;
+            --text-primary: #f8f8f8;
+            --text-secondary: #9ca3af;
+            --border-subtle: rgba(255,255,255,0.08);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        .light {
+            --bg-primary: #fafafa;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --bg-elevated: #f5f5f5;
+            --accent-coral: #e53935;
+            --accent-mint: #00897b;
+            --accent-gold: #f9a825;
+            --accent-lavender: #5e35b1;
+            --text-primary: #1a1a2e;
+            --text-secondary: #6b7280;
+            --border-subtle: rgba(0,0,0,0.08);
+        }
+
+        * {
+            font-family: 'Outfit', sans-serif;
+            box-sizing: border-box;
+        }
+
+        h1, h2, h3, .font-display {
+            font-family: 'Bricolage Grotesque', sans-serif;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .bg-pattern {
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(circle at 20% 20%, rgba(78, 205, 196, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 107, 107, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(255, 217, 61, 0.05) 0%, transparent 60%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .content-wrapper {
+            position: relative;
+            z-index: 1;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, var(--accent-coral) 0%, var(--accent-gold) 50%, var(--accent-mint) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .input-field {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-subtle);
+            color: var(--text-primary);
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            border-color: var(--accent-mint);
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(78, 205, 196, 0.15);
+        }
+
+        .input-field::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .platform-chip {
+            background: var(--bg-elevated);
+            border: 2px solid transparent;
+            color: var(--text-secondary);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .platform-chip:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-lavender);
+        }
+
+        .platform-chip.active {
+            background: linear-gradient(135deg, rgba(78,205,196,0.15), rgba(255,107,107,0.15));
+            border-color: var(--accent-mint);
+            color: var(--text-primary);
+        }
+
+        .option-chip {
+            background: var(--bg-elevated);
+            border: 2px solid transparent;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .option-chip:hover {
+            border-color: var(--accent-lavender);
+            color: var(--text-primary);
+        }
+
+        .option-chip.active {
+            background: linear-gradient(135deg, var(--accent-coral), var(--accent-gold));
+            border-color: transparent;
+            color: white;
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, var(--accent-coral) 0%, var(--accent-gold) 100%);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .generate-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--accent-mint) 0%, var(--accent-lavender) 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .generate-btn:hover::before {
+            opacity: 1;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px -10px rgba(255,107,107,0.4);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .generate-btn span, .generate-btn i {
+            position: relative;
+            z-index: 1;
+        }
+
+        .content-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .content-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.3);
+        }
+
+        .copy-btn, .action-btn {
+            background: var(--bg-elevated);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-subtle);
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:hover, .action-btn:hover {
+            background: var(--accent-mint);
+            color: white;
+            border-color: var(--accent-mint);
+        }
+
+        .regenerate-btn:hover {
+            background: var(--accent-lavender) !important;
+            border-color: var(--accent-lavender) !important;
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg,
+                var(--bg-elevated) 0%,
+                var(--bg-card) 50%,
+                var(--bg-elevated) 100%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s ease-in-out infinite;
+            border-radius: 8px;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        .text-muted {
+            color: var(--text-secondary);
+        }
+
+        .content-body {
+            color: var(--text-primary);
+            line-height: 1.75;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+            border-radius: 3px;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+            background: var(--border-subtle);
+            border-radius: 3px;
+        }
+
+        /* Platform colors */
+        .linkedin-color { color: #0A66C2; }
+        .facebook-color { color: #1877F2; }
+        .twitter-color { color: #000; }
+        .light .twitter-color { color: #000; }
+        :not(.light) .twitter-color { color: #fff; }
+        .instagram-color {
+            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .reddit-color { color: #FF4500; }
+        .tiktok-color { color: #000; }
+        .light .tiktok-color { color: #000; }
+        :not(.light) .tiktok-color { color: #fff; }
+
+        .platform-header-linkedin { background: linear-gradient(135deg, #0A66C2 0%, #004182 100%); }
+        .platform-header-facebook { background: linear-gradient(135deg, #1877F2 0%, #0d47a1 100%); }
+        .platform-header-twitter { background: linear-gradient(135deg, #1DA1F2 0%, #0d8bd9 100%); }
+        .platform-header-instagram { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+        .platform-header-reddit { background: linear-gradient(135deg, #FF4500 0%, #cc3700 100%); }
+        .platform-header-tiktok { background: linear-gradient(135deg, #00f2ea 0%, #ff0050 100%); }
+
+        .toast {
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .hero-decoration {
+            position: relative;
+        }
+
+        .hero-decoration::before {
+            content: '✨';
+            position: absolute;
+            font-size: 1.5rem;
+            top: -10px;
+            right: -20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(10deg); }
+        }
+
+        .char-indicator {
+            height: 4px;
+            border-radius: 2px;
+            background: var(--bg-elevated);
+            overflow: hidden;
+        }
+
+        .char-indicator-fill {
+            height: 100%;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .char-indicator-fill.good { background: var(--success); }
+        .char-indicator-fill.warning { background: var(--warning); }
+        .char-indicator-fill.danger { background: var(--danger); }
+
+        .suggestion-chip {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+            padding: 0.4rem 0.8rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .suggestion-chip:hover {
+            background: var(--accent-mint);
+            color: white;
+            border-color: var(--accent-mint);
+        }
+
+        .history-item {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            padding: 0.6rem 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .history-item:hover {
+            background: var(--bg-card);
+            border-color: var(--accent-lavender);
+        }
+
+        .preview-mockup {
+            background: var(--bg-elevated);
+            border-radius: 12px;
+            padding: 1rem;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .kbd {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-subtle);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-family: monospace;
+            color: var(--text-secondary);
+        }
+
+        .collapsible-header {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .collapsible-content.open {
+            max-height: 500px;
+        }
+
+        .toggle-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-icon.open {
+            transform: rotate(180deg);
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-pattern"></div>
+
+    <div class="content-wrapper min-h-screen px-4 py-8 md:py-12">
+        <div class="max-w-6xl mx-auto">
+            <!-- Header -->
+            <header class="text-center mb-10">
+                <div class="inline-flex items-center gap-4 mb-4">
+                    <div class="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg" style="background: linear-gradient(135deg, var(--accent-coral), var(--accent-gold), var(--accent-mint));">
+                        <i class="fas fa-graduation-cap text-white text-2xl"></i>
+                    </div>
+                    <div class="hero-decoration">
+                        <h1 class="text-4xl md:text-5xl font-extrabold font-display gradient-text">EduContent AI</h1>
+                    </div>
+                </div>
+                <p class="text-muted text-lg max-w-xl mx-auto">
+                    Transform any topic into engaging, platform-optimized educational content
+                </p>
+                <div class="mt-3 flex items-center justify-center gap-4 text-xs text-muted">
+                    <span><kbd class="kbd">Ctrl</kbd> + <kbd class="kbd">Enter</kbd> Generate</span>
+                    <span><kbd class="kbd">Ctrl</kbd> + <kbd class="kbd">S</kbd> Download</span>
+                </div>
+            </header>
+
+            <!-- Quick Topic Suggestions -->
+            <div class="mb-6">
+                <div class="flex items-center gap-2 mb-3 text-sm text-muted">
+                    <i class="fas fa-lightbulb" style="color: var(--accent-gold);"></i>
+                    <span>Quick topics:</span>
+                </div>
+                <div class="flex flex-wrap gap-2" id="topicSuggestions">
+                    <button class="suggestion-chip" data-topic="The science of habit formation and how to build lasting habits">🧠 Habit Formation</button>
+                    <button class="suggestion-chip" data-topic="How artificial intelligence and machine learning actually work, explained simply">🤖 AI Explained</button>
+                    <button class="suggestion-chip" data-topic="The psychology of procrastination and practical strategies to overcome it">⏰ Beat Procrastination</button>
+                    <button class="suggestion-chip" data-topic="Understanding blockchain technology and cryptocurrency for beginners">💰 Crypto Basics</button>
+                    <button class="suggestion-chip" data-topic="The neuroscience of learning: How to study more effectively">📚 Better Learning</button>
+                    <button class="suggestion-chip" data-topic="Climate change: The science, impacts, and solutions everyone should know">🌍 Climate Science</button>
+                    <button class="suggestion-chip" data-topic="Mental health awareness: Understanding anxiety and depression">💚 Mental Health</button>
+                    <button class="suggestion-chip" data-topic="The future of work: Skills needed for the AI-driven economy">🚀 Future Skills</button>
+                </div>
+            </div>
+
+            <!-- Session History -->
+            <div id="historySection" class="mb-6 hidden">
+                <div class="collapsible-header flex items-center gap-2 mb-3 text-sm text-muted" onclick="toggleHistory()">
+                    <i class="fas fa-history" style="color: var(--accent-lavender);"></i>
+                    <span>Recent topics</span>
+                    <i class="fas fa-chevron-down toggle-icon text-xs" id="historyToggle"></i>
+                </div>
+                <div class="collapsible-content" id="historyContent">
+                    <div class="flex flex-wrap gap-2" id="historyItems"></div>
+                </div>
+            </div>
+
+            <!-- Input Section -->
+            <div class="card p-6 md:p-8 mb-8">
+                <!-- Topic Input -->
+                <div class="mb-6">
+                    <label class="flex items-center gap-2 text-sm font-semibold mb-3 text-muted">
+                        <i class="fas fa-pen-fancy" style="color: var(--accent-coral);"></i>
+                        What educational topic do you want to create content about?
+                    </label>
+                    <textarea id="topicInput" class="input-field w-full rounded-xl p-4 resize-none" rows="3" placeholder="e.g., The psychology of procrastination, How neural networks learn, The science behind habit formation..."></textarea>
+                </div>
+
+                <!-- Advanced Options -->
+                <div class="mb-6 space-y-5">
+                    <!-- Tone Selector -->
+                    <div>
+                        <label class="flex items-center gap-2 text-sm font-semibold mb-3 text-muted">
+                            <i class="fas fa-masks-theater" style="color: var(--accent-lavender);"></i>
+                            Content Tone
+                        </label>
+                        <div class="flex flex-wrap gap-2" id="toneSelector">
+                            <button class="option-chip active" data-tone="professional">💼 Professional</button>
+                            <button class="option-chip" data-tone="casual">😊 Casual</button>
+                            <button class="option-chip" data-tone="humorous">😄 Humorous</button>
+                            <button class="option-chip" data-tone="inspirational">✨ Inspirational</button>
+                            <button class="option-chip" data-tone="academic">🎓 Academic</button>
+                        </div>
+                    </div>
+
+                    <!-- Audience Selector -->
+                    <div>
+                        <label class="flex items-center gap-2 text-sm font-semibold mb-3 text-muted">
+                            <i class="fas fa-users" style="color: var(--accent-mint);"></i>
+                            Target Audience
+                        </label>
+                        <div class="flex flex-wrap gap-2" id="audienceSelector">
+                            <button class="option-chip active" data-audience="general">🌐 General Public</button>
+                            <button class="option-chip" data-audience="beginners">🌱 Beginners</button>
+                            <button class="option-chip" data-audience="intermediate">📈 Intermediate</button>
+                            <button class="option-chip" data-audience="experts">🎯 Experts</button>
+                            <button class="option-chip" data-audience="students">📖 Students</button>
+                        </div>
+                    </div>
+
+                    <!-- Length Selector -->
+                    <div>
+                        <label class="flex items-center gap-2 text-sm font-semibold mb-3 text-muted">
+                            <i class="fas fa-text-width" style="color: var(--accent-gold);"></i>
+                            Content Length
+                        </label>
+                        <div class="flex flex-wrap gap-2" id="lengthSelector">
+                            <button class="option-chip" data-length="concise">📝 Concise</button>
+                            <button class="option-chip active" data-length="standard">📄 Standard</button>
+                            <button class="option-chip" data-length="detailed">📚 Detailed</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Platform Selection -->
+                <div class="mb-8">
+                    <label class="flex items-center gap-2 text-sm font-semibold mb-4 text-muted">
+                        <i class="fas fa-share-nodes" style="color: var(--accent-mint);"></i>
+                        Select platforms (click to toggle)
+                    </label>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                        <button class="platform-chip active rounded-xl p-4 flex flex-col items-center gap-2" data-platform="linkedin">
+                            <i class="fab fa-linkedin text-2xl platform-icon linkedin-color"></i>
+                            <span class="text-sm font-medium">LinkedIn</span>
+                        </button>
+                        <button class="platform-chip active rounded-xl p-4 flex flex-col items-center gap-2" data-platform="facebook">
+                            <i class="fab fa-facebook text-2xl platform-icon facebook-color"></i>
+                            <span class="text-sm font-medium">Facebook</span>
+                        </button>
+                        <button class="platform-chip active rounded-xl p-4 flex flex-col items-center gap-2" data-platform="twitter">
+                            <i class="fab fa-x-twitter text-2xl platform-icon twitter-color"></i>
+                            <span class="text-sm font-medium">X / Twitter</span>
+                        </button>
+                        <button class="platform-chip active rounded-xl p-4 flex flex-col items-center gap-2" data-platform="instagram">
+                            <i class="fab fa-instagram text-2xl platform-icon instagram-color"></i>
+                            <span class="text-sm font-medium">Instagram</span>
+                        </button>
+                        <button class="platform-chip active rounded-xl p-4 flex flex-col items-center gap-2" data-platform="reddit">
+                            <i class="fab fa-reddit text-2xl platform-icon reddit-color"></i>
+                            <span class="text-sm font-medium">Reddit</span>
+                        </button>
+                        <button class="platform-chip active rounded-xl p-4 flex flex-col items-center gap-2" data-platform="tiktok">
+                            <i class="fab fa-tiktok text-2xl platform-icon tiktok-color"></i>
+                            <span class="text-sm font-medium">TikTok</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Generate Button -->
+                <button id="generateBtn" class="generate-btn w-full py-4 rounded-xl text-white font-bold text-lg flex items-center justify-center gap-3 shadow-lg">
+                    <i class="fas fa-wand-magic-sparkles"></i>
+                    <span>Generate Educational Content</span>
+                </button>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultsSection" class="hidden">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+                    <h2 class="text-2xl font-bold font-display flex items-center gap-3">
+                        <i class="fas fa-sparkles" style="color: var(--accent-gold);"></i>
+                        Your Generated Content
+                    </h2>
+                    <div class="flex flex-wrap gap-2">
+                        <button id="downloadBtn" class="action-btn px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2">
+                            <i class="fas fa-download"></i>
+                            Download TXT
+                        </button>
+                        <button id="copyAllBtn" class="action-btn px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2">
+                            <i class="fas fa-layer-group"></i>
+                            Copy All
+                        </button>
+                    </div>
+                </div>
+
+                <div id="contentGrid" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Content cards will be dynamically inserted -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast fixed bottom-6 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-3 z-50">
+        <i class="fas fa-check-circle text-green-400"></i>
+        <span id="toastMessage">Copied to clipboard!</span>
+    </div>
+
+    <script>
+        // Dark mode detection
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+            document.documentElement.classList.add('light');
+        }
+        window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', event => {
+            document.documentElement.classList.add(event.matches ? 'light' : '');
+            if (!event.matches) document.documentElement.classList.remove('light');
+        });
+
+        // Platform configuration with character limits
+        const platformConfig = {
+            linkedin: {
+                name: 'LinkedIn',
+                icon: 'fab fa-linkedin',
+                headerClass: 'platform-header-linkedin',
+                description: 'Professional thought-leadership post',
+                charLimit: 3000,
+                optimalMin: 1200,
+                optimalMax: 1800
+            },
+            facebook: {
+                name: 'Facebook',
+                icon: 'fab fa-facebook',
+                headerClass: 'platform-header-facebook',
+                description: 'Engaging shareable content',
+                charLimit: 63206,
+                optimalMin: 400,
+                optimalMax: 800
+            },
+            twitter: {
+                name: 'X / Twitter',
+                icon: 'fab fa-x-twitter',
+                headerClass: 'platform-header-twitter',
+                description: 'Thread-format tweets',
+                charLimit: 25000,
+                optimalMin: 800,
+                optimalMax: 2000
+            },
+            instagram: {
+                name: 'Instagram',
+                icon: 'fab fa-instagram',
+                headerClass: 'platform-header-instagram',
+                description: 'Visual caption with hashtags',
+                charLimit: 2200,
+                optimalMin: 1000,
+                optimalMax: 2000
+            },
+            reddit: {
+                name: 'Reddit',
+                icon: 'fab fa-reddit',
+                headerClass: 'platform-header-reddit',
+                description: 'Community-focused post',
+                charLimit: 40000,
+                optimalMin: 600,
+                optimalMax: 1500
+            },
+            tiktok: {
+                name: 'TikTok',
+                icon: 'fab fa-tiktok',
+                headerClass: 'platform-header-tiktok',
+                description: 'Hook-based video script',
+                charLimit: 4000,
+                optimalMin: 400,
+                optimalMax: 1000
+            }
+        };
+
+        // State
+        let selectedPlatforms = new Set(['linkedin', 'facebook', 'twitter', 'instagram', 'reddit', 'tiktok']);
+        let generatedContent = {};
+        let currentTopic = '';
+        let selectedTone = 'professional';
+        let selectedAudience = 'general';
+        let selectedLength = 'standard';
+        let sessionHistory = [];
+
+        // Platform selection toggle
+        document.querySelectorAll('.platform-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                const platform = chip.dataset.platform;
+                chip.classList.toggle('active');
+                if (selectedPlatforms.has(platform)) {
+                    selectedPlatforms.delete(platform);
+                } else {
+                    selectedPlatforms.add(platform);
+                }
+            });
+        });
+
+        // Option selectors (tone, audience, length)
+        function setupOptionSelector(containerId, stateUpdater) {
+            const container = document.getElementById(containerId);
+            container.querySelectorAll('.option-chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    container.querySelectorAll('.option-chip').forEach(c => c.classList.remove('active'));
+                    chip.classList.add('active');
+                    stateUpdater(chip.dataset.tone || chip.dataset.audience || chip.dataset.length);
+                });
+            });
+        }
+
+        setupOptionSelector('toneSelector', (val) => selectedTone = val);
+        setupOptionSelector('audienceSelector', (val) => selectedAudience = val);
+        setupOptionSelector('lengthSelector', (val) => selectedLength = val);
+
+        // Quick topic suggestions
+        document.getElementById('topicSuggestions').addEventListener('click', (e) => {
+            const chip = e.target.closest('.suggestion-chip');
+            if (chip) {
+                document.getElementById('topicInput').value = chip.dataset.topic;
+            }
+        });
+
+        // Session history
+        function addToHistory(topic) {
+            if (!sessionHistory.includes(topic)) {
+                sessionHistory.unshift(topic);
+                if (sessionHistory.length > 5) sessionHistory.pop();
+                updateHistoryDisplay();
+            }
+        }
+
+        function updateHistoryDisplay() {
+            const section = document.getElementById('historySection');
+            const container = document.getElementById('historyItems');
+
+            if (sessionHistory.length > 0) {
+                section.classList.remove('hidden');
+                container.innerHTML = sessionHistory.map(topic =>
+                    `<div class="history-item" onclick="useTopic('${topic.replace(/'/g, "\\'")}')">
+                        <i class="fas fa-clock text-xs" style="color: var(--accent-lavender);"></i>
+                        <span class="text-sm truncate" style="max-width: 200px;">${topic}</span>
+                    </div>`
+                ).join('');
+            }
+        }
+
+        function toggleHistory() {
+            const content = document.getElementById('historyContent');
+            const toggle = document.getElementById('historyToggle');
+            content.classList.toggle('open');
+            toggle.classList.toggle('open');
+        }
+
+        window.useTopic = function(topic) {
+            document.getElementById('topicInput').value = topic;
+        };
+
+        // Generate button
+        document.getElementById('generateBtn').addEventListener('click', async () => {
+            const topic = document.getElementById('topicInput').value.trim();
+
+            if (!topic) {
+                showToast('Please enter a topic first', 'warning');
+                return;
+            }
+
+            if (selectedPlatforms.size === 0) {
+                showToast('Please select at least one platform', 'warning');
+                return;
+            }
+
+            currentTopic = topic;
+            addToHistory(topic);
+            await generateContent(topic, Array.from(selectedPlatforms));
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                document.getElementById('generateBtn').click();
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                downloadContent();
+            }
+        });
+
+        async function generateContent(topic, platforms) {
+            const btn = document.getElementById('generateBtn');
+            const resultsSection = document.getElementById('resultsSection');
+            const contentGrid = document.getElementById('contentGrid');
+
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fas fa-spinner animate-spin"></i><span>Generating content...</span>`;
+
+            resultsSection.classList.remove('hidden');
+            contentGrid.innerHTML = '';
+
+            platforms.forEach((platform, index) => {
+                const card = createLoadingCard(platform);
+                contentGrid.insertAdjacentHTML('beforeend', card);
+            });
+
+            // Build enhanced prompt with options
+            const toneDescriptions = {
+                professional: 'professional, authoritative, and credible',
+                casual: 'friendly, approachable, and conversational',
+                humorous: 'witty, playful, and entertaining while still informative',
+                inspirational: 'motivating, uplifting, and empowering',
+                academic: 'scholarly, well-researched, and technically precise'
+            };
+
+            const audienceDescriptions = {
+                general: 'general public with no prior knowledge required',
+                beginners: 'complete beginners who are new to the topic',
+                intermediate: 'people with some familiarity with the topic',
+                experts: 'professionals and experts in the field',
+                students: 'students and learners in educational settings'
+            };
+
+            const lengthMultiplier = {
+                concise: 0.7,
+                standard: 1,
+                detailed: 1.4
+            };
+
+            const platformList = platforms.map(p => platformConfig[p].name).join(', ');
+
+            const prompt = `You are an expert social media content strategist. Create educational content about the following topic.
+
+TOPIC: "${topic}"
+TONE: ${toneDescriptions[selectedTone]}
+TARGET AUDIENCE: ${audienceDescriptions[selectedAudience]}
+LENGTH PREFERENCE: ${selectedLength} (multiply typical lengths by ${lengthMultiplier[selectedLength]})
+
+PLATFORMS: ${platformList}
+
+CONTENT REQUIREMENTS:
+
+**LinkedIn** (if requested):
+- ${selectedTone === 'professional' ? 'Thought-leadership style with data and insights' : 'Engaging story-driven approach'}
+- ${Math.round(1500 * lengthMultiplier[selectedLength])} characters target
+- Compelling hook, key insights, call to action
+
+**Facebook** (if requested):
+- ${selectedTone === 'casual' || selectedTone === 'humorous' ? 'Very conversational and relatable' : 'Informative but accessible'}
+- ${Math.round(700 * lengthMultiplier[selectedLength])} characters target
+- Encourage shares and comments
+
+**X/Twitter** (if requested):
+- Thread format with 🧵, numbered tweets (1/, 2/, etc.)
+- ${Math.round(6 * lengthMultiplier[selectedLength])} tweets, max 280 chars each
+- Hook in first tweet, strong takeaways
+
+**Instagram** (if requested):
+- Carousel-ready caption with line breaks
+- ${Math.round(1500 * lengthMultiplier[selectedLength])} characters target
+- Include 20-25 relevant hashtags at end
+
+**Reddit** (if requested):
+- Community-focused, detailed explanation
+- ${Math.round(1000 * lengthMultiplier[selectedLength])} characters target
+- Include TL;DR at end
+
+**TikTok** (if requested):
+- Video script: [HOOK], [PROBLEM], [SOLUTION], [CTA]
+- ${Math.round(700 * lengthMultiplier[selectedLength])} characters target
+- Trendy, engaging language for ${selectedAudience} audience
+
+Return ONLY valid JSON with lowercase platform keys. No markdown code blocks.
+Example: {"linkedin": "content...", "facebook": "content..."}`;
+
+            try {
+                window.Poe.registerHandler('edu-content-handler', (result) => {
+                    const msg = result.responses[0];
+
+                    if (msg.status === 'error') {
+                        showToast('Error: ' + (msg.statusText || 'Failed to generate'), 'error');
+                        resetButton();
+                        return;
+                    }
+
+                    if (msg.status === 'complete') {
+                        try {
+                            let content = msg.content.trim();
+                            content = content.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
+                            generatedContent = JSON.parse(content);
+
+                            platforms.forEach(platform => {
+                                if (generatedContent[platform]) {
+                                    updateContentCard(platform, generatedContent[platform]);
+                                }
+                            });
+
+                            resetButton();
+                            showToast('Content generated successfully!', 'success');
+                        } catch (parseError) {
+                            console.error('Parse error:', parseError);
+                            showToast('Error parsing response. Please try again.', 'error');
+                            resetButton();
+                        }
+                    }
+                });
+
+                await window.Poe.sendUserMessage('@GPT-5.1 ' + prompt, {
+                    handler: 'edu-content-handler',
+                    stream: false,
+                    openChat: false
+                });
+
+            } catch (error) {
+                console.error('Generation error:', error);
+                showToast('Failed to generate content. Please try again.', 'error');
+                resetButton();
+            }
+        }
+
+        async function regeneratePlatform(platform) {
+            const card = document.getElementById(`card-${platform}`);
+            if (!card || !currentTopic) return;
+
+            // Show loading state
+            const contentArea = card.querySelector('.content-area');
+            contentArea.innerHTML = `
+                <div class="space-y-3 p-5">
+                    <div class="skeleton h-4 w-full"></div>
+                    <div class="skeleton h-4 w-5/6"></div>
+                    <div class="skeleton h-4 w-4/6"></div>
+                    <div class="skeleton h-4 w-full"></div>
+                </div>
+            `;
+
+            const toneDescriptions = {
+                professional: 'professional and credible',
+                casual: 'friendly and conversational',
+                humorous: 'witty and entertaining',
+                inspirational: 'motivating and uplifting',
+                academic: 'scholarly and precise'
+            };
+
+            const prompt = `Create a single ${platformConfig[platform].name} post about "${currentTopic}".
+Tone: ${toneDescriptions[selectedTone]}
+Audience: ${selectedAudience}
+Length: ${selectedLength}
+
+Return ONLY the content text, no JSON or formatting.`;
+
+            try {
+                window.Poe.registerHandler(`regen-${platform}`, (result) => {
+                    const msg = result.responses[0];
+
+                    if (msg.status === 'complete') {
+                        generatedContent[platform] = msg.content.trim();
+                        updateContentCard(platform, generatedContent[platform]);
+                        showToast(`${platformConfig[platform].name} regenerated!`, 'success');
+                    } else if (msg.status === 'error') {
+                        showToast('Failed to regenerate', 'error');
+                    }
+                });
+
+                await window.Poe.sendUserMessage('@GPT-5.1 ' + prompt, {
+                    handler: `regen-${platform}`,
+                    stream: false,
+                    openChat: false
+                });
+            } catch (error) {
+                showToast('Failed to regenerate', 'error');
+            }
+        }
+
+        window.regeneratePlatform = regeneratePlatform;
+
+        function createLoadingCard(platform) {
+            const config = platformConfig[platform];
+            return `
+                <div class="content-card fade-in-up" id="card-${platform}">
+                    <div class="${config.headerClass} p-4 flex items-center justify-between">
+                        <div class="flex items-center gap-3 text-white">
+                            <i class="${config.icon} text-2xl"></i>
+                            <div>
+                                <h3 class="font-bold">${config.name}</h3>
+                                <p class="text-xs opacity-80">${config.description}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="content-area p-5">
+                        <div class="space-y-3">
+                            <div class="skeleton h-4 w-full"></div>
+                            <div class="skeleton h-4 w-5/6"></div>
+                            <div class="skeleton h-4 w-4/6"></div>
+                            <div class="skeleton h-4 w-full"></div>
+                            <div class="skeleton h-4 w-3/4"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateContentCard(platform, content) {
+            const config = platformConfig[platform];
+            const card = document.getElementById(`card-${platform}`);
+            if (!card) return;
+
+            const charCount = content.length;
+            const { charLimit, optimalMin, optimalMax } = config;
+
+            // Determine character indicator status
+            let indicatorClass = 'good';
+            let indicatorWidth = Math.min((charCount / optimalMax) * 100, 100);
+
+            if (charCount > charLimit) {
+                indicatorClass = 'danger';
+                indicatorWidth = 100;
+            } else if (charCount > optimalMax) {
+                indicatorClass = 'warning';
+            } else if (charCount < optimalMin * 0.5) {
+                indicatorClass = 'warning';
+                indicatorWidth = Math.max(indicatorWidth, 10);
+            }
+
+            card.innerHTML = `
+                <div class="${config.headerClass} p-4 flex items-center justify-between">
+                    <div class="flex items-center gap-3 text-white">
+                        <i class="${config.icon} text-2xl"></i>
+                        <div>
+                            <h3 class="font-bold">${config.name}</h3>
+                            <p class="text-xs opacity-80">${config.description}</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button
+                            class="bg-white/20 hover:bg-purple-400 text-white px-2 py-1 rounded-lg text-xs font-medium flex items-center gap-1 transition-all regenerate-btn"
+                            onclick="regeneratePlatform('${platform}')"
+                            title="Regenerate this content"
+                        >
+                            <i class="fas fa-rotate"></i>
+                        </button>
+                        <button
+                            class="bg-white/20 hover:bg-white/30 text-white px-3 py-1 rounded-lg text-xs font-medium flex items-center gap-1 transition-all"
+                            onclick="copyPlatformContent('${platform}')"
+                        >
+                            <i class="fas fa-copy"></i>
+                            Copy
+                        </button>
+                    </div>
+                </div>
+                <div class="content-area">
+                    <div class="p-5">
+                        <div class="content-body max-h-72 overflow-y-auto scrollbar-thin pr-2">${escapeHtml(content)}</div>
+                    </div>
+                    <div class="px-5 pb-4">
+                        <div class="char-indicator mb-2">
+                            <div class="char-indicator-fill ${indicatorClass}" style="width: ${indicatorWidth}%"></div>
+                        </div>
+                        <div class="flex justify-between items-center text-xs text-muted">
+                            <span>${charCount.toLocaleString()} characters</span>
+                            <span>Optimal: ${optimalMin.toLocaleString()}-${optimalMax.toLocaleString()}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function copyPlatformContent(platform) {
+            const content = generatedContent[platform];
+            if (content) {
+                navigator.clipboard.writeText(content).then(() => {
+                    showToast(`${platformConfig[platform].name} content copied!`, 'success');
+                }).catch(() => showToast('Failed to copy', 'error'));
+            }
+        }
+
+        window.copyPlatformContent = copyPlatformContent;
+
+        // Copy all
+        document.getElementById('copyAllBtn').addEventListener('click', () => {
+            if (Object.keys(generatedContent).length === 0) {
+                showToast('No content to copy yet', 'warning');
+                return;
+            }
+
+            let allContent = `EDUCONTENT AI - GENERATED CONTENT\n`;
+            allContent += `Topic: ${currentTopic}\n`;
+            allContent += `Generated: ${new Date().toLocaleString()}\n`;
+            allContent += `Tone: ${selectedTone} | Audience: ${selectedAudience} | Length: ${selectedLength}\n\n`;
+
+            Object.keys(generatedContent).forEach(platform => {
+                allContent += `${'═'.repeat(50)}\n`;
+                allContent += `📱 ${platformConfig[platform].name.toUpperCase()}\n`;
+                allContent += `${'═'.repeat(50)}\n\n`;
+                allContent += generatedContent[platform];
+                allContent += '\n\n\n';
+            });
+
+            navigator.clipboard.writeText(allContent.trim()).then(() => {
+                showToast('All content copied!', 'success');
+            }).catch(() => showToast('Failed to copy', 'error'));
+        });
+
+        // Download as TXT
+        document.getElementById('downloadBtn').addEventListener('click', downloadContent);
+
+        function downloadContent() {
+            if (Object.keys(generatedContent).length === 0) {
+                showToast('No content to download yet', 'warning');
+                return;
+            }
+
+            let allContent = `EDUCONTENT AI - GENERATED CONTENT\n`;
+            allContent += `${'='.repeat(50)}\n\n`;
+            allContent += `Topic: ${currentTopic}\n`;
+            allContent += `Generated: ${new Date().toLocaleString()}\n`;
+            allContent += `Settings: Tone=${selectedTone}, Audience=${selectedAudience}, Length=${selectedLength}\n\n`;
+
+            Object.keys(generatedContent).forEach(platform => {
+                allContent += `${'─'.repeat(50)}\n`;
+                allContent += `${platformConfig[platform].name.toUpperCase()}\n`;
+                allContent += `${'─'.repeat(50)}\n\n`;
+                allContent += generatedContent[platform];
+                allContent += '\n\n';
+            });
+
+            const blob = new Blob([allContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `educontent-${currentTopic.slice(0, 30).replace(/[^a-z0-9]/gi, '-')}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showToast('Content downloaded!', 'success');
+        }
+
+        function resetButton() {
+            const btn = document.getElementById('generateBtn');
+            btn.disabled = false;
+            btn.innerHTML = `<i class="fas fa-wand-magic-sparkles"></i><span>Generate Educational Content</span>`;
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const icon = toast.querySelector('i');
+
+            toastMessage.textContent = message;
+            icon.className = type === 'success'
+                ? 'fas fa-check-circle text-green-400'
+                : type === 'warning'
+                ? 'fas fa-exclamation-triangle text-yellow-400'
+                : 'fas fa-times-circle text-red-400';
+
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+    </script>
+
+
+
+</body></html>

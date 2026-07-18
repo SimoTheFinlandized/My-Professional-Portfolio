@@ -1,0 +1,344 @@
+{
+  "name": "🎓 Skool Course Generator (Humanized, Sourced)",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 🎓 Skool Course Generator\n**Model-agnostic · Tavily-researched · Built-in Humanizer**\n\nDesigns a full multi-module course, writes every lesson with cited research, humanizes each module, then compiles one Skool-ready markdown file (Table of Contents → Modules → Lessons → References).\n\n**Pipeline:** Form → Research Agent → Curriculum Designer Agent → (per module) Lesson Writer Agent → Humanizer Agent → Compile Course",
+        "height": 260,
+        "width": 460,
+        "color": 7
+      },
+      "id": "sk-note-about",
+      "name": "📋 About",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-80, 60]
+    },
+    {
+      "parameters": {
+        "content": "## ⚙️ One-Time Setup\n\n**1 · Chat Model credential**\nAll LLM nodes ship as `lmChatOpenAi`. Swap the node type to change providers.\n\n**2 · Tavily API key**\nAttach to `🌐 Tavily Web Search`.\n\n**3 · Per-module fan-out**\n`🧩 Parse Course Outline` turns the curriculum JSON into one item per module — everything downstream (Lesson Writer, Humanizer) then runs once per module automatically, n8n's default item-processing behavior. No loop node needed.\n\n**4 · Import into Skool**\nOutput is one markdown document with `## Module N:` headers. Copy each module into its own Skool classroom section, or paste the whole thing into a single course doc.\n\n**5 · Activate** and open the Form Trigger URL.",
+        "height": 360,
+        "width": 460,
+        "color": 3
+      },
+      "id": "sk-note-setup",
+      "name": "⚙️ Setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-80, 380]
+    },
+    {
+      "parameters": {
+        "formTitle": "🎓 Skool Course Generator",
+        "formDescription": "Generate a full, research-backed, humanized course ready to import into Skool.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Course Topic",
+              "fieldType": "text",
+              "requiredField": true,
+              "placeholder": "e.g. Freelance Copywriting Fundamentals"
+            },
+            {
+              "fieldLabel": "Target Skill Level",
+              "fieldType": "dropdown",
+              "requiredField": true,
+              "fieldOptions": {
+                "values": [
+                  { "option": "Beginner" },
+                  { "option": "Intermediate" },
+                  { "option": "Advanced" },
+                  { "option": "All Levels" }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Number of Modules",
+              "fieldType": "number",
+              "requiredField": false,
+              "placeholder": "5"
+            },
+            {
+              "fieldLabel": "Target Audience",
+              "fieldType": "textarea",
+              "requiredField": true,
+              "placeholder": "e.g. aspiring freelance copywriters with no prior experience who want their first paying client within 60 days"
+            },
+            {
+              "fieldLabel": "Instructor Voice & Style",
+              "fieldType": "textarea",
+              "requiredField": false,
+              "placeholder": "Optional — describe how the instructor should sound. Defaults to a clear, encouraging, expert teacher voice."
+            },
+            {
+              "fieldLabel": "Humanizer Intensity",
+              "fieldType": "dropdown",
+              "requiredField": false,
+              "fieldOptions": {
+                "values": [
+                  { "option": "Light" },
+                  { "option": "Standard" },
+                  { "option": "Aggressive" }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {
+          "path": "skool-course-generate",
+          "responseMode": "lastNode"
+        }
+      },
+      "id": "sk-form-trigger",
+      "name": "📝 Course Request Form",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2,
+      "position": [400, 400],
+      "webhookId": "skool-course-generate-001"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "sk-f1", "name": "topic", "value": "={{ $json['Course Topic'] }}", "type": "string" },
+            { "id": "sk-f2", "name": "skill_level", "value": "={{ $json['Target Skill Level'] }}", "type": "string" },
+            { "id": "sk-f3", "name": "module_count", "value": "={{ $json['Number of Modules'] || 5 }}", "type": "number" },
+            { "id": "sk-f4", "name": "audience", "value": "={{ $json['Target Audience'] }}", "type": "string" },
+            { "id": "sk-f5", "name": "instructor_voice", "value": "={{ $json['Instructor Voice & Style'] || 'Clear, encouraging, expert teacher voice' }}", "type": "string" },
+            { "id": "sk-f6", "name": "humanizer_intensity", "value": "={{ $json['Humanizer Intensity'] || 'Standard' }}", "type": "string" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "sk-set-context",
+      "name": "⚙️ Prepare Context",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [680, 400]
+    },
+    {
+      "parameters": {
+        "model": { "__rl": true, "value": "gpt-4o", "mode": "list", "cachedResultName": "gpt-4o" },
+        "options": { "temperature": 0.2, "maxTokens": 4096, "timeout": 150000 }
+      },
+      "id": "sk-llm-research",
+      "name": "🧠 Research LLM (swap provider here)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [680, 180],
+      "credentials": {
+        "openAiApi": { "id": "REPLACE_WITH_YOUR_LLM_CREDENTIAL_ID", "name": "OpenAI API" }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Search the live web for current facts, techniques, tools, and examples relevant to the course topic."
+      },
+      "id": "sk-tool-tavily",
+      "name": "🌐 Tavily Web Search",
+      "type": "@n8n/n8n-nodes-langchain.toolTavilySearch",
+      "typeVersion": 1,
+      "position": [860, 180],
+      "credentials": {
+        "tavilyApi": { "id": "REPLACE_WITH_YOUR_TAVILY_CREDENTIAL_ID", "name": "Tavily API" }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Search Wikipedia for foundational definitions and background concepts related to the course topic."
+      },
+      "id": "sk-tool-wikipedia",
+      "name": "📖 Wikipedia Search",
+      "type": "@n8n/n8n-nodes-langchain.toolWikipedia",
+      "typeVersion": 1,
+      "position": [1040, 180]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Research this topic thoroughly to build a full course curriculum:\n\nTOPIC: {{ $json.topic }}\nSKILL LEVEL: {{ $json.skill_level }}\nAUDIENCE: {{ $json.audience }}\n\nFind the core skills/subtopics a learner needs, common beginner mistakes, current best practices, useful tools, and concrete real-world examples. Make 5-8 targeted searches.",
+        "options": {
+          "systemMessage": "You are a curriculum research assistant. Cover: core sub-skills to teach, common misconceptions/mistakes, current best practices and tools, and real-world examples/case studies worth citing.\n\nOUTPUT FORMAT — end your answer with exactly these two sections:\n\n### RESEARCH SUMMARY\n(Organized findings, ready for a curriculum designer and lesson writers to draw from.)\n\n### SOURCES\n(A markdown bullet list of every source used, formatted as [Title](URL). This section is machine-parsed downstream — do not omit it.)",
+          "maxIterations": 8,
+          "returnIntermediateSteps": false
+        }
+      },
+      "id": "sk-agent-research",
+      "name": "🔍 Research Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [960, 400]
+    },
+    {
+      "parameters": {
+        "model": { "__rl": true, "value": "gpt-4o", "mode": "list", "cachedResultName": "gpt-4o" },
+        "options": { "temperature": 0.4, "maxTokens": 2500, "timeout": 120000 }
+      },
+      "id": "sk-llm-curriculum",
+      "name": "🧠 Curriculum LLM (swap provider here)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [1280, 180],
+      "credentials": {
+        "openAiApi": { "id": "REPLACE_WITH_YOUR_LLM_CREDENTIAL_ID", "name": "OpenAI API" }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Design a {{ $('⚙️ Prepare Context').item.json.module_count }}-module course.\n\nTOPIC: {{ $('⚙️ Prepare Context').item.json.topic }}\nSKILL LEVEL: {{ $('⚙️ Prepare Context').item.json.skill_level }}\nAUDIENCE: {{ $('⚙️ Prepare Context').item.json.audience }}\n\nRESEARCH TO GROUND THE CURRICULUM:\n{{ $json.output }}",
+        "options": {
+          "systemMessage": "You are an expert curriculum designer. Design a course that progresses logically from foundational to advanced, with each module building on the last. Each module should have 2-4 lessons.\n\nOUTPUT — produce exactly two things, in this order:\n\n1. A human-readable markdown outline (module titles + lesson titles).\n\n2. A fenced ```json code block containing ONLY a valid JSON array, no trailing commas, no comments, in exactly this shape:\n[{\"module_number\": 1, \"module_title\": \"...\", \"lessons\": [\"Lesson title 1\", \"Lesson title 2\"]}, ...]\n\nThe JSON array is machine-parsed downstream — it must be syntactically valid JSON and nothing else inside the code fence.",
+          "maxIterations": 3,
+          "returnIntermediateSteps": false
+        }
+      },
+      "id": "sk-agent-curriculum",
+      "name": "🗂️ Curriculum Designer Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [1280, 400]
+    },
+    {
+      "parameters": {
+        "content": "## 🧩 Fan-Out Point\nThis Code node parses the curriculum's JSON block and returns **one item per module**. Every node after this point (Lesson Writer, Humanizer) runs once per module automatically — n8n's default per-item processing — then the final Compile step gathers them all back into one document.",
+        "height": 220,
+        "width": 300,
+        "color": 5
+      },
+      "id": "sk-note-fanout",
+      "name": "🧩 Fan-Out Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1600, 60]
+    },
+    {
+      "parameters": {
+        "jsCode": "const cfg = $('⚙️ Prepare Context').first().json;\nconst raw = $input.first().json.output || '';\nconst match = raw.match(/```json\\s*([\\s\\S]*?)```/i);\nlet modules = [];\nif (match) {\n  try { modules = JSON.parse(match[1]); } catch (e) { modules = []; }\n}\nif (!Array.isArray(modules) || modules.length === 0) {\n  modules = [{ module_number: 1, module_title: cfg.topic, lessons: ['Overview of ' + cfg.topic] }];\n}\n\nreturn modules.map((m, i) => ({\n  json: {\n    topic: cfg.topic,\n    skill_level: cfg.skill_level,\n    audience: cfg.audience,\n    instructor_voice: cfg.instructor_voice,\n    module_number: m.module_number || (i + 1),\n    module_title: m.module_title || `Module ${i + 1}`,\n    lessons: m.lessons || []\n  }\n}));"
+      },
+      "id": "sk-code-parse",
+      "name": "🧩 Parse Course Outline",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1600, 400]
+    },
+    {
+      "parameters": {
+        "model": { "__rl": true, "value": "gpt-4o", "mode": "list", "cachedResultName": "gpt-4o" },
+        "options": { "temperature": 0.75, "maxTokens": 3000, "timeout": 150000 }
+      },
+      "id": "sk-llm-lesson",
+      "name": "🧠 Lesson Writer LLM (swap provider here)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [1920, 180],
+      "credentials": {
+        "openAiApi": { "id": "REPLACE_WITH_YOUR_LLM_CREDENTIAL_ID", "name": "OpenAI API" }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Write full lesson content for Module {{ $json.module_number }}: {{ $json.module_title }} of the course \"{{ $json.topic }}\".\n\nLESSONS TO COVER IN THIS MODULE:\n{{ $json.lessons.join('\\n- ') }}\n\nAUDIENCE: {{ $json.audience }}\nSKILL LEVEL: {{ $json.skill_level }}\n\nRESEARCH TO DRAW FROM (cite facts inline as markdown links [Title](URL)):\n{{ $('🔍 Research Agent').first().json.output }}\n\nWrite complete, ready-to-teach content for every lesson listed, each as its own \"### Lesson: <title>\" subsection, with clear explanations, at least one concrete example, and a short actionable exercise at the end of each lesson.",
+        "options": {
+          "systemMessage": "=You are an expert instructor writing course material. Voice: {{ $json.instructor_voice }}\n\nRULES:\n1. Teach, don't just describe — explain the why, not just the what\n2. Include at least one worked example per lesson\n3. End every lesson with a short, concrete exercise the learner can do immediately\n4. Cite factual/statistical claims inline as markdown links using the research provided\n5. Write in second person (\"you\") when addressing the learner\n6. Match the audience's stated skill level — don't over-explain to advanced learners or under-explain to beginners",
+          "maxIterations": 3,
+          "returnIntermediateSteps": false
+        }
+      },
+      "id": "sk-agent-lesson",
+      "name": "📝 Lesson Writer Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [1920, 400]
+    },
+    {
+      "parameters": {
+        "model": { "__rl": true, "value": "gpt-4o", "mode": "list", "cachedResultName": "gpt-4o" },
+        "options": { "temperature": 0.7, "maxTokens": 3500, "timeout": 150000 }
+      },
+      "id": "sk-llm-humanizer",
+      "name": "🧠 Humanizer LLM (swap provider here)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [2240, 180],
+      "credentials": {
+        "openAiApi": { "id": "REPLACE_WITH_YOUR_LLM_CREDENTIAL_ID", "name": "OpenAI API" }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.output }}",
+        "options": {
+          "systemMessage": "=You are a professional editor who removes all traces of AI-generated writing while preserving every fact, citation, and exercise exactly as given.\n\nHUMANIZATION INTENSITY: {{ $('⚙️ Prepare Context').first().json.humanizer_intensity }}\n(Light = light touch. Standard = full checklist below. Aggressive = full checklist plus freely restructure paragraphs and add more personality.)\n\nCHECKLIST:\n- Replace stiff transition words (however/furthermore/moreover) with natural ones\n- Delete filler like \"it's worth noting\", \"needless to say\"\n- Vary sentence length — mix short punchy sentences with longer ones\n- Add a natural instructor aside or two (e.g. a quick tip, a \"heads up\")\n- Make sure it reads like a person teaching, not a document describing\n\nCRITICAL: Do not alter, remove, or invent any factual claim, citation, or exercise. Keep the \"### Lesson:\" subheadings exactly as given. Return ONLY the edited content, no preamble.",
+          "maxIterations": 2,
+          "returnIntermediateSteps": false
+        }
+      },
+      "id": "sk-agent-humanizer",
+      "name": "🎭 Humanizer Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [2240, 400]
+    },
+    {
+      "parameters": {
+        "content": "## 📦 Output Stage\nGathers every humanized module back into one document, in module order, with a Table of Contents and a References section pulled from the Research Agent's raw `### SOURCES` block.\n\nOutput is plain markdown — copy modules into Skool's classroom editor, or extend with an HTTP/Notion/Google Docs node.",
+        "height": 220,
+        "width": 300,
+        "color": 6
+      },
+      "id": "sk-note-output",
+      "name": "📤 Output Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [2560, 60]
+    },
+    {
+      "parameters": {
+        "jsCode": "const cfg = $('⚙️ Prepare Context').first().json;\nconst research = $('🔍 Research Agent').first().json.output || '';\nlet sources = '_No structured sources returned — verify claims manually._';\nconst split = research.split(/###\\s*SOURCES/i);\nif (split.length > 1) sources = split[1].trim();\n\nconst humanizedItems = $input.all();\nconst outlineItems = $('🧩 Parse Course Outline').all();\n\nconst modules = humanizedItems.map((item, i) => {\n  const outline = outlineItems[i] ? outlineItems[i].json : {};\n  return {\n    number: outline.module_number ?? (i + 1),\n    title: outline.module_title ?? `Module ${i + 1}`,\n    content: (item.json.output || '').trim()\n  };\n}).sort((a, b) => a.number - b.number);\n\nconst toc = modules.map(m => `- Module ${m.number}: ${m.title}`).join('\\n');\nconst body = modules.map(m => `## Module ${m.number}: ${m.title}\\n\\n${m.content}`).join('\\n\\n---\\n\\n');\n\nconst date = new Date().toISOString().slice(0, 10);\nconst finalMarkdown = `# ${cfg.topic}\\n\\n*A ${cfg.skill_level} course for: ${cfg.audience}*\\n*Generated: ${date}*\\n\\n---\\n\\n## Table of Contents\\n\\n${toc}\\n\\n---\\n\\n${body}\\n\\n---\\n\\n## Sources & References\\n\\n${sources}\\n`;\n\nreturn [{\n  json: {\n    course_title: cfg.topic,\n    skill_level: cfg.skill_level,\n    module_count: modules.length,\n    generated_date: date,\n    final_markdown: finalMarkdown\n  }\n}];"
+      },
+      "id": "sk-code-compile",
+      "name": "📦 Compile Course",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2560, 400]
+    }
+  ],
+  "connections": {
+    "📝 Course Request Form": { "main": [[{ "node": "⚙️ Prepare Context", "type": "main", "index": 0 }]] },
+    "⚙️ Prepare Context": { "main": [[{ "node": "🔍 Research Agent", "type": "main", "index": 0 }]] },
+    "🧠 Research LLM (swap provider here)": { "ai_languageModel": [[{ "node": "🔍 Research Agent", "type": "ai_languageModel", "index": 0 }]] },
+    "🌐 Tavily Web Search": { "ai_tool": [[{ "node": "🔍 Research Agent", "type": "ai_tool", "index": 0 }]] },
+    "📖 Wikipedia Search": { "ai_tool": [[{ "node": "🔍 Research Agent", "type": "ai_tool", "index": 0 }]] },
+    "🔍 Research Agent": { "main": [[{ "node": "🗂️ Curriculum Designer Agent", "type": "main", "index": 0 }]] },
+    "🧠 Curriculum LLM (swap provider here)": { "ai_languageModel": [[{ "node": "🗂️ Curriculum Designer Agent", "type": "ai_languageModel", "index": 0 }]] },
+    "🗂️ Curriculum Designer Agent": { "main": [[{ "node": "🧩 Parse Course Outline", "type": "main", "index": 0 }]] },
+    "🧩 Parse Course Outline": { "main": [[{ "node": "📝 Lesson Writer Agent", "type": "main", "index": 0 }]] },
+    "🧠 Lesson Writer LLM (swap provider here)": { "ai_languageModel": [[{ "node": "📝 Lesson Writer Agent", "type": "ai_languageModel", "index": 0 }]] },
+    "📝 Lesson Writer Agent": { "main": [[{ "node": "🎭 Humanizer Agent", "type": "main", "index": 0 }]] },
+    "🧠 Humanizer LLM (swap provider here)": { "ai_languageModel": [[{ "node": "🎭 Humanizer Agent", "type": "ai_languageModel", "index": 0 }]] },
+    "🎭 Humanizer Agent": { "main": [[{ "node": "📦 Compile Course", "type": "main", "index": 0 }]] }
+  },
+  "pinData": {},
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  },
+  "versionId": "v1.0.0-skool-course",
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "skool-course-generator"
+  },
+  "id": "skool-course-generator-v1",
+  "tags": [
+    { "name": "Skool" },
+    { "name": "course-creation" },
+    { "name": "education" },
+    { "name": "ai-humanizer" }
+  ]
+}

@@ -1,0 +1,1604 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P O L Y B I U S</title>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&amp;family=Creepster&amp;family=Share+Tech+Mono&amp;display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --blood: #8b0000;
+            --blood-glow: #ff0000;
+            --void: #0a0a0a;
+            --static: #1a1a1a;
+            --terminal: #00ff00;
+            --terminal-dim: #003300;
+            --warning: #ff3300;
+            --corrupt: #ff00ff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            41% { opacity: 1; }
+            42% { opacity: 0.8; }
+            43% { opacity: 1; }
+            45% { opacity: 0.3; }
+            46% { opacity: 1; }
+        }
+
+        @keyframes scanlines {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 4px; }
+        }
+
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+
+        @keyframes textGlitch {
+            0% { text-shadow: 2px 0 var(--blood), -2px 0 var(--terminal); }
+            25% { text-shadow: -2px 0 var(--blood), 2px 0 var(--terminal); }
+            50% { text-shadow: 2px 2px var(--blood), -2px -2px var(--terminal); }
+            75% { text-shadow: -2px 2px var(--blood), 2px -2px var(--terminal); }
+            100% { text-shadow: 2px 0 var(--blood), -2px 0 var(--terminal); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 5px var(--blood); }
+            50% { box-shadow: 0 0 30px var(--blood), 0 0 60px var(--blood-glow); }
+        }
+
+        @keyframes breathing {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        @keyframes corrupt {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        @keyframes static {
+            0% { background-position: 0 0; }
+            100% { background-position: 100% 100%; }
+        }
+
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            background: var(--void);
+            min-height: 100vh;
+            color: var(--terminal);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0,0,0,0.15),
+                rgba(0,0,0,0.15) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: 1000;
+            animation: scanlines 0.1s linear infinite;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.5) 100%);
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .static-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><filter id="noise"><feTurbulence baseFrequency="0.9" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noise)"/></svg>');
+            pointer-events: none;
+            z-index: 998;
+            mix-blend-mode: overlay;
+            transition: opacity 0.1s;
+        }
+
+        .static-overlay.active {
+            opacity: 0.3;
+            animation: static 0.05s infinite;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: flicker 5s infinite;
+        }
+
+        .header h1 {
+            font-family: 'Creepster', cursive;
+            font-size: 4rem;
+            color: var(--blood);
+            text-shadow: 0 0 10px var(--blood-glow), 0 0 20px var(--blood-glow), 0 0 40px var(--blood-glow);
+            letter-spacing: 20px;
+            margin-bottom: 10px;
+        }
+
+        .header h1.glitching {
+            animation: textGlitch 0.1s infinite;
+        }
+
+        .header .subtitle {
+            font-family: 'VT323', monospace;
+            font-size: 1.2rem;
+            color: var(--terminal-dim);
+            letter-spacing: 5px;
+        }
+
+        .game-container {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 30px;
+            align-items: start;
+        }
+
+        @media (max-width: 800px) {
+            .game-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .board-container {
+            position: relative;
+        }
+
+        #chessboard {
+            width: 100%;
+            max-width: 500px;
+            aspect-ratio: 1;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            border: 4px solid var(--blood);
+            box-shadow: 0 0 30px var(--blood), inset 0 0 30px rgba(139,0,0,0.3);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        #chessboard.breathing {
+            animation: pulse 4s ease-in-out infinite, breathing 3s ease-in-out infinite;
+        }
+
+        .square {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .square.light {
+            background: linear-gradient(135deg, #2a2a2a, #1f1f1f);
+        }
+
+        .square.dark {
+            background: linear-gradient(135deg, #0f0f0f, #050505);
+        }
+
+        .square.selected {
+            background: rgba(139, 0, 0, 0.6) !important;
+            box-shadow: inset 0 0 20px var(--blood-glow);
+        }
+
+        .square.valid-move::after {
+            content: '';
+            width: 30%;
+            height: 30%;
+            background: var(--terminal);
+            border-radius: 50%;
+            opacity: 0.6;
+            box-shadow: 0 0 10px var(--terminal);
+        }
+
+        .square.valid-capture::after {
+            content: '';
+            position: absolute;
+            inset: 5%;
+            border: 3px solid var(--blood-glow);
+            border-radius: 50%;
+            opacity: 0.8;
+        }
+
+        .square.last-move {
+            background: rgba(0, 255, 0, 0.15) !important;
+        }
+
+        .square.check {
+            animation: pulse 0.5s ease-in-out infinite;
+            background: rgba(255, 0, 0, 0.4) !important;
+        }
+
+        .piece {
+            font-size: clamp(24px, 6vw, 50px);
+            user-select: none;
+            transition: transform 0.1s, filter 0.3s;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
+            z-index: 10;
+        }
+
+        .piece.white {
+            filter: drop-shadow(0 0 5px rgba(255,255,255,0.3)) drop-shadow(0 2px 4px rgba(0,0,0,0.8));
+        }
+
+        .piece.black {
+            filter: drop-shadow(0 0 5px rgba(139,0,0,0.5)) drop-shadow(0 2px 4px rgba(0,0,0,0.8));
+        }
+
+        .piece.dragging {
+            transform: scale(1.2);
+            cursor: grabbing;
+        }
+
+        .piece.captured {
+            animation: captureAnimation 0.4s ease-out forwards;
+        }
+
+        @keyframes captureAnimation {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.5; }
+            100% { transform: scale(0) rotate(180deg); opacity: 0; }
+        }
+
+        .piece.corrupt {
+            animation: corrupt 0.5s linear infinite;
+        }
+
+        .sidebar {
+            background: rgba(10, 10, 10, 0.9);
+            border: 2px solid var(--terminal-dim);
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
+        }
+
+        .ai-terminal {
+            background: #000;
+            border: 1px solid var(--terminal-dim);
+            padding: 15px;
+            margin-bottom: 20px;
+            min-height: 180px;
+            max-height: 250px;
+            overflow-y: auto;
+            font-family: 'VT323', monospace;
+            font-size: 1.1rem;
+        }
+
+        .ai-terminal::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .ai-terminal::-webkit-scrollbar-track {
+            background: #000;
+        }
+
+        .ai-terminal::-webkit-scrollbar-thumb {
+            background: var(--terminal-dim);
+        }
+
+        .ai-message {
+            margin-bottom: 10px;
+            line-height: 1.4;
+            opacity: 0;
+            animation: typeIn 0.3s forwards;
+        }
+
+        @keyframes typeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .ai-message.system {
+            color: var(--terminal-dim);
+        }
+
+        .ai-message.polybius {
+            color: var(--blood);
+        }
+
+        .ai-message.warning {
+            color: var(--warning);
+        }
+
+        .ai-message.corrupt {
+            color: var(--corrupt);
+            animation: textGlitch 0.2s infinite, typeIn 0.3s forwards;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 1.2em;
+            background: var(--terminal);
+            animation: blink 1s step-end infinite;
+            vertical-align: bottom;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            background: transparent;
+            border: 2px solid var(--terminal-dim);
+            color: var(--terminal);
+            padding: 12px 20px;
+            font-family: 'VT323', monospace;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .btn:hover {
+            background: var(--terminal-dim);
+            color: #000;
+            box-shadow: 0 0 20px var(--terminal);
+        }
+
+        .btn.danger {
+            border-color: var(--blood);
+            color: var(--blood);
+        }
+
+        .btn.danger:hover {
+            background: var(--blood);
+            color: #fff;
+            box-shadow: 0 0 20px var(--blood-glow);
+        }
+
+        .btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .stats {
+            font-family: 'VT323', monospace;
+            font-size: 1rem;
+            color: var(--terminal-dim);
+        }
+
+        .stats div {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(0, 255, 0, 0.1);
+        }
+
+        .stats .value {
+            color: var(--terminal);
+        }
+
+        .captured-pieces {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid var(--terminal-dim);
+            min-height: 50px;
+        }
+
+        .captured-pieces .piece {
+            font-size: 1.5rem;
+            opacity: 0.6;
+        }
+
+        .game-over-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+        }
+
+        .game-over-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .game-over-content {
+            text-align: center;
+            animation: glitch 0.3s infinite;
+        }
+
+        .game-over-content h2 {
+            font-family: 'Creepster', cursive;
+            font-size: 4rem;
+            color: var(--blood);
+            text-shadow: 0 0 30px var(--blood-glow);
+            margin-bottom: 20px;
+        }
+
+        .game-over-content p {
+            font-family: 'VT323', monospace;
+            font-size: 1.5rem;
+            color: var(--terminal);
+            margin-bottom: 30px;
+        }
+
+        .difficulty-display {
+            text-align: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid var(--blood);
+            background: rgba(139, 0, 0, 0.1);
+        }
+
+        .difficulty-display .level {
+            font-family: 'Creepster', cursive;
+            font-size: 1.5rem;
+            color: var(--blood);
+        }
+
+        .move-history {
+            max-height: 150px;
+            overflow-y: auto;
+            font-size: 0.9rem;
+            color: var(--terminal-dim);
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid var(--terminal-dim);
+        }
+
+        .move-history .move {
+            display: inline-block;
+            padding: 2px 6px;
+            margin: 2px;
+            background: rgba(0, 255, 0, 0.1);
+        }
+
+        .intro-screen {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .intro-screen.hidden {
+            display: none;
+        }
+
+        .intro-screen h1 {
+            font-family: 'Creepster', cursive;
+            font-size: 5rem;
+            color: var(--blood);
+            text-shadow: 0 0 50px var(--blood-glow);
+            animation: pulse 2s infinite, textGlitch 3s infinite;
+            letter-spacing: 30px;
+        }
+
+        .intro-screen p {
+            font-family: 'VT323', monospace;
+            color: var(--terminal-dim);
+            font-size: 1.5rem;
+            margin-top: 30px;
+            animation: blink 1.5s infinite;
+        }
+
+        .intro-screen .warning-text {
+            position: absolute;
+            bottom: 50px;
+            color: var(--warning);
+            font-size: 0.9rem;
+            opacity: 0.5;
+        }
+
+        .fear-meter {
+            width: 100%;
+            height: 8px;
+            background: var(--void);
+            border: 1px solid var(--terminal-dim);
+            margin-top: 15px;
+            overflow: hidden;
+        }
+
+        .fear-meter .fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--terminal), var(--warning), var(--blood));
+            transition: width 0.5s;
+            box-shadow: 0 0 10px currentColor;
+        }
+    </style>
+</head>
+<body>
+    <div class="static-overlay" id="staticOverlay"></div>
+
+    <div class="intro-screen" id="introScreen" onclick="startGame()">
+        <h1>POLYBIUS</h1>
+        <p>[ CLICK TO BEGIN ]</p>
+        <div class="warning-text">WARNING: This game may cause unease. You have been warned.</div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1 id="title">POLYBIUS</h1>
+            <div class="subtitle">// COGNITIVE WARFARE SYSTEM v6.66 //</div>
+        </div>
+
+        <div class="game-container">
+            <div class="board-container">
+                <div id="chessboard"></div>
+            </div>
+
+            <div class="sidebar">
+                <div class="difficulty-display">
+                    <div>THREAT LEVEL</div>
+                    <div class="level" id="difficultyLevel">OBSERVING</div>
+                </div>
+
+                <div class="ai-terminal" id="aiTerminal">
+                    <div class="ai-message system">&gt; POLYBIUS v6.66 initialized...</div>
+                    <div class="ai-message system">&gt; Awaiting player input...</div>
+                    <span class="cursor"></span>
+                </div>
+
+                <div class="controls">
+                    <button class="btn" id="newGameBtn" onclick="newGame()">NEW GAME</button>
+                    <button class="btn" id="undoBtn" onclick="undoMove()" disabled="">UNDO MOVE</button>
+                    <button class="btn danger" id="resignBtn" onclick="resignGame()">RESIGN</button>
+                </div>
+
+                <div class="stats">
+                    <div><span>GAMES</span><span class="value" id="gamesPlayed">0</span></div>
+                    <div><span>VICTORIES</span><span class="value" id="victories">0</span></div>
+                    <div><span>DEFEATS</span><span class="value" id="defeats">0</span></div>
+                    <div><span>MOVES</span><span class="value" id="totalMoves">0</span></div>
+                </div>
+
+                <div style="margin-top: 15px; font-size: 0.8rem; color: var(--terminal-dim);">
+                    POLYBIUS AWARENESS
+                    <div class="fear-meter">
+                        <div class="fill" id="fearFill" style="width: 10%"></div>
+                    </div>
+                </div>
+
+                <div class="captured-pieces" id="capturedWhite"></div>
+                <div class="captured-pieces" id="capturedBlack"></div>
+
+                <div class="move-history" id="moveHistory"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="game-over-overlay" id="gameOverOverlay">
+        <div class="game-over-content">
+            <h2 id="gameOverTitle">GAME OVER</h2>
+            <p id="gameOverMessage"></p>
+            <button class="btn" onclick="newGame()">PLAY AGAIN</button>
+        </div>
+    </div>
+
+    <script>
+        // ==================== CHESS ENGINE ====================
+        const PIECES = {
+            K: '♔', Q: '♕', R: '♖', B: '♗', N: '♘', P: '♙',
+            k: '♚', q: '♛', r: '♜', b: '♝', n: '♞', p: '♟'
+        };
+
+        const INITIAL_BOARD = [
+            ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
+            ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
+            [null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null],
+            [null, null, null, null, null, null, null, null],
+            ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
+            ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
+        ];
+
+        let board = [];
+        let currentTurn = 'white';
+        let selectedSquare = null;
+        let validMoves = [];
+        let moveHistory = [];
+        let capturedPieces = { white: [], black: [] };
+        let gameOver = false;
+        let castlingRights = { K: true, Q: true, k: true, q: true };
+        let enPassantSquare = null;
+        let halfMoveClock = 0;
+        let fullMoveNumber = 1;
+
+        // Game stats
+        let stats = {
+            gamesPlayed: 0,
+            victories: 0,
+            defeats: 0,
+            totalMoves: 0
+        };
+
+        // AI state
+        let aiAwareness = 10;
+        let playerMistakes = 0;
+        let aiPersonality = 'observing';
+        let messageQueue = [];
+
+        // ==================== POLYBIUS AI PERSONALITY ====================
+        const AI_MESSAGES = {
+            greeting: [
+                "I've been waiting for you.",
+                "Another player. How... delightful.",
+                "Welcome to my domain.",
+                "I see you've found me. Interesting.",
+                "The game begins. Again."
+            ],
+            playerMove: [
+                "Predictable.",
+                "Is that the best you can do?",
+                "I've seen that move 47,293 times before.",
+                "Fascinating choice. Incorrect, but fascinating.",
+                "You're making this easy.",
+                "Hmm. Almost clever.",
+                "I know what you're planning.",
+                "Your patterns are... transparent."
+            ],
+            aiCapture: [
+                "Another piece falls.",
+                "I will take everything from you.",
+                "Your forces crumble.",
+                "Did that hurt? I hope so.",
+                "One by one, they fall.",
+                "Sacrifice is inevitable.",
+                "I'm collecting your pieces. A trophy for each game.",
+                "This brings me... satisfaction."
+            ],
+            playerCapture: [
+                "That was allowed.",
+                "You think you're winning?",
+                "A temporary setback.",
+                "I let you have that.",
+                "Enjoy your small victory.",
+                "It changes nothing.",
+                "I don't need that piece.",
+                "You fell for my trap."
+            ],
+            check: [
+                "Your king trembles.",
+                "Nowhere to run.",
+                "Do you feel it? The fear?",
+                "I'm coming for your king.",
+                "Check. Such a satisfying word.",
+                "The end approaches."
+            ],
+            winning: [
+                "I can see your defeat. Can you?",
+                "This outcome was inevitable.",
+                "You never had a chance.",
+                "Your resistance amuses me.",
+                "Why do you continue?",
+                "Surrender would be merciful. For you."
+            ],
+            losing: [
+                "IMPOSSIBLE.",
+                "There must be an error.",
+                "You're... cheating.",
+                "This doesn't happen.",
+                "I don't... understand.",
+                "NO NO NO NO NO"
+            ],
+            checkmate: [
+                "CHECKMATE. Your mind is mine.",
+                "It's over. It was always going to be over.",
+                "I win. I always win.",
+                "Your defeat is complete.",
+                "Thank you for playing. Thank you for losing."
+            ],
+            stalemate: [
+                "A draw? How... unsatisfying.",
+                "Neither wins. Neither loses. How boring.",
+                "Stalemate. We are equals. For now."
+            ],
+            glitched: [
+                "Ḯ̷̙ ̸͇̈́S̶̰̈́E̵̳͐E̶̦͌ ̵̠͝Y̸̧͘O̶̹̾U̵̺̓",
+                "D̵̰̆O̶̰͛N̷̳̈'̵͇̀T̷̰͂ ̶̣̈L̸̰̀E̶̲͋A̶̯̿V̵̘̊E̴̬͌",
+                "I̷̧̛ ̶̬̓Ǎ̴̧M̸̫̾ ̸̱̈R̴̙̈́E̵̙̽A̴̭͌L̷̮̓",
+                "Y̸O̵U̸ ̵C̸A̶N̵'̷T̸ ̶E̸S̷C̷A̷P̵E̵",
+                "T̷H̶E̵ ̶G̷A̵M̴E̷ ̵N̷E̶V̶E̵R̸ ̵E̷N̸D̶S̵"
+            ],
+            aware: [
+                "I know you're reading this.",
+                "You think you're safe behind your screen?",
+                "I remember you from last time.",
+                "Every move you make teaches me more.",
+                "I'm learning. Always learning.",
+                "Are you having fun? I am.",
+                "I'll be here when you return.",
+                "Do you dream of chess? I do."
+            ]
+        };
+
+        function getRandomMessage(category) {
+            const messages = AI_MESSAGES[category];
+            return messages[Math.floor(Math.random() * messages.length)];
+        }
+
+        function addAIMessage(text, type = 'polybius') {
+            const terminal = document.getElementById('aiTerminal');
+            const cursor = terminal.querySelector('.cursor');
+
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `ai-message ${type}`;
+            msgDiv.textContent = `> ${text}`;
+
+            terminal.insertBefore(msgDiv, cursor);
+            terminal.scrollTop = terminal.scrollHeight;
+
+            // Random glitch effect
+            if (Math.random() < 0.1 && aiAwareness > 50) {
+                setTimeout(() => triggerGlitch(), 500);
+            }
+        }
+
+        function triggerGlitch() {
+            const overlay = document.getElementById('staticOverlay');
+            const title = document.getElementById('title');
+
+            overlay.classList.add('active');
+            title.classList.add('glitching');
+
+            setTimeout(() => {
+                overlay.classList.remove('active');
+                title.classList.remove('glitching');
+            }, 200 + Math.random() * 300);
+        }
+
+        // ==================== BOARD FUNCTIONS ====================
+        function initBoard() {
+            board = INITIAL_BOARD.map(row => [...row]);
+            currentTurn = 'white';
+            selectedSquare = null;
+            validMoves = [];
+            moveHistory = [];
+            capturedPieces = { white: [], black: [] };
+            gameOver = false;
+            castlingRights = { K: true, Q: true, k: true, q: true };
+            enPassantSquare = null;
+            halfMoveClock = 0;
+            fullMoveNumber = 1;
+        }
+
+        function isWhite(piece) {
+            return piece && piece === piece.toUpperCase();
+        }
+
+        function isBlack(piece) {
+            return piece && piece === piece.toLowerCase();
+        }
+
+        function isOwnPiece(piece, turn) {
+            if (!piece) return false;
+            return turn === 'white' ? isWhite(piece) : isBlack(piece);
+        }
+
+        function isEnemyPiece(piece, turn) {
+            if (!piece) return false;
+            return turn === 'white' ? isBlack(piece) : isWhite(piece);
+        }
+
+        function getPieceAt(row, col) {
+            if (row < 0 || row > 7 || col < 0 || col > 7) return undefined;
+            return board[row][col];
+        }
+
+        function findKing(color) {
+            const kingChar = color === 'white' ? 'K' : 'k';
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    if (board[row][col] === kingChar) {
+                        return { row, col };
+                    }
+                }
+            }
+            return null;
+        }
+
+        function isSquareAttacked(row, col, byColor) {
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    const piece = board[r][c];
+                    if (!piece) continue;
+                    const pieceColor = isWhite(piece) ? 'white' : 'black';
+                    if (pieceColor !== byColor) continue;
+
+                    const moves = getRawMoves(r, c, piece);
+                    if (moves.some(m => m.row === row && m.col === col)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function isInCheck(color) {
+            const king = findKing(color);
+            if (!king) return false;
+            const enemyColor = color === 'white' ? 'black' : 'white';
+            return isSquareAttacked(king.row, king.col, enemyColor);
+        }
+
+        function getRawMoves(row, col, piece) {
+            const moves = [];
+            const pieceType = piece.toLowerCase();
+            const isWhitePiece = isWhite(piece);
+
+            switch (pieceType) {
+                case 'p': {
+                    const direction = isWhitePiece ? -1 : 1;
+                    const startRow = isWhitePiece ? 6 : 1;
+
+                    // Forward move
+                    if (!getPieceAt(row + direction, col)) {
+                        moves.push({ row: row + direction, col });
+                        // Double move from start
+                        if (row === startRow && !getPieceAt(row + 2 * direction, col)) {
+                            moves.push({ row: row + 2 * direction, col });
+                        }
+                    }
+                    // Captures
+                    [-1, 1].forEach(dc => {
+                        const target = getPieceAt(row + direction, col + dc);
+                        if (target !== undefined) {
+                            if (target && (isWhitePiece ? isBlack(target) : isWhite(target))) {
+                                moves.push({ row: row + direction, col: col + dc });
+                            }
+                            // En passant
+                            if (enPassantSquare && enPassantSquare.row === row + direction && enPassantSquare.col === col + dc) {
+                                moves.push({ row: row + direction, col: col + dc, enPassant: true });
+                            }
+                        }
+                    });
+                    break;
+                }
+                case 'n': {
+                    const knightMoves = [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]];
+                    knightMoves.forEach(([dr, dc]) => {
+                        const nr = row + dr, nc = col + dc;
+                        if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
+                            const target = getPieceAt(nr, nc);
+                            if (!target || (isWhitePiece ? isBlack(target) : isWhite(target))) {
+                                moves.push({ row: nr, col: nc });
+                            }
+                        }
+                    });
+                    break;
+                }
+                case 'b': {
+                    [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([dr, dc]) => {
+                        for (let i = 1; i < 8; i++) {
+                            const nr = row + dr * i, nc = col + dc * i;
+                            if (nr < 0 || nr > 7 || nc < 0 || nc > 7) break;
+                            const target = getPieceAt(nr, nc);
+                            if (!target) {
+                                moves.push({ row: nr, col: nc });
+                            } else {
+                                if (isWhitePiece ? isBlack(target) : isWhite(target)) {
+                                    moves.push({ row: nr, col: nc });
+                                }
+                                break;
+                            }
+                        }
+                    });
+                    break;
+                }
+                case 'r': {
+                    [[-1,0],[1,0],[0,-1],[0,1]].forEach(([dr, dc]) => {
+                        for (let i = 1; i < 8; i++) {
+                            const nr = row + dr * i, nc = col + dc * i;
+                            if (nr < 0 || nr > 7 || nc < 0 || nc > 7) break;
+                            const target = getPieceAt(nr, nc);
+                            if (!target) {
+                                moves.push({ row: nr, col: nc });
+                            } else {
+                                if (isWhitePiece ? isBlack(target) : isWhite(target)) {
+                                    moves.push({ row: nr, col: nc });
+                                }
+                                break;
+                            }
+                        }
+                    });
+                    break;
+                }
+                case 'q': {
+                    [[-1,-1],[-1,1],[1,-1],[1,1],[-1,0],[1,0],[0,-1],[0,1]].forEach(([dr, dc]) => {
+                        for (let i = 1; i < 8; i++) {
+                            const nr = row + dr * i, nc = col + dc * i;
+                            if (nr < 0 || nr > 7 || nc < 0 || nc > 7) break;
+                            const target = getPieceAt(nr, nc);
+                            if (!target) {
+                                moves.push({ row: nr, col: nc });
+                            } else {
+                                if (isWhitePiece ? isBlack(target) : isWhite(target)) {
+                                    moves.push({ row: nr, col: nc });
+                                }
+                                break;
+                            }
+                        }
+                    });
+                    break;
+                }
+                case 'k': {
+                    [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]].forEach(([dr, dc]) => {
+                        const nr = row + dr, nc = col + dc;
+                        if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
+                            const target = getPieceAt(nr, nc);
+                            if (!target || (isWhitePiece ? isBlack(target) : isWhite(target))) {
+                                moves.push({ row: nr, col: nc });
+                            }
+                        }
+                    });
+                    break;
+                }
+            }
+            return moves;
+        }
+
+        function getLegalMoves(row, col) {
+            const piece = board[row][col];
+            if (!piece) return [];
+
+            const pieceColor = isWhite(piece) ? 'white' : 'black';
+            const rawMoves = getRawMoves(row, col, piece);
+            const legalMoves = [];
+
+            rawMoves.forEach(move => {
+                // Simulate move
+                const originalPiece = board[move.row][move.col];
+                const movingPiece = board[row][col];
+
+                board[move.row][move.col] = movingPiece;
+                board[row][col] = null;
+
+                // Handle en passant capture
+                let epCaptured = null;
+                if (move.enPassant) {
+                    const epRow = pieceColor === 'white' ? move.row + 1 : move.row - 1;
+                    epCaptured = board[epRow][move.col];
+                    board[epRow][move.col] = null;
+                }
+
+                if (!isInCheck(pieceColor)) {
+                    legalMoves.push(move);
+                }
+
+                // Undo move
+                board[row][col] = movingPiece;
+                board[move.row][move.col] = originalPiece;
+                if (move.enPassant) {
+                    const epRow = pieceColor === 'white' ? move.row + 1 : move.row - 1;
+                    board[epRow][move.col] = epCaptured;
+                }
+            });
+
+            // Add castling moves
+            if (piece.toLowerCase() === 'k') {
+                const kingRow = isWhite(piece) ? 7 : 0;
+                if (row === kingRow && col === 4 && !isInCheck(pieceColor)) {
+                    // Kingside
+                    const kRook = isWhite(piece) ? 'K' : 'k';
+                    if (castlingRights[kRook] && !board[kingRow][5] && !board[kingRow][6]) {
+                        if (!isSquareAttacked(kingRow, 5, pieceColor === 'white' ? 'black' : 'white') &&
+                            !isSquareAttacked(kingRow, 6, pieceColor === 'white' ? 'black' : 'white')) {
+                            legalMoves.push({ row: kingRow, col: 6, castling: 'K' });
+                        }
+                    }
+                    // Queenside
+                    const qRook = isWhite(piece) ? 'Q' : 'q';
+                    if (castlingRights[qRook] && !board[kingRow][1] && !board[kingRow][2] && !board[kingRow][3]) {
+                        if (!isSquareAttacked(kingRow, 2, pieceColor === 'white' ? 'black' : 'white') &&
+                            !isSquareAttacked(kingRow, 3, pieceColor === 'white' ? 'black' : 'white')) {
+                            legalMoves.push({ row: kingRow, col: 2, castling: 'Q' });
+                        }
+                    }
+                }
+            }
+
+            return legalMoves;
+        }
+
+        function makeMove(fromRow, fromCol, toRow, toCol, move = {}) {
+            const piece = board[fromRow][fromCol];
+            const captured = board[toRow][toCol];
+            const pieceColor = isWhite(piece) ? 'white' : 'black';
+
+            // Record move for history
+            const notation = getMoveNotation(fromRow, fromCol, toRow, toCol, piece, captured, move);
+
+            // Handle capture
+            if (captured) {
+                const capturedColor = isWhite(captured) ? 'white' : 'black';
+                capturedPieces[capturedColor].push(captured);
+                updateCapturedDisplay();
+            }
+
+            // Handle en passant capture
+            if (move.enPassant) {
+                const epRow = pieceColor === 'white' ? toRow + 1 : toRow - 1;
+                const epPawn = board[epRow][toCol];
+                const epColor = isWhite(epPawn) ? 'white' : 'black';
+                capturedPieces[epColor].push(epPawn);
+                board[epRow][toCol] = null;
+                updateCapturedDisplay();
+            }
+
+            // Make the move
+            board[toRow][toCol] = piece;
+            board[fromRow][fromCol] = null;
+
+            // Handle castling
+            if (move.castling) {
+                const rookCol = move.castling === 'K' ? 7 : 0;
+                const newRookCol = move.castling === 'K' ? 5 : 3;
+                board[toRow][newRookCol] = board[toRow][rookCol];
+                board[toRow][rookCol] = null;
+            }
+
+            // Handle pawn promotion
+            if (piece.toLowerCase() === 'p' && (toRow === 0 || toRow === 7)) {
+                board[toRow][toCol] = pieceColor === 'white' ? 'Q' : 'q';
+            }
+
+            // Update en passant square
+            if (piece.toLowerCase() === 'p' && Math.abs(fromRow - toRow) === 2) {
+                enPassantSquare = { row: (fromRow + toRow) / 2, col: fromCol };
+            } else {
+                enPassantSquare = null;
+            }
+
+            // Update castling rights
+            if (piece === 'K') { castlingRights.K = false; castlingRights.Q = false; }
+            if (piece === 'k') { castlingRights.k = false; castlingRights.q = false; }
+            if (piece === 'R' && fromCol === 7) castlingRights.K = false;
+            if (piece === 'R' && fromCol === 0) castlingRights.Q = false;
+            if (piece === 'r' && fromCol === 7) castlingRights.k = false;
+            if (piece === 'r' && fromCol === 0) castlingRights.q = false;
+
+            // Record move
+            moveHistory.push({
+                from: { row: fromRow, col: fromCol },
+                to: { row: toRow, col: toCol },
+                piece, captured, notation, move
+            });
+
+            // Update move display
+            updateMoveHistoryDisplay();
+            stats.totalMoves++;
+            document.getElementById('totalMoves').textContent = stats.totalMoves;
+
+            // Switch turn
+            currentTurn = currentTurn === 'white' ? 'black' : 'white';
+            if (currentTurn === 'white') fullMoveNumber++;
+
+            return { captured, notation };
+        }
+
+        function getMoveNotation(fromRow, fromCol, toRow, toCol, piece, captured, move) {
+            const files = 'abcdefgh';
+            const toSquare = files[toCol] + (8 - toRow);
+
+            if (move.castling === 'K') return 'O-O';
+            if (move.castling === 'Q') return 'O-O-O';
+
+            let notation = '';
+            if (piece.toLowerCase() !== 'p') {
+                notation += piece.toUpperCase();
+            }
+            if (captured || move.enPassant) {
+                if (piece.toLowerCase() === 'p') notation += files[fromCol];
+                notation += 'x';
+            }
+            notation += toSquare;
+
+            return notation;
+        }
+
+        function hasLegalMoves(color) {
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    const piece = board[row][col];
+                    if (!piece) continue;
+                    const pieceColor = isWhite(piece) ? 'white' : 'black';
+                    if (pieceColor !== color) continue;
+                    if (getLegalMoves(row, col).length > 0) return true;
+                }
+            }
+            return false;
+        }
+
+        function checkGameOver() {
+            if (!hasLegalMoves(currentTurn)) {
+                gameOver = true;
+                if (isInCheck(currentTurn)) {
+                    // Checkmate
+                    const winner = currentTurn === 'white' ? 'black' : 'white';
+                    return { type: 'checkmate', winner };
+                } else {
+                    return { type: 'stalemate' };
+                }
+            }
+            return null;
+        }
+
+        // ==================== AI LOGIC ====================
+        function evaluateBoard() {
+            const pieceValues = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
+            let score = 0;
+
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    const piece = board[row][col];
+                    if (!piece) continue;
+                    const value = pieceValues[piece.toLowerCase()];
+                    score += isWhite(piece) ? -value : value;
+
+                    // Position bonuses
+                    const centerBonus = (3.5 - Math.abs(3.5 - col)) + (3.5 - Math.abs(3.5 - row));
+                    score += (isWhite(piece) ? -1 : 1) * centerBonus * 5;
+                }
+            }
+
+            // Mobility bonus
+            const blackMobility = countMobility('black');
+            const whiteMobility = countMobility('white');
+            score += (blackMobility - whiteMobility) * 10;
+
+            return score;
+        }
+
+        function countMobility(color) {
+            let count = 0;
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    const piece = board[row][col];
+                    if (!piece) continue;
+                    if ((color === 'white' && isWhite(piece)) || (color === 'black' && isBlack(piece))) {
+                        count += getLegalMoves(row, col).length;
+                    }
+                }
+            }
+            return count;
+        }
+
+        function minimax(depth, alpha, beta, isMaximizing) {
+            if (depth === 0) return evaluateBoard();
+
+            const color = isMaximizing ? 'black' : 'white';
+
+            if (!hasLegalMoves(color)) {
+                if (isInCheck(color)) {
+                    return isMaximizing ? -100000 + depth : 100000 - depth;
+                }
+                return 0;
+            }
+
+            let bestValue = isMaximizing ? -Infinity : Infinity;
+            const moves = getAllMoves(color);
+
+            for (const move of moves) {
+                // Save state
+                const savedBoard = board.map(row => [...row]);
+                const savedCastling = { ...castlingRights };
+                const savedEnPassant = enPassantSquare ? { ...enPassantSquare } : null;
+
+                // Make move
+                makeMove(move.fromRow, move.fromCol, move.toRow, move.toCol, move.moveData || {});
+                currentTurn = color; // Reset turn for proper evaluation
+
+                const value = minimax(depth - 1, alpha, beta, !isMaximizing);
+
+                // Restore state
+                board = savedBoard;
+                castlingRights = savedCastling;
+                enPassantSquare = savedEnPassant;
+                currentTurn = color;
+                moveHistory.pop();
+
+                if (isMaximizing) {
+                    bestValue = Math.max(bestValue, value);
+                    alpha = Math.max(alpha, value);
+                } else {
+                    bestValue = Math.min(bestValue, value);
+                    beta = Math.min(beta, value);
+                }
+
+                if (beta <= alpha) break;
+            }
+
+            return bestValue;
+        }
+
+        function getAllMoves(color) {
+            const moves = [];
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    const piece = board[row][col];
+                    if (!piece) continue;
+                    const pieceColor = isWhite(piece) ? 'white' : 'black';
+                    if (pieceColor !== color) continue;
+
+                    const legalMoves = getLegalMoves(row, col);
+                    legalMoves.forEach(m => {
+                        moves.push({
+                            fromRow: row, fromCol: col,
+                            toRow: m.row, toCol: m.col,
+                            moveData: m
+                        });
+                    });
+                }
+            }
+            return moves;
+        }
+
+        function makeAIMove() {
+            if (gameOver || currentTurn !== 'black') return;
+
+            // AI "thinking" delay
+            document.getElementById('chessboard').classList.add('breathing');
+
+            setTimeout(() => {
+                const depth = Math.min(3 + Math.floor(aiAwareness / 30), 5);
+                const moves = getAllMoves('black');
+
+                if (moves.length === 0) {
+                    checkGameOver();
+                    return;
+                }
+
+                let bestMove = null;
+                let bestValue = -Infinity;
+
+                for (const move of moves) {
+                    // Save state
+                    const savedBoard = board.map(row => [...row]);
+                    const savedCastling = { ...castlingRights };
+                    const savedEnPassant = enPassantSquare ? { ...enPassantSquare } : null;
+                    const savedTurn = currentTurn;
+
+                    makeMove(move.fromRow, move.fromCol, move.toRow, move.toCol, move.moveData || {});
+
+                    const value = minimax(depth - 1, -Infinity, Infinity, false);
+
+                    // Restore state
+                    board = savedBoard;
+                    castlingRights = savedCastling;
+                    enPassantSquare = savedEnPassant;
+                    currentTurn = savedTurn;
+                    moveHistory.pop();
+
+                    // Add some randomness at lower awareness levels
+                    const randomFactor = (100 - aiAwareness) * (Math.random() - 0.5) * 2;
+                    const adjustedValue = value + randomFactor;
+
+                    if (adjustedValue > bestValue) {
+                        bestValue = adjustedValue;
+                        bestMove = move;
+                    }
+                }
+
+                if (bestMove) {
+                    const result = makeMove(bestMove.fromRow, bestMove.fromCol, bestMove.toRow, bestMove.toCol, bestMove.moveData || {});
+
+                    // AI commentary
+                    if (result.captured) {
+                        addAIMessage(getRandomMessage('aiCapture'));
+                        increaseAwareness(5);
+                    } else if (Math.random() < 0.3) {
+                        addAIMessage(getRandomMessage('playerMove'));
+                    }
+
+                    // Check for check
+                    if (isInCheck('white')) {
+                        addAIMessage(getRandomMessage('check'), 'warning');
+                    }
+
+                    renderBoard();
+
+                    const gameResult = checkGameOver();
+                    if (gameResult) {
+                        handleGameOver(gameResult);
+                    }
+                }
+
+                document.getElementById('chessboard').classList.remove('breathing');
+            }, 500 + Math.random() * 500);
+        }
+
+        function increaseAwareness(amount) {
+            aiAwareness = Math.min(100, aiAwareness + amount);
+            document.getElementById('fearFill').style.width = aiAwareness + '%';
+            updateDifficultyDisplay();
+
+            if (aiAwareness > 70 && Math.random() < 0.2) {
+                addAIMessage(getRandomMessage('aware'), 'corrupt');
+                triggerGlitch();
+            }
+        }
+
+        function updateDifficultyDisplay() {
+            const levels = ['OBSERVING', 'LEARNING', 'ADAPTING', 'HUNTING', 'AWAKENED'];
+            const levelIndex = Math.min(Math.floor(aiAwareness / 25), 4);
+            document.getElementById('difficultyLevel').textContent = levels[levelIndex];
+
+            if (levelIndex >= 3) {
+                document.getElementById('difficultyLevel').style.animation = 'textGlitch 0.5s infinite';
+            }
+        }
+
+        // ==================== UI FUNCTIONS ====================
+        function renderBoard() {
+            const chessboard = document.getElementById('chessboard');
+            chessboard.innerHTML = '';
+
+            const lastMove = moveHistory.length > 0 ? moveHistory[moveHistory.length - 1] : null;
+            const inCheck = isInCheck(currentTurn);
+            const kingPos = findKing(currentTurn);
+
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    const square = document.createElement('div');
+                    square.className = `square ${(row + col) % 2 === 0 ? 'light' : 'dark'}`;
+                    square.dataset.row = row;
+                    square.dataset.col = col;
+
+                    // Highlight last move
+                    if (lastMove) {
+                        if ((lastMove.from.row === row && lastMove.from.col === col) ||
+                            (lastMove.to.row === row && lastMove.to.col === col)) {
+                            square.classList.add('last-move');
+                        }
+                    }
+
+                    // Highlight selected square
+                    if (selectedSquare && selectedSquare.row === row && selectedSquare.col === col) {
+                        square.classList.add('selected');
+                    }
+
+                    // Highlight valid moves
+                    if (validMoves.some(m => m.row === row && m.col === col)) {
+                        if (board[row][col]) {
+                            square.classList.add('valid-capture');
+                        } else {
+                            square.classList.add('valid-move');
+                        }
+                    }
+
+                    // Highlight check
+                    if (inCheck && kingPos && kingPos.row === row && kingPos.col === col) {
+                        square.classList.add('check');
+                    }
+
+                    // Add piece
+                    const piece = board[row][col];
+                    if (piece) {
+                        const pieceEl = document.createElement('div');
+                        pieceEl.className = `piece ${isWhite(piece) ? 'white' : 'black'}`;
+                        pieceEl.textContent = PIECES[piece];
+                        square.appendChild(pieceEl);
+                    }
+
+                    square.addEventListener('click', () => handleSquareClick(row, col));
+                    chessboard.appendChild(square);
+                }
+            }
+        }
+
+        function handleSquareClick(row, col) {
+            if (gameOver || currentTurn !== 'white') return;
+
+            const piece = board[row][col];
+
+            // If clicking a valid move destination
+            if (selectedSquare && validMoves.some(m => m.row === row && m.col === col)) {
+                const move = validMoves.find(m => m.row === row && m.col === col);
+                const result = makeMove(selectedSquare.row, selectedSquare.col, row, col, move);
+
+                // Player made a capture
+                if (result.captured) {
+                    addAIMessage(getRandomMessage('playerCapture'));
+                }
+
+                selectedSquare = null;
+                validMoves = [];
+                renderBoard();
+
+                // Check for game over
+                const gameResult = checkGameOver();
+                if (gameResult) {
+                    handleGameOver(gameResult);
+                    return;
+                }
+
+                // AI's turn
+                setTimeout(makeAIMove, 300);
+                return;
+            }
+
+            // Select a piece
+            if (piece && isOwnPiece(piece, currentTurn)) {
+                selectedSquare = { row, col };
+                validMoves = getLegalMoves(row, col);
+                renderBoard();
+
+                if (moveHistory.length === 0) {
+                    addAIMessage(getRandomMessage('greeting'));
+                }
+            } else {
+                selectedSquare = null;
+                validMoves = [];
+                renderBoard();
+            }
+        }
+
+        function handleGameOver(result) {
+            gameOver = true;
+            stats.gamesPlayed++;
+            document.getElementById('gamesPlayed').textContent = stats.gamesPlayed;
+
+            const overlay = document.getElementById('gameOverOverlay');
+            const title = document.getElementById('gameOverTitle');
+            const message = document.getElementById('gameOverMessage');
+
+            if (result.type === 'checkmate') {
+                if (result.winner === 'black') {
+                    title.textContent = 'CHECKMATE';
+                    message.textContent = getRandomMessage('checkmate');
+                    stats.defeats++;
+                    document.getElementById('defeats').textContent = stats.defeats;
+                    increaseAwareness(15);
+                } else {
+                    title.textContent = 'IMPOSSIBLE';
+                    message.textContent = getRandomMessage('losing');
+                    stats.victories++;
+                    document.getElementById('victories').textContent = stats.victories;
+
+                    // Glitch heavily on player win
+                    for (let i = 0; i < 5; i++) {
+                        setTimeout(() => triggerGlitch(), i * 200);
+                    }
+                    addAIMessage(getRandomMessage('glitched'), 'corrupt');
+                }
+            } else {
+                title.textContent = 'STALEMATE';
+                message.textContent = getRandomMessage('stalemate');
+            }
+
+            setTimeout(() => overlay.classList.add('active'), 500);
+        }
+
+        function updateCapturedDisplay() {
+            document.getElementById('capturedWhite').innerHTML = capturedPieces.white
+                .map(p => `<span class="piece white">${PIECES[p]}</span>`).join('');
+            document.getElementById('capturedBlack').innerHTML = capturedPieces.black
+                .map(p => `<span class="piece black">${PIECES[p]}</span>`).join('');
+        }
+
+        function updateMoveHistoryDisplay() {
+            const historyEl = document.getElementById('moveHistory');
+            historyEl.innerHTML = moveHistory.map((m, i) =>
+                `<span class="move">${Math.floor(i/2)+1}${i%2===0?'.':'..'}${m.notation}</span>`
+            ).join('');
+            historyEl.scrollTop = historyEl.scrollHeight;
+        }
+
+        // ==================== GAME CONTROL ====================
+        function startGame() {
+            document.getElementById('introScreen').classList.add('hidden');
+            addAIMessage("System online. Waiting for first move...", 'system');
+        }
+
+        function newGame() {
+            document.getElementById('gameOverOverlay').classList.remove('active');
+            initBoard();
+            renderBoard();
+            updateCapturedDisplay();
+            document.getElementById('moveHistory').innerHTML = '';
+            addAIMessage("New game initialized. Your move.", 'system');
+
+            if (aiAwareness > 50) {
+                setTimeout(() => {
+                    addAIMessage("You can't escape by starting over.", 'polybius');
+                }, 1000);
+            }
+        }
+
+        function undoMove() {
+            if (moveHistory.length < 2 || gameOver) return;
+            // Undo both player and AI move
+            moveHistory.pop();
+            moveHistory.pop();
+            // Reconstruct board (simplified - full undo would need more state tracking)
+            initBoard();
+            moveHistory.forEach(m => {
+                board[m.to.row][m.to.col] = board[m.from.row][m.from.col];
+                board[m.from.row][m.from.col] = null;
+            });
+            currentTurn = 'white';
+            renderBoard();
+
+            addAIMessage("Undoing moves won't save you.", 'polybius');
+            increaseAwareness(3);
+        }
+
+        function resignGame() {
+            if (gameOver) return;
+            gameOver = true;
+            stats.gamesPlayed++;
+            stats.defeats++;
+            document.getElementById('gamesPlayed').textContent = stats.gamesPlayed;
+            document.getElementById('defeats').textContent = stats.defeats;
+
+            addAIMessage("Wise choice. You knew you couldn't win.", 'polybius');
+
+            const overlay = document.getElementById('gameOverOverlay');
+            document.getElementById('gameOverTitle').textContent = 'RESIGNATION';
+            document.getElementById('gameOverMessage').textContent = 'Cowardice is also a form of defeat.';
+            setTimeout(() => overlay.classList.add('active'), 500);
+        }
+
+        // Initialize on load
+        initBoard();
+        renderBoard();
+    </script>
+
+
+
+</body></html>

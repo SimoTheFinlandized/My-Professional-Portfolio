@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brain-Dump Organizer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f4f4f4;
+            color: #333;
+            transition: background 0.3s, color 0.3s;
+        }
+        .dark-mode { background: #1e1e1e; color: #fff; }
+        .container { max-width: 600px; margin: 20px auto; padding: 20px; background: #fff; border-radius: 5px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+        .dark-mode .container { background: #2c2c2c; }
+        h2 { text-align: center; }
+        textarea, input, select { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
+        .dark-mode input, .dark-mode textarea, .dark-mode select { background: #333; color: #fff; border: 1px solid #555; }
+        button { padding: 10px; width: 100%; margin: 5px 0; background: #007bff; color: white; border: none; cursor: pointer; border-radius: 5px; }
+        button:hover { background: #0056b3; }
+        .note { background: #fafafa; padding: 10px; border: 1px solid #ddd; border-radius: 5px; margin: 10px 0; }
+        .dark-mode .note { background: #333; border: 1px solid #555; }
+        .note-title { font-weight: bold; }
+        .note-actions { display: flex; justify-content: space-between; }
+        .delete, .edit, .pin { padding: 5px; border: none; cursor: pointer; border-radius: 3px; }
+        .delete { background: red; color: white; }
+        .edit { background: orange; }
+        .pin { background: gold; }
+        .character-count { font-size: 12px; color: gray; text-align: right; }
+        .collapsed { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Brain-Dump Organizer</h2>
+        <button class="toggle-mode">Toggle Dark Mode</button>
+        <select id="sort-options">
+            <option value="newest">Sort: Newest</option>
+            <option value="oldest">Sort: Oldest</option>
+            <option value="title">Sort: A-Z</option>
+        </select>
+        <input type="text" id="search" placeholder="Search Brain Dumps...">
+        <input type="text" id="title" placeholder="Title">
+        <textarea id="content" rows="4" placeholder="Write your brain-dump here..."></textarea>
+        <div class="character-count">0/500</div>
+        <select id="category">
+            <option value="General">General</option>
+            <option value="Work">Work</option>
+            <option value="Personal">Personal</option>
+            <option value="Ideas">Ideas</option>
+        </select>
+        <button id="save">Save Brain Dump</button>
+        <button id="export">Export Notes</button>
+        <button id="import">Import Notes</button>
+        <input type="file" id="import-file" style="display: none;">
+        <button id="undo-delete">Undo Last Delete</button>
+        <div id="notes"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const titleInput = document.getElementById('title');
+            const contentInput = document.getElementById('content');
+            const saveButton = document.getElementById('save');
+            const notesContainer = document.getElementById('notes');
+            const searchInput = document.getElementById('search');
+            const categoryInput = document.getElementById('category');
+            const sortOptions = document.getElementById('sort-options');
+            const exportButton = document.getElementById('export');
+            const importButton = document.getElementById('import');
+            const importFile = document.getElementById('import-file');
+            const undoDeleteButton = document.getElementById('undo-delete');
+            const toggleModeButton = document.querySelector('.toggle-mode');
+            const charCounter = document.querySelector('.character-count');
+            const body = document.body;
+
+            let brainDumps = JSON.parse(localStorage.getItem('brainDumps')) || [];
+            let lastDeleted = null;
+            let editIndex = null;
+
+            function renderNotes() {
+                notesContainer.innerHTML = '';
+                let sortedNotes = [...brainDumps];
+
+                if (sortOptions.value === 'newest') sortedNotes.reverse();
+                if (sortOptions.value === 'title') sortedNotes.sort((a, b) => a.title.localeCompare(b.title));
+
+                sortedNotes.forEach((note, index) => {
+                    const noteElement = document.createElement('div');
+                    noteElement.classList.add('note');
+                    noteElement.innerHTML = `
+                        <div class="note-title">${note.title} - <small>${note.category} | ${note.timestamp}</small></div>
+                        <p>${note.content}</p>
+                        <div class="note-actions">
+                            <button class="edit" onclick="editNote(${index})">Edit</button>
+                            <button class="delete" onclick="deleteNote(${index})">Delete</button>
+                        </div>
+                    `;
+                    notesContainer.appendChild(noteElement);
+                });
+            }
+
+            saveButton.addEventListener('click', () => {
+                const title = titleInput.value.trim();
+                const content = contentInput.value.trim();
+                const category = categoryInput.value;
+                const timestamp = new Date().toLocaleString();
+
+                if (title && content) {
+                    if (editIndex !== null) {
+                        brainDumps[editIndex] = { title, content, category, timestamp };
+                        editIndex = null;
+                    } else {
+                        brainDumps.push({ title, content, category, timestamp });
+                    }
+                    localStorage.setItem('brainDumps', JSON.stringify(brainDumps));
+                    titleInput.value = '';
+                    contentInput.value = '';
+                    renderNotes();
+                }
+            });
+
+            window.deleteNote = (index) => {
+                lastDeleted = brainDumps[index];
+                brainDumps.splice(index, 1);
+                localStorage.setItem('brainDumps', JSON.stringify(brainDumps));
+                renderNotes();
+            };
+
+            window.editNote = (index) => {
+                titleInput.value = brainDumps[index].title;
+                contentInput.value = brainDumps[index].content;
+                editIndex = index;
+            };
+
+            charCounter.innerText = "0/500";
+            contentInput.addEventListener('input', () => {
+                charCounter.innerText = `${contentInput.value.length}/500`;
+            });
+
+            toggleModeButton.addEventListener('click', () => {
+                body.classList.toggle('dark-mode');
+                localStorage.setItem('darkMode', body.classList.contains('dark-mode'));
+            });
+
+            if (localStorage.getItem('darkMode') === 'true') {
+                body.classList.add('dark-mode');
+            }
+
+            renderNotes();
+        });
+    </script>
+
+</body>
+</html>

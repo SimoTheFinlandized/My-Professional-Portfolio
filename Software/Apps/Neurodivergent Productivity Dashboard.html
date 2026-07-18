@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neurodivergent Productivity Dashboard</title>
+    <style>
+        /* CSS optimized and combined */
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-bg: #f4f4f4;
+            --card-bg: #ffffff;
+            --text-color: #333;
+            --border-radius: 8px;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background-color: var(--light-bg);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), #1a252f);
+            color: white;
+            padding: 1.5rem 0;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            font-weight: normal;
+        }
+
+        main {
+            flex: 1;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        section {
+            background-color: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+        }
+
+        section:hover {
+            transform: translateY(-2px);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--secondary-color);
+            font-size: 1.5rem;
+        }
+
+        /* Focus Mode */
+        #focus-mode {
+            text-align: center;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        }
+
+        #timer {
+            font-size: 3.5rem;
+            font-weight: bold;
+            margin: 1rem 0;
+            color: var(--primary-color);
+            font-family: 'Courier New', monospace;
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        #focus-message {
+            margin-top: 1rem;
+            font-weight: bold;
+            min-height: 1.5rem;
+        }
+
+        /* Task List */
+        #task-list ul {
+            list-style: none;
+            margin-bottom: 1rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        #task-list li {
+            padding: 0.75rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+
+        #task-list li:hover {
+            background-color: #f8f9fa;
+        }
+
+        #task-list li:last-child {
+            border-bottom: none;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .task-complete {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+
+        .task-input-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        /* Notes */
+        #notes-area {
+            width: 100%;
+            height: 200px;
+            padding: 1rem;
+            border: 2px solid #ddd;
+            border-radius: var(--border-radius);
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        #notes-area:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+        }
+
+        .notes-info {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 0.5rem;
+            text-align: right;
+        }
+
+        /* Visual Aids */
+        #calendar {
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .calendar-placeholder {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        /* Accessibility Features */
+        .accessibility-panel {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            grid-column: 1 / -1;
+        }
+
+        .accessibility-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .accessibility-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 20px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .accessibility-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .high-contrast {
+            --primary-color: #000000;
+            --secondary-color: #ff0000;
+            --light-bg: #ffffff;
+            --card-bg: #f0f0f0;
+            --text-color: #000000;
+        }
+
+        .dyslexia-friendly {
+            font-family: 'Comic Sans MS', 'OpenDyslexic', sans-serif;
+            letter-spacing: 0.05em;
+        }
+
+        /* Buttons */
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        button:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.secondary {
+            background-color: #6c757d;
+        }
+
+        button.danger {
+            background-color: var(--accent-color);
+        }
+
+        button.small {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.9rem;
+        }
+
+        /* Inputs */
+        input[type="text"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 1.5rem 0;
+            background-color: var(--primary-color);
+            color: white;
+            margin-top: 2rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            main {
+                padding: 1rem;
+                grid-template-columns: 1fr;
+            }
+            
+            #timer {
+                font-size: 2.5rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* Utility Classes */
+        .hidden {
+            display: none !important;
+        }
+
+        .completed {
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Neurodivergent Productivity Dashboard</h1>
+        <p class="subtitle">Designed for focus, clarity, and mindful productivity</p>
+    </header>
+
+    <main>
+        <section id="focus-mode">
+            <h2>🧠 Focus Mode</h2>
+            <div id="timer">25:00</div>
+            <div class="timer-controls">
+                <button id="toggle-focus">
+                    <span>▶</span> Start Focus Timer
+                </button>
+                <button id="reset-timer" class="secondary">
+                    <span>↺</span> Reset
+                </button>
+                <button id="short-break" class="secondary">
+                    <span>☕</span> 5-min Break
+                </button>
+            </div>
+            <p id="focus-message">Ready to focus? Click start!</p>
+            <div class="timer-presets">
+                <button class="small" data-minutes="25">25 min</button>
+                <button class="small" data-minutes="50">50 min</button>
+                <button class="small" data-minutes="15">15 min</button>
+            </div>
+        </section>
+
+        <section id="task-list">
+            <h2>📝 Task List</h2>
+            <ul id="tasks">
+                <!-- Tasks will be added here -->
+            </ul>
+            <div class="task-input-group">
+                <input type="text" id="new-task" placeholder="Add a task (press Enter to add)">
+                <button id="add-task">Add</button>
+            </div>
+            <div class="task-stats">
+                <small>Total: <span id="total-tasks">0</span> | Completed: <span id="completed-tasks">0</span></small>
+            </div>
+        </section>
+
+        <section id="notes">
+            <h2>📓 Notes</h2>
+            <textarea id="notes-area" placeholder="Jot down your thoughts, ideas, or reminders..."></textarea>
+            <div class="notes-info">
+                <span id="char-count">0</span> characters | Auto-saves every 5 seconds
+            </div>
+        </section>
+
+        <section id="visual-aids">
+            <h2>📅 Visual Calendar</h2>
+            <div id="calendar">
+                <div class="calendar-placeholder">
+                    <p>📅 Calendar View</p>
+                    <p><small>Today: <span id="current-date">January 28, 2026</span></small></p>
+                    <p><small>Week 5 of 2026</small></p>
+                    <button id="generate-calendar" class="secondary small">Generate Monthly View</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="accessibility-panel">
+            <h2>♿ Accessibility Features</h2>
+            <p>Customize the interface for your needs:</p>
+            <div class="accessibility-controls">
+                <button class="accessibility-btn" id="toggle-contrast">High Contrast</button>
+                <button class="accessibility-btn" id="toggle-dyslexia">Dyslexia-Friendly Font</button>
+                <button class="accessibility-btn" id="toggle-animations">Reduce Animations</button>
+                <button class="accessibility-btn" id="toggle-sounds">Mute Sounds</button>
+            </div>
+            <div class="accessibility-info">
+                <small>Settings are saved in your browser</small>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Neurodivergent Productivity Dashboard | Designed with mindfulness and accessibility in mind</p>
+        <p><small>Inspired by Stoic principles and neurodiversity advocacy</small></p>
+    </footer>
+
+    <script>
+        // Combined and optimized JavaScript
+        (function() {
+            'use strict';
+
+            // DOM Elements
+            const elements = {
+                toggleFocus: document.getElementById('toggle-focus'),
+                resetTimer: document.getElementById('reset-timer'),
+                shortBreak: document.getElementById('short-break'),
+                timer: document.getElementById('timer'),
+                focusMessage: document.getElementById('focus-message'),
+                taskList: document.getElementById('tasks'),
+                newTask: document.getElementById('new-task'),
+                addTask: document.getElementById('add-task'),
+                notesArea: document.getElementById('notes-area'),
+                charCount: document.getElementById('char-count'),
+                currentDate: document.getElementById('current-date'),
+                generateCalendar: document.getElementById('generate-calendar'),
+                totalTasks: document.getElementById('total-tasks'),
+                completedTasks: document.getElementById('completed-tasks'),
+                timerPresets: document.querySelectorAll('.timer-presets button'),
+                accessibilityButtons: {
+                    contrast: document.getElementById('toggle-contrast'),
+                    dyslexia: document.getElementById('toggle-dyslexia'),
+                    animations: document.getElementById('toggle-animations'),
+                    sounds: document.getElementById('toggle-sounds')
+                }
+            };
+
+            // State Management
+            const state = {
+                timer: {
+                    interval: null,
+                    timeLeft: 25 * 60,
+                    isRunning: false,
+                    defaultTime: 25 * 60
+                },
+                tasks: JSON.parse(localStorage.getItem('tasks')) || [],
+                notes: localStorage.getItem('notes') || '',
+                settings: JSON.parse(localStorage.getItem('settings')) || {
+                    highContrast: false,
+                    dyslexiaFont: false,
+                    reduceAnimations: false,
+                    muteSounds: false
+                }
+            };
+
+            // Initialize
+            function init() {
+                updateCurrentDate();
+                loadTasks();
+                loadNotes();
+                applySettings();
+                setupEventListeners();
+                updateTaskStats();
+            }
+
+            // Update current date display
+            function updateCurrentDate() {
+                const now = new Date();
+                const options = { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                };
+                elements.currentDate.textContent = now.toLocaleDateString('en-US', options);
+            }
+
+            // Timer Functions
+            function updateTimerDisplay() {
+                const minutes = Math.floor(state.timer.timeLeft / 60);
+                let seconds = state.timer.timeLeft % 60;
+                seconds = seconds < 10 ? '0' + seconds : seconds;
+                elements.timer.textContent = `${minutes}:${seconds}`;
+                
+                // Visual feedback when time is low
+                if (state.timer.timeLeft < 60) {
+                    elements.timer.classList.add('pulse');
+                } else {
+                    elements.timer.classList.remove('pulse');
+                }
+            }
+
+            function startTimer() {
+                if (state.timer.interval) return;
+                
+                state.timer.isRunning = true;
+                elements.toggleFocus.innerHTML = '<span>⏸</span> Stop Focus Timer';
+                elements.focusMessage.textContent = 'Focus time! You got this!';
+                elements.focusMessage.style.color = '#27ae60';
+                
+                state.timer.interval = setInterval(() => {
+                    state.timer.timeLeft--;
+                    updateTimerDisplay();
+                    
+                    if (state.timer.timeLeft <= 0) {
+                        clearInterval(state.timer.interval);
+                        state.timer.interval = null;
+                        elements.focusMessage.textContent = '🎉 Time for a break! Well done!';
+                        elements.focusMessage.style.color = '#e74c3c';
+                        elements.toggleFocus.innerHTML = '<span>▶</span> Start Focus Timer';
+                        playSound('complete');
+                    }
+                }, 1000);
+            }
+
+            function stopTimer() {
+                if (state.timer.interval) {
+                    clearInterval(state.timer.interval);
+                    state.timer.interval = null;
+                }
+                state.timer.isRunning = false;
+                elements.toggleFocus.innerHTML = '<span>▶</span> Start Focus Timer';
+                elements.focusMessage.textContent = 'Timer stopped. Ready when you are!';
+                elements.focusMessage.style.color = '';
+            }
+
+            function resetTimer() {
+                stopTimer();
+                state.timer.timeLeft = state.timer.defaultTime;
+                updateTimerDisplay();
+                elements.focusMessage.textContent = 'Timer reset to 25:00';
+            }
+
+            function setTimer(minutes) {
+                stopTimer();
+                state.timer.timeLeft = minutes * 60;
+                state.timer.defaultTime = minutes * 60;
+                updateTimerDisplay();
+                elements.focusMessage.textContent = `Timer set to ${minutes} minutes`;
+            }
+
+            // Task Management
+            function loadTasks() {
+                elements.taskList.innerHTML = '';
+                state.tasks.forEach((task, index) => {
+                    addTaskToDOM(task.text, task.completed, index);
+                });
+            }
+
+            function addTaskToDOM(text, completed = false, index = null) {
+                const li = document.createElement('li');
+                li.dataset.index = index !== null ? index : state.tasks.length;
+                
+                const taskText = document.createElement('span');
+                taskText.textContent = text;
+                if (completed) {
+                    taskText.classList.add('task-complete');
+                }
+                
+                const actions = document.createElement('div');
+                actions.className = 'task-actions';
+                
+                const completeBtn = document.createElement('button');
+                completeBtn.className = 'small';
+                completeBtn.innerHTML = completed ? '↺ Undo' : '✓ Done';
+                completeBtn.onclick = () => toggleTaskComplete(li.dataset.index);
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'small danger';
+                deleteBtn.textContent = '✗';
+                deleteBtn.onclick = () => deleteTask(li.dataset.index);
+                
+                actions.appendChild(completeBtn);
+                actions.appendChild(deleteBtn);
+                
+                li.appendChild(taskText);
+                li.appendChild(actions);
+                elements.taskList.appendChild(li);
+            }
+
+            function addTask() {
+                const text = elements.newTask.value.trim();
+                if (!text) return;
+                
+                const task = { text, completed: false };
+                state.tasks.push(task);
+                addTaskToDOM(text, false, state.tasks.length - 1);
+                elements.newTask.value = '';
+                saveTasks();
+                updateTaskStats();
+                playSound('add');
+            }
+
+            function toggleTaskComplete(index) {
+                state.tasks[index].completed = !state.tasks[index].completed;
+                saveTasks();
+                loadTasks();
+                updateTaskStats();
+                playSound('complete');
+            }
+
+            function deleteTask(index) {
+                state.tasks.splice(index, 1);
+                saveTasks();
+                loadTasks();
+                updateTaskStats();
+                playSound('delete');
+            }
+
+            function saveTasks() {
+                localStorage.setItem('tasks', JSON.stringify(state.tasks));
+            }
+
+            function updateTaskStats() {
+                const total = state.tasks.length;
+                const completed = state.tasks.filter(t => t.completed).length;
+                elements.totalTasks.textContent = total;
+                elements.completedTasks.textContent = completed;
+            }
+
+            // Notes Management
+            function loadNotes() {
+                elements.notesArea.value = state.notes;
+                updateCharCount();
+                
+                // Auto-save notes
+                let saveTimeout;
+                elements.notesArea.addEventListener('input', () => {
+                    clearTimeout(saveTimeout);
+                    saveTimeout = setTimeout(() => {
+                        state.notes = elements.notesArea.value;
+                        localStorage.setItem('notes', state.notes);
+                        updateCharCount();
+                    }, 5000);
+                });
+            }
+
+            function updateCharCount() {
+                elements.charCount.textContent = elements.notesArea.value.length;
+            }
+
+            // Calendar Functions
+            function generateCalendar() {
+                const calendarDiv = document.getElementById('calendar');
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = now.getMonth();
+                
+                const firstDay = new Date(year, month, 1);
+                const lastDay = new Date(year, month + 1, 0);
+                const daysInMonth = lastDay.getDate();
+                
+                let calendarHTML = `
+                    <div style="width: 100%;">
+                        <h3>${now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h3>
+                        <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 10px;">
+                `;
+                
+                // Day headers
+                const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                days.forEach(day => {
+                    calendarHTML += `<div style="text-align: center; font-weight: bold; padding: 5px;">${day}</div>`;
+                });
+                
+                // Empty cells for days before the first day
+                for (let i = 0; i < firstDay.getDay(); i++) {
+                    calendarHTML += `<div style="padding: 5px;"></div>`;
+                }
+                
+                // Days of the month
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const isToday = day === now.getDate() && month === now.getMonth();
+                    calendarHTML += `
+                        <div style="
+                            text-align: center; 
+                            padding: 8px; 
+                            border-radius: 4px;
+                            background: ${isToday ? '#3498db' : '#f8f9fa'};
+                            color: ${isToday ? 'white' : 'black'};
+                            font-weight: ${isToday ? 'bold' : 'normal'};
+                        ">
+                            ${day}
+                        </div>
+                    `;
+                }
+                
+                calendarHTML += `</div></div>`;
+                calendarDiv.innerHTML = calendarHTML;
+            }
+
+            // Accessibility Functions
+            function applySettings() {
+                const { highContrast, dyslexiaFont, reduceAnimations, muteSounds } = state.settings;
+                
+                if (highContrast) {
+                    document.body.classList.add('high-contrast');
+                    elements.accessibilityButtons.contrast.textContent = 'Normal Contrast';
+                }
+                
+                if (dyslexiaFont) {
+                    document.body.classList.add('dyslexia-friendly');
+                    elements.accessibilityButtons.dyslexia.textContent = 'Standard Font';
+                }
+                
+                if (reduceAnimations) {
+                    document.body.style.animation = 'none';
+                    elements.accessibilityButtons.animations.textContent = 'Enable Animations';
+                }
+                
+                if (muteSounds) {
+                    elements.accessibilityButtons.sounds.textContent = 'Enable Sounds';
+                }
+            }
+
+            function toggleSetting(setting) {
+                state.settings[setting] = !state.settings[setting];
+                localStorage.setItem('settings', JSON.stringify(state.settings));
+                applySettings();
+                location.reload(); // Simple way to apply all changes
+            }
+
+            // Sound Functions
+            function playSound(type) {
+                if (state.settings.muteSounds) return;
+                
+                // Simple sound simulation (in a real app, you'd use actual audio files)
+                console.log(`Playing ${type} sound`);
+            }
+
+            // Event Listeners
+            function setupEventListeners() {
+                // Timer controls
+                elements.toggleFocus.addEventListener('click', () => {
+                    if (state.timer.isRunning) {
+                        stopTimer();
+                    } else {
+                        startTimer();
+                    }
+                });
+                
+                elements.resetTimer.addEventListener('click', resetTimer);
+                
+                elements.shortBreak.addEventListener('click', () => {
+                    setTimer(5);
+                    elements.focusMessage.textContent = 'Taking a 5-minute break...';
+                });
+                
+                // Timer presets
+                elements.timerPresets.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const minutes = parseInt(btn.dataset.minutes);
+                        setTimer(minutes);
+                    });
+                });
+                
+                // Task controls
+                elements.addTask.addEventListener('click', addTask);
+                
+                elements.newTask.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        addTask();
+                    }
+                });
+                
+                // Calendar
+                elements.generateCalendar.addEventListener('click', generateCalendar);
+                
+                // Accessibility
+                elements.accessibilityButtons.contrast.addEventListener('click', () => toggleSetting('highContrast'));
+                elements.accessibilityButtons.dyslexia.addEventListener('click', () => toggleSetting('dyslexiaFont'));
+                elements.accessibilityButtons.animations.addEventListener('click', () => toggleSetting('reduceAnimations'));
+                elements.accessibilityButtons.sounds.addEventListener('click', () => toggleSetting('muteSounds'));
+                
+                // Auto-save notes on blur
+                elements.notesArea.addEventListener('blur', () => {
+                    state.notes = elements.notesArea.value;
+                    localStorage.setItem('notes', state.notes);
+                });
+            }
+
+            // Initialize the application
+            document.addEventListener('DOMContentLoaded', init);
+        })();
+    </script>
+</body>
+</html>

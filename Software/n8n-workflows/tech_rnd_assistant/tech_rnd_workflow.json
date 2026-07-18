@@ -1,0 +1,273 @@
+{
+  "name": "🔬 Tech R&D Assistant — Research, Design & Build Plan",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 🔬 Tech R&D AI Assistant\n**Model-agnostic · Tavily-researched**\n\nThree-agent pipeline that researches a technology, designs a concrete architecture for it, and produces a phased build roadmap — for inventing/prototyping new tech, not just summarizing existing tech.\n\n**Pipeline:** Form → Research Agent → Systems Architect Agent → Dev Roadmap Agent → Compile Report",
+        "height": 240,
+        "width": 460,
+        "color": 7
+      },
+      "id": "rd-note-about",
+      "name": "📋 About",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-80, 60]
+    },
+    {
+      "parameters": {
+        "content": "## ⚙️ One-Time Setup\n\n**1 · Chat Model credential**\nAll 3 LLM nodes ship as `lmChatOpenAi`. Swap the node type for `lmChatAnthropic` / `lmChatGoogleGemini` to change providers.\n\n**2 · Tavily API key**\nCredentials → New → `Tavily API` (free tier at tavily.com). Attach to `🌐 Tavily Web Search`.\n\n**3 · Wikipedia tool**\nNo credential needed.\n\n**4 · Publishing**\nEnds at `📄 Compile R&D Report`. Add Google Docs / Notion / Gmail / Slack after it if you want auto-delivery.\n\n**5 · Activate** and open the Form Trigger URL.",
+        "height": 320,
+        "width": 460,
+        "color": 3
+      },
+      "id": "rd-note-setup",
+      "name": "⚙️ Setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-80, 380]
+    },
+    {
+      "parameters": {
+        "formTitle": "🔬 Tech R&D Request",
+        "formDescription": "Describe the technology area you want researched, designed, and turned into a build plan.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Technology / Research Topic",
+              "fieldType": "textarea",
+              "requiredField": true,
+              "placeholder": "e.g. On-device speech-to-intent model for low-power IoT sensors"
+            },
+            {
+              "fieldLabel": "Goal",
+              "fieldType": "dropdown",
+              "requiredField": true,
+              "fieldOptions": {
+                "values": [
+                  { "option": "Pure Research (state of the art survey)" },
+                  { "option": "Prototype Spec (architecture + PoC plan)" },
+                  { "option": "Full Build Plan (architecture + phased roadmap)" }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Research Depth",
+              "fieldType": "dropdown",
+              "requiredField": false,
+              "fieldOptions": {
+                "values": [
+                  { "option": "Standard" },
+                  { "option": "Deep" }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Constraints (budget, hardware, timeline, team size)",
+              "fieldType": "textarea",
+              "requiredField": false,
+              "placeholder": "e.g. $5k budget, 2 engineers, must run on ARM Cortex-M4, 3-month deadline"
+            }
+          ]
+        },
+        "options": {
+          "path": "tech-rnd-request",
+          "responseMode": "lastNode"
+        }
+      },
+      "id": "rd-form-trigger",
+      "name": "🔬 R&D Request Form",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2,
+      "position": [400, 400],
+      "webhookId": "tech-rnd-request-001"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "rd-f1", "name": "topic", "value": "={{ $json['Technology / Research Topic'] }}", "type": "string" },
+            { "id": "rd-f2", "name": "goal", "value": "={{ $json['Goal'] }}", "type": "string" },
+            { "id": "rd-f3", "name": "depth", "value": "={{ $json['Research Depth'] || 'Standard' }}", "type": "string" },
+            { "id": "rd-f4", "name": "constraints", "value": "={{ $json['Constraints (budget, hardware, timeline, team size)'] || 'None specified' }}", "type": "string" },
+            { "id": "rd-f5", "name": "timestamp", "value": "={{ $now.format('yyyy-MM-dd HH:mm:ss') }}", "type": "string" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "rd-set-context",
+      "name": "⚙️ Prepare Context",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [680, 400]
+    },
+    {
+      "parameters": {
+        "model": { "__rl": true, "value": "gpt-4o", "mode": "list", "cachedResultName": "gpt-4o" },
+        "options": { "temperature": 0.2, "maxTokens": 4096, "timeout": 150000 }
+      },
+      "id": "rd-llm-research",
+      "name": "🧠 Research LLM (swap provider here)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [680, 180],
+      "credentials": {
+        "openAiApi": { "id": "REPLACE_WITH_YOUR_LLM_CREDENTIAL_ID", "name": "OpenAI API" }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Search the live web for current, detailed technical information: papers, docs, GitHub repos, benchmarks, tutorials, product releases."
+      },
+      "id": "rd-tool-tavily",
+      "name": "🌐 Tavily Web Search",
+      "type": "@n8n/n8n-nodes-langchain.toolTavilySearch",
+      "typeVersion": 1,
+      "position": [860, 180],
+      "credentials": {
+        "tavilyApi": { "id": "REPLACE_WITH_YOUR_TAVILY_CREDENTIAL_ID", "name": "Tavily API" }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Search Wikipedia for foundational scientific/engineering principles and background on the technology."
+      },
+      "id": "rd-tool-wikipedia",
+      "name": "📖 Wikipedia Search",
+      "type": "@n8n/n8n-nodes-langchain.toolWikipedia",
+      "typeVersion": 1,
+      "position": [1040, 180]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=RESEARCH MISSION\nTopic: {{ $json.topic }}\nGoal: {{ $json.goal }}\nDepth: {{ $json.depth }}\nConstraints: {{ $json.constraints }}\n\nConduct a rigorous scientific and engineering research investigation. Perform 6-10 distinct targeted searches covering: state of the art, fundamental principles, existing implementations/OSS, technical challenges/unsolved problems, recent breakthroughs, benchmarks, and real-world deployments.",
+        "options": {
+          "systemMessage": "You are an expert scientific and engineering research assistant. Follow this protocol: (1) Literature survey — current state of the art and recent papers, (2) Technology landscape — existing solutions, OSS, frameworks, (3) Technical analysis — mechanisms, parameters, benchmarks, (4) Challenge identification — limitations, bottlenecks, failure modes, (5) Frontier mapping — emerging approaches and future directions.\n\nBe exhaustive and precise. Every claim needs a source.\n\nOUTPUT FORMAT — end your answer with exactly these two sections:\n\n### RESEARCH SUMMARY\n(Organized findings by category, with technical details, specs, and data points.)\n\n### SOURCES\n(A markdown bullet list of every source used, formatted as [Title](URL). This section is machine-parsed downstream — do not omit it.)",
+          "maxIterations": 10,
+          "returnIntermediateSteps": false
+        }
+      },
+      "id": "rd-agent-research",
+      "name": "🔍 Research Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [960, 400]
+    },
+    {
+      "parameters": {
+        "model": { "__rl": true, "value": "gpt-4o", "mode": "list", "cachedResultName": "gpt-4o" },
+        "options": { "temperature": 0.3, "maxTokens": 4096, "timeout": 150000 }
+      },
+      "id": "rd-llm-architect",
+      "name": "🧠 Architect LLM (swap provider here)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [1280, 180],
+      "credentials": {
+        "openAiApi": { "id": "REPLACE_WITH_YOUR_LLM_CREDENTIAL_ID", "name": "OpenAI API" }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Based on this research, design the technology.\n\nTOPIC: {{ $('⚙️ Prepare Context').item.json.topic }}\nGOAL: {{ $('⚙️ Prepare Context').item.json.goal }}\nCONSTRAINTS: {{ $('⚙️ Prepare Context').item.json.constraints }}\n\nRESEARCH FINDINGS:\n{{ $json.output }}\n\nProduce:\n1. Two or three candidate architectures/approaches, each with a text/ASCII diagram, key components, advantages, disadvantages, and feasibility rating given the stated constraints\n2. A recommended approach with justification\n3. Full technology stack (languages, frameworks, hardware) for the recommendation\n4. Key technical parameters, thresholds, and specifications the design must hit\n5. Known risks and open engineering questions",
+        "options": {
+          "systemMessage": "You are a senior systems architect and R&D engineer. Turn research into a concrete, buildable technical design — not a summary. Every recommendation must be justified against the stated constraints (budget, hardware, timeline, team size). Use markdown headers, tables, and text/ASCII diagrams where useful. No vague generalities — be specific about components, interfaces, and technical parameters.",
+          "maxIterations": 3,
+          "returnIntermediateSteps": false
+        }
+      },
+      "id": "rd-agent-architect",
+      "name": "🏗️ Systems Architect Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [1280, 400]
+    },
+    {
+      "parameters": {
+        "model": { "__rl": true, "value": "gpt-4o", "mode": "list", "cachedResultName": "gpt-4o" },
+        "options": { "temperature": 0.3, "maxTokens": 4096, "timeout": 150000 }
+      },
+      "id": "rd-llm-roadmap",
+      "name": "🧠 Roadmap LLM (swap provider here)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [1880, 180],
+      "credentials": {
+        "openAiApi": { "id": "REPLACE_WITH_YOUR_LLM_CREDENTIAL_ID", "name": "OpenAI API" }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Turn this architecture into an actionable build plan.\n\nGOAL: {{ $('⚙️ Prepare Context').item.json.goal }}\nCONSTRAINTS: {{ $('⚙️ Prepare Context').item.json.constraints }}\n\nARCHITECTURE & DESIGN:\n{{ $json.output }}\n\nProduce:\n1. A phased roadmap: Proof of Concept → MVP → Alpha → Beta → Production, each with concrete tasks and rough time estimates that respect the stated timeline/team size\n2. A risk table: risk, severity, probability, mitigation\n3. Required skills/tools/resources per phase\n4. Concrete next steps for this week, this month, and this quarter\n\nIf the Goal was 'Pure Research', keep the roadmap lightweight (research → validation experiments only) rather than a full production plan.",
+        "options": {
+          "systemMessage": "You are a technical program manager turning architecture into an executable roadmap. Be concrete — a team should be able to start Monday morning from this plan. Use markdown tables and checklists. Respect stated constraints; do not propose a 6-month plan for a stated 3-month deadline.",
+          "maxIterations": 3,
+          "returnIntermediateSteps": false
+        }
+      },
+      "id": "rd-agent-roadmap",
+      "name": "🗺️ Dev Roadmap Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [1880, 400]
+    },
+    {
+      "parameters": {
+        "content": "## 📄 Output Stage\nCompiles Research + Architecture + Roadmap into one report, pulling `### SOURCES` straight from the raw Research Agent output so citations survive.\n\nExtend with Google Docs / Notion / Slack / Gmail after this node.",
+        "height": 200,
+        "width": 300,
+        "color": 6
+      },
+      "id": "rd-note-output",
+      "name": "📤 Output Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [2400, 60]
+    },
+    {
+      "parameters": {
+        "jsCode": "const cfg = $('⚙️ Prepare Context').item.json;\nconst research = $('🔍 Research Agent').item.json.output || '';\nconst architecture = $('🏗️ Systems Architect Agent').item.json.output || '';\nconst roadmap = $input.first().json.output || '';\n\nlet sources = '_No structured sources returned — verify claims manually._';\nconst split = research.split(/###\\s*SOURCES/i);\nif (split.length > 1) sources = split[1].trim();\n\nlet researchSummary = research;\nconst summarySplit = research.split(/###\\s*SOURCES/i);\nif (summarySplit.length > 1) researchSummary = summarySplit[0].trim();\n\nconst finalMarkdown = `# Tech R&D Report: ${cfg.topic}\\n\\n*Goal: ${cfg.goal} · Generated: ${cfg.timestamp}*\\n\\n---\\n\\n## 1. Research Findings\\n\\n${researchSummary}\\n\\n---\\n\\n## 2. Architecture & Design\\n\\n${architecture}\\n\\n---\\n\\n## 3. Build Roadmap\\n\\n${roadmap}\\n\\n---\\n\\n## Sources\\n\\n${sources}\\n`;\n\nconst wordCount = finalMarkdown.split(/\\s+/).filter(Boolean).length;\n\nreturn [{\n  json: {\n    topic: cfg.topic,\n    goal: cfg.goal,\n    generated_date: cfg.timestamp,\n    word_count: wordCount,\n    final_markdown: finalMarkdown\n  }\n}];"
+      },
+      "id": "rd-code-compile",
+      "name": "📄 Compile R&D Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2400, 400]
+    }
+  ],
+  "connections": {
+    "🔬 R&D Request Form": { "main": [[{ "node": "⚙️ Prepare Context", "type": "main", "index": 0 }]] },
+    "⚙️ Prepare Context": { "main": [[{ "node": "🔍 Research Agent", "type": "main", "index": 0 }]] },
+    "🧠 Research LLM (swap provider here)": { "ai_languageModel": [[{ "node": "🔍 Research Agent", "type": "ai_languageModel", "index": 0 }]] },
+    "🌐 Tavily Web Search": { "ai_tool": [[{ "node": "🔍 Research Agent", "type": "ai_tool", "index": 0 }]] },
+    "📖 Wikipedia Search": { "ai_tool": [[{ "node": "🔍 Research Agent", "type": "ai_tool", "index": 0 }]] },
+    "🔍 Research Agent": { "main": [[{ "node": "🏗️ Systems Architect Agent", "type": "main", "index": 0 }]] },
+    "🧠 Architect LLM (swap provider here)": { "ai_languageModel": [[{ "node": "🏗️ Systems Architect Agent", "type": "ai_languageModel", "index": 0 }]] },
+    "🏗️ Systems Architect Agent": { "main": [[{ "node": "🗺️ Dev Roadmap Agent", "type": "main", "index": 0 }]] },
+    "🧠 Roadmap LLM (swap provider here)": { "ai_languageModel": [[{ "node": "🗺️ Dev Roadmap Agent", "type": "ai_languageModel", "index": 0 }]] },
+    "🗺️ Dev Roadmap Agent": { "main": [[{ "node": "📄 Compile R&D Report", "type": "main", "index": 0 }]] }
+  },
+  "pinData": {},
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  },
+  "versionId": "v2.0.0-tech-rnd",
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "tech-rnd-assistant"
+  },
+  "id": "tech-rnd-assistant-v2",
+  "tags": [
+    { "name": "R&D" },
+    { "name": "research" },
+    { "name": "engineering" },
+    { "name": "automation" }
+  ]
+}

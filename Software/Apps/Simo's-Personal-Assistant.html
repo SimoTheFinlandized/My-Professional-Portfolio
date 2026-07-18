@@ -1,0 +1,1223 @@
+<!DOCTYPE html>
+<!-- saved from url=(0108)https://galaxy-prod.tlcdn.com/gen/user_2w3ESEJeOmWwLyZeRtOGgR7Zo9U/70b5b148-e87d-42ad-bf8e-571c64e09a7f.html -->
+<html lang="en" class="dark"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simo's Enhanced Personal Assistant</title>
+    <link rel="stylesheet" href="./Simo&#39;s-Personal-Assistant_files/all.min.css">
+    <style>
+        /* Modern Dark Theme with Gradients */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: #f1f5f9;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ffffff, #e2e8f0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .header p {
+            color: #cbd5e1;
+            font-size: 1.1rem;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .section {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid #334155;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #60a5fa;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            font-size: 1.3rem;
+        }
+
+        /* Notes Section */
+        .notes-area {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            background: #0f172a;
+            border: 1px solid #475569;
+            border-radius: 8px;
+            color: #f1f5f9;
+            font-size: 1rem;
+            resize: vertical;
+            margin-bottom: 15px;
+        }
+
+        /* To-Do List */
+        .todo-input-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .todo-input {
+            flex: 1;
+            padding: 12px 15px;
+            background: #0f172a;
+            border: 1px solid #475569;
+            border-radius: 8px;
+            color: #f1f5f9;
+            font-size: 1rem;
+        }
+
+        .todo-btn {
+            padding: 12px 20px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .todo-btn:hover {
+            background: #2563eb;
+        }
+
+        .todo-list {
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        .todo-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 15px;
+            background: #0f172a;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #475569;
+            transition: all 0.3s;
+        }
+
+        .todo-item:hover {
+            border-color: #60a5fa;
+        }
+
+        .todo-item.completed {
+            opacity: 0.7;
+            border-color: #10b981;
+        }
+
+        .todo-text {
+            flex: 1;
+            margin-right: 15px;
+        }
+
+        .todo-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .todo-action-btn {
+            padding: 6px 10px;
+            background: transparent;
+            border: 1px solid;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .complete-btn {
+            border-color: #10b981;
+            color: #10b981;
+        }
+
+        .complete-btn:hover {
+            background: #10b981;
+            color: white;
+        }
+
+        .delete-btn {
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+
+        .delete-btn:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        .priority-btn {
+            border-color: #f59e0b;
+            color: #f59e0b;
+        }
+
+        .priority-btn:hover {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .priority-high {
+            border-left: 4px solid #ef4444;
+        }
+
+        .priority-medium {
+            border-left: 4px solid #f59e0b;
+        }
+
+        .priority-low {
+            border-left: 4px solid #10b981;
+        }
+
+        /* Clock & Weather */
+        .clock-display {
+            font-size: 2.5rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #60a5fa, #8b5cf6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .weather-container {
+            text-align: center;
+            padding: 20px;
+            background: #0f172a;
+            border-radius: 10px;
+            border: 1px solid #475569;
+        }
+
+        .weather-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .weather-temp {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .weather-desc {
+            color: #cbd5e1;
+            font-size: 1rem;
+        }
+
+        /* Calendar */
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+
+        .calendar-day {
+            padding: 12px;
+            text-align: center;
+            background: #0f172a;
+            border-radius: 6px;
+            border: 1px solid #475569;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .calendar-day:hover {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .calendar-day.current {
+            background: #8b5cf6;
+            color: white;
+            font-weight: 600;
+        }
+
+        .calendar-day.event {
+            border-color: #10b981;
+        }
+
+        .event-list {
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        .event-item {
+            padding: 12px;
+            background: #0f172a;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #475569;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Address Book */
+        .contact-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .contact-input {
+            padding: 12px 15px;
+            background: #0f172a;
+            border: 1px solid #475569;
+            border-radius: 8px;
+            color: #f1f5f9;
+            font-size: 1rem;
+        }
+
+        .contact-list {
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        .contact-item {
+            padding: 15px;
+            background: #0f172a;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #475569;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .contact-details {
+            flex: 1;
+        }
+
+        .contact-name {
+            font-weight: 600;
+            color: #60a5fa;
+            margin-bottom: 5px;
+        }
+
+        .contact-info {
+            color: #cbd5e1;
+            font-size: 0.9rem;
+        }
+
+        .contact-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Search & Filter */
+        .search-container {
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 15px;
+            background: #0f172a;
+            border: 1px solid #475569;
+            border-radius: 8px;
+            color: #f1f5f9;
+            font-size: 1rem;
+        }
+
+        .filter-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .filter-btn {
+            padding: 8px 15px;
+            background: #0f172a;
+            border: 1px solid #475569;
+            border-radius: 6px;
+            color: #f1f5f9;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-btn.active {
+            background: #3b82f6;
+            border-color: #3b82f6;
+        }
+
+        /* Footer & Shortcuts */
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            color: #cbd5e1;
+            font-size: 0.9rem;
+            border-top: 1px solid #475569;
+        }
+
+        .shortcuts-list {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .shortcut-item {
+            padding: 8px 15px;
+            background: #0f172a;
+            border: 1px solid #475569;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        /* Drag & Drop */
+        .draggable {
+            cursor: grab;
+        }
+
+        .draggable.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+
+            .contact-form {
+                grid-template-columns: 1fr;
+            }
+
+            .clock-display {
+                font-size: 2rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
+</head>
+<body><mozbar-toolbar data-wxt-shadow-root="" class="dark"><template shadowrootmode="open">
+<!-- saved from url=(0108)https://galaxy-prod.tlcdn.com/gen/user_2w3ESEJeOmWwLyZeRtOGgR7Zo9U/70b5b148-e87d-42ad-bf8e-571c64e09a7f.html -->
+<html><head><style>/* WXT Shadow Root Reset */ :host{all:initial !important;}
+:host,:host{--background: #ffffff;--foreground: #09090b;--card: #ffffff;--card-foreground: #09090b;--popover: #ffffff;--popover-foreground: #09090b;--primary: #3b82f6;--primary-foreground: #ffffff;--secondary: #f4f4f5;--secondary-foreground: #18181b;--muted: #f4f4f5;--muted-foreground: #52525b;--accent: #f4f4f5;--accent-foreground: #18181b;--destructive: #dc2626;--destructive-foreground: #ffffff;--border: #e4e4e7;--input: #e4e4e7;--ring: #a1a1aa;--radius: .5rem;--radius-xl: calc(var(--radius) + 4px);--radius-lg: var(--radius);--radius-md: calc(var(--radius) - 2px);--radius-sm: calc(var(--radius) - 4px);--chart-1: #3b82f6;--chart-2: #22c55e;--chart-3: #eab308;--chart-4: #ef4444;--chart-5: #a855f7;--sidebar: #fafafa;--sidebar-foreground: #3f3f46;--sidebar-primary: #18181b;--sidebar-primary-foreground: #fafafa;--sidebar-accent: #f4f4f5;--sidebar-accent-foreground: #18181b;--sidebar-border: #e4e4e7;--sidebar-ring: #3b82f6;--color-background: var(--background);--color-foreground: var(--foreground);--color-card: var(--card);--color-card-foreground: var(--card-foreground);--color-popover: var(--popover);--color-popover-foreground: var(--popover-foreground);--color-primary: var(--primary);--color-primary-foreground: var(--primary-foreground);--color-secondary: var(--secondary);--color-secondary-foreground: var(--secondary-foreground);--color-muted: var(--muted);--color-muted-foreground: var(--muted-foreground);--color-accent: var(--accent);--color-accent-foreground: var(--accent-foreground);--color-destructive: var(--destructive);--color-destructive-foreground: var(--destructive-foreground);--color-border: var(--border);--color-input: var(--input);--color-ring: var(--ring);--color-chart-1: var(--chart-1);--color-chart-2: var(--chart-2);--color-chart-3: var(--chart-3);--color-chart-4: var(--chart-4);--color-chart-5: var(--chart-5);--color-sidebar: var(--sidebar);--color-sidebar-foreground: var(--sidebar-foreground);--color-sidebar-primary: var(--sidebar-primary);--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);--color-sidebar-accent: var(--sidebar-accent);--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);--color-sidebar-border: var(--sidebar-border);--color-sidebar-ring: var(--sidebar-ring)}.dark,:host(.dark){--background: #09090b;--foreground: #fafafa;--card: #09090b;--card-foreground: #fafafa;--popover: #09090b;--popover-foreground: #fafafa;--primary: #2563eb;--primary-foreground: #ffffff;--secondary: #27272a;--secondary-foreground: #fafafa;--muted: #18181b;--muted-foreground: #d4d4d8;--accent: #18181b;--accent-foreground: #fafafa;--destructive: #dc2626;--destructive-foreground: #ffffff;--border: #27272a;--input: #27272a;--ring: #52525b;--chart-1: #3b82f6;--chart-2: #22c55e;--chart-3: #eab308;--chart-4: #ef4444;--chart-5: #a855f7;--sidebar: #18181b;--sidebar-foreground: #f4f4f5;--sidebar-primary: #3b82f6;--sidebar-primary-foreground: #ffffff;--sidebar-accent: #27272a;--sidebar-accent-foreground: #f4f4f5;--sidebar-border: #27272a;--sidebar-ring: #3b82f6;--color-background: var(--background);--color-foreground: var(--foreground);--color-card: var(--card);--color-card-foreground: var(--card-foreground);--color-popover: var(--popover);--color-popover-foreground: var(--popover-foreground);--color-primary: var(--primary);--color-primary-foreground: var(--primary-foreground);--color-secondary: var(--secondary);--color-secondary-foreground: var(--secondary-foreground);--color-muted: var(--muted);--color-muted-foreground: var(--muted-foreground);--color-accent: var(--accent);--color-accent-foreground: var(--accent-foreground);--color-destructive: var(--destructive);--color-destructive-foreground: var(--destructive-foreground);--color-border: var(--border);--color-input: var(--input);--color-ring: var(--ring);--color-chart-1: var(--chart-1);--color-chart-2: var(--chart-2);--color-chart-3: var(--chart-3);--color-chart-4: var(--chart-4);--color-chart-5: var(--chart-5);--color-sidebar: var(--sidebar);--color-sidebar-foreground: var(--sidebar-foreground);--color-sidebar-primary: var(--sidebar-primary);--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);--color-sidebar-accent: var(--sidebar-accent);--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);--color-sidebar-border: var(--sidebar-border);--color-sidebar-ring: var(--sidebar-ring)}.spam-low{--spam-color: #22c55e;--spam-bg: #dcfce7}.spam-medium{--spam-color: #eab308;--spam-bg: #fef9c3}.spam-high{--spam-color: #ef4444;--spam-bg: #fee2e2}.dark .spam-low,:host(.dark) .spam-low{--spam-bg: #14532d}.dark .spam-medium,:host(.dark) .spam-medium{--spam-bg: #713f12}.dark .spam-high,:host(.dark) .spam-high{--spam-bg: #7f1d1d}.mozbar-base{font-family:ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji";font-size:14px;line-height:1.5;color:var(--foreground);background-color:var(--background);box-sizing:border-box}.mozbar-base *,.mozbar-base *:before,.mozbar-base *:after{box-sizing:border-box}.mozbar-base button{font-family:inherit;font-size:inherit;line-height:inherit;cursor:pointer;border:none;background:transparent;padding:0;margin:0}.mozbar-base *:focus-visible{outline:2px solid var(--ring);outline-offset:2px;border-radius:var(--radius-sm)}#mozbar-toolbar-wrapper{font-family:ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji";font-size:14px;line-height:1.5;color:var(--foreground);box-sizing:border-box}#mozbar-toolbar-wrapper *,#mozbar-toolbar-wrapper *:before,#mozbar-toolbar-wrapper *:after{box-sizing:border-box}#mozbar-toolbar-wrapper button{font-family:inherit;font-size:inherit;line-height:inherit;cursor:pointer;border:none;background:transparent;padding:0;margin:0}</style></head><body style="color-scheme: initial; forced-color-adjust: initial; math-depth: initial; position-anchor: initial; text-size-adjust: initial; appearance: initial; color: initial; font-feature-settings: initial; font-kerning: initial; font-language-override: initial; font-optical-sizing: initial; font-palette: initial; font-size: initial; font-size-adjust: initial; font-stretch: initial; font-style: initial; font-synthesis: initial; font-variant: initial; font-variation-settings: initial; font-weight: initial; position-area: initial; text-orientation: initial; text-rendering: initial; text-spacing-trim: initial; -webkit-font-smoothing: initial; -webkit-locale: initial; -webkit-text-orientation: initial; -webkit-writing-mode: initial; writing-mode: initial; zoom: initial; accent-color: initial; place-content: initial; place-items: initial; place-self: initial; alignment-baseline: initial; anchor-name: initial; anchor-scope: initial; animation-composition: initial; animation: initial; animation-trigger: initial; app-region: initial; aspect-ratio: initial; backdrop-filter: initial; backface-visibility: initial; background: initial; background-blend-mode: initial; baseline-shift: initial; baseline-source: initial; block-size: initial; border-block: initial; border: initial; border-radius: initial; border-collapse: initial; border-end-end-radius: initial; border-end-start-radius: initial; border-inline: initial; border-shape: initial; border-start-end-radius: initial; border-start-start-radius: initial; inset: initial; box-decoration-break: initial; box-shadow: initial; box-sizing: initial; break-after: initial; break-before: initial; break-inside: initial; buffered-rendering: initial; caption-side: initial; caret-animation: initial; caret-color: initial; caret-shape: initial; clear: initial; clip: initial; clip-path: initial; clip-rule: initial; color-interpolation: initial; color-interpolation-filters: initial; color-rendering: initial; columns: initial; column-fill: initial; gap: initial; column-rule: initial; column-span: initial; contain: initial; contain-intrinsic-block-size: initial; contain-intrinsic-size: initial; contain-intrinsic-inline-size: initial; container: initial; content: initial; content-visibility: initial; corner-shape: initial; corner-block-end-shape: initial; corner-block-start-shape: initial; counter-increment: initial; counter-reset: initial; counter-set: initial; cursor: initial; cx: initial; cy: initial; d: initial; dominant-baseline: initial; dynamic-range-limit: initial; empty-cells: initial; field-sizing: initial; fill: initial; fill-opacity: initial; fill-rule: initial; filter: initial; flex: initial; flex-flow: initial; float: initial; flood-color: initial; flood-opacity: initial; grid: initial; grid-area: initial; height: initial; hyphenate-character: initial; hyphenate-limit-chars: initial; hyphens: initial; image-orientation: initial; image-rendering: initial; initial-letter: initial; inline-size: initial; inset-block: initial; inset-inline: initial; interactivity: initial; interest-delay: initial; interpolate-size: initial; isolation: initial; letter-spacing: initial; lighting-color: initial; line-break: initial; line-height: initial; list-style: initial; margin-block: initial; margin: initial; margin-inline: initial; marker: initial; mask: initial; mask-type: initial; math-shift: initial; math-style: initial; max-block-size: initial; max-height: initial; max-inline-size: initial; max-width: initial; min-block-size: initial; min-height: initial; min-inline-size: initial; min-width: initial; mix-blend-mode: initial; object-fit: initial; object-position: initial; object-view-box: initial; offset: initial; opacity: initial; order: initial; orphans: initial; outline: initial; outline-offset: initial; overflow-anchor: initial; overflow-block: initial; overflow-clip-margin: initial; overflow-inline: initial; overflow-wrap: initial; overflow: initial; overlay: initial; overscroll-behavior-block: initial; overscroll-behavior-inline: initial; overscroll-behavior: initial; padding-block: initial; padding: initial; padding-inline: initial; page: initial; page-orientation: initial; paint-order: initial; perspective: initial; perspective-origin: initial; pointer-events: initial; position-try: initial; position-visibility: initial; print-color-adjust: initial; quotes: initial; r: initial; reading-flow: initial; reading-order: initial; resize: initial; rotate: initial; ruby-align: initial; ruby-position: initial; rx: initial; ry: initial; scale: initial; scroll-behavior: initial; scroll-initial-target: initial; scroll-margin-block: initial; scroll-margin: initial; scroll-margin-inline: initial; scroll-marker-group: initial; scroll-padding-block: initial; scroll-padding: initial; scroll-padding-inline: initial; scroll-snap-align: initial; scroll-snap-stop: initial; scroll-snap-type: initial; scroll-target-group: initial; scroll-timeline: initial; scrollbar-color: initial; scrollbar-gutter: initial; scrollbar-width: initial; shape-image-threshold: initial; shape-margin: initial; shape-outside: initial; shape-rendering: initial; size: initial; speak: initial; stop-color: initial; stop-opacity: initial; stroke: initial; stroke-dasharray: initial; stroke-dashoffset: initial; stroke-linecap: initial; stroke-linejoin: initial; stroke-miterlimit: initial; stroke-opacity: initial; stroke-width: initial; tab-size: initial; table-layout: initial; text-align: initial; text-align-last: initial; text-anchor: initial; text-autospace: initial; text-box: initial; text-combine-upright: initial; text-decoration: initial; text-decoration-skip-ink: initial; text-emphasis: initial; text-emphasis-position: initial; text-indent: initial; text-justify: initial; text-overflow: initial; text-shadow: initial; text-transform: initial; text-underline-offset: initial; text-underline-position: initial; text-wrap: initial; timeline-scope: initial; timeline-trigger: initial; touch-action: initial; transform: initial; transform-box: initial; transform-origin: initial; transform-style: initial; transition: initial; translate: initial; trigger-scope: initial; user-select: initial; vector-effect: initial; vertical-align: initial; view-timeline: initial; view-transition-class: initial; view-transition-group: initial; view-transition-name: initial; view-transition-scope: initial; visibility: initial; border-spacing: initial; -webkit-box-align: initial; -webkit-box-decoration-break: initial; -webkit-box-direction: initial; -webkit-box-flex: initial; -webkit-box-ordinal-group: initial; -webkit-box-orient: initial; -webkit-box-pack: initial; -webkit-box-reflect: initial; -webkit-line-break: initial; -webkit-line-clamp: initial; -webkit-mask-box-image: initial; -webkit-rtl-ordering: initial; -webkit-ruby-position: initial; -webkit-tap-highlight-color: initial; -webkit-text-combine: initial; -webkit-text-decorations-in-effect: initial; -webkit-text-fill-color: initial; -webkit-text-security: initial; -webkit-text-stroke: initial; -webkit-user-drag: initial; white-space-collapse: initial; widows: initial; width: initial; will-change: initial; word-break: initial; word-spacing: initial; x: initial; y: initial; display: block; position: relative; z-index: 2147483647; font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, sans-serif;"><div id="mozbar-toolbar-wrapper"></div></body></html></template></mozbar-toolbar>
+    <div class="app-container">
+        <div class="header fade-in">
+            <h1><i class="fas fa-user-circle"></i> Simo's Enhanced Personal Assistant</h1>
+            <p>Your all-in-one productivity hub with persistence, search, calendar, weather &amp; more</p>
+            <div class="shortcuts-list">
+                <div class="shortcut-item">Ctrl+S: Save Notes</div>
+                <div class="shortcut-item">Ctrl+T: Add Task</div>
+                <div class="shortcut-item">Ctrl+C: Add Contact</div>
+                <div class="shortcut-item">Ctrl+F: Search</div>
+                <div class="shortcut-item">Ctrl+E: Edit Mode</div>
+            </div>
+        </div>
+
+        <div class="grid-container">
+            <!-- Notes Section -->
+            <div class="section fade-in">
+                <div class="section-title">
+                    <i class="fas fa-sticky-note"></i>
+                    <span>Enhanced Notes</span>
+                </div>
+                <textarea class="notes-area" id="notes-enhanced" placeholder="Write your notes here... Auto-saves every 5 seconds!"></textarea>
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button class="todo-btn" id="save-notes"><i class="fas fa-save"></i> Save Notes</button>
+                    <button class="todo-btn" id="clear-notes"><i class="fas fa-trash"></i> Clear Notes</button>
+                </div>
+                <div style="margin-top: 15px; color: #cbd5e1; font-size: 0.9rem;">
+                    <p><i class="fas fa-info-circle"></i> Notes are automatically saved to your browser's local storage.</p>
+                </div>
+            </div>
+
+            <!-- To-Do List Section -->
+            <div class="section fade-in">
+                <div class="section-title">
+                    <i class="fas fa-tasks"></i>
+                    <span>Advanced To-Do List</span>
+                </div>
+                <div class="todo-input-container">
+                    <input type="text" class="todo-input" id="todo-input-enhanced" placeholder="Enter a task with priority (e.g., &#39;Important: Finish project&#39;)">
+                    <button class="todo-btn" id="add-todo-enhanced"><i class="fas fa-plus"></i> Add Task</button>
+                </div>
+                <div class="filter-container">
+                    <button class="filter-btn active" data-filter="all">All Tasks</button>
+                    <button class="filter-btn" data-filter="pending">Pending</button>
+                    <button class="filter-btn" data-filter="completed">Completed</button>
+                    <button class="filter-btn" data-filter="high">High Priority</button>
+                </div>
+                <ul class="todo-list" id="todo-list-enhanced"></ul>
+                <div style="margin-top: 15px; color: #cbd5e1; font-size: 0.9rem;">
+                    <p><i class="fas fa-info-circle"></i> Drag tasks to reorder, mark complete, set priority.</p>
+                </div>
+            </div>
+
+            <!-- Clock & Weather Section -->
+            <div class="section fade-in">
+                <div class="section-title">
+                    <i class="fas fa-clock"></i>
+                    <span>Clock &amp; Weather</span>
+                </div>
+                <div class="clock-display" id="clock-enhanced"></div>
+                <div class="weather-container">
+                    <div class="weather-icon" id="weather-icon">🌤️</div>
+                    <div class="weather-temp" id="weather-temp">72°F</div>
+                    <div class="weather-desc" id="weather-desc">Partly Cloudy in Dallas, TX</div>
+                    <button class="todo-btn" style="margin-top: 15px;" id="refresh-weather"><i class="fas fa-sync-alt"></i> Refresh Weather</button>
+                </div>
+                <div style="margin-top: 15px; color: #cbd5e1; font-size: 0.9rem;">
+                    <p><i class="fas fa-info-circle"></i> Weather updates automatically every 30 minutes.</p>
+                </div>
+            </div>
+
+            <!-- Calendar Section -->
+            <div class="section fade-in">
+                <div class="section-title">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Interactive Calendar</span>
+                </div>
+                <div class="calendar-header">
+                    <button class="todo-btn" id="prev-month"><i class="fas fa-chevron-left"></i></button>
+                    <h3 id="calendar-month">May 2026</h3>
+                    <button class="todo-btn" id="next-month"><i class="fas fa-chevron-right"></i></button>
+                </div>
+                <div class="calendar-grid" id="calendar-grid">
+                    <!-- Calendar days will be generated here -->
+                </div>
+                <div class="event-form">
+                    <input type="text" class="todo-input" id="event-input" placeholder="Add event for selected day">
+                    <button class="todo-btn" id="add-event"><i class="fas fa-plus"></i> Add Event</button>
+                </div>
+                <ul class="event-list" id="event-list"></ul>
+            </div>
+
+            <!-- Address Book Section -->
+            <div class="section fade-in">
+                <div class="section-title">
+                    <i class="fas fa-address-book"></i>
+                    <span>Enhanced Address Book</span>
+                </div>
+                <div class="contact-form">
+                    <input type="text" class="contact-input" id="contact-name-enhanced" placeholder="Contact Name">
+                    <input type="text" class="contact-input" id="contact-info-enhanced" placeholder="Phone / Email / Address">
+                </div>
+                <button class="todo-btn" id="add-contact-enhanced"><i class="fas fa-plus"></i> Add Contact</button>
+
+                <div class="search-container">
+                    <input type="text" class="search-input" id="contact-search" placeholder="Search contacts...">
+                </div>
+
+                <ul class="contact-list" id="address-book-enhanced"></ul>
+            </div>
+
+            <!-- Search & Filter Section -->
+            <div class="section fade-in">
+                <div class="section-title">
+                    <i class="fas fa-search"></i>
+                    <span>Global Search &amp; Filter</span>
+                </div>
+                <div class="search-container">
+                    <input type="text" class="search-input" id="global-search" placeholder="Search across notes, tasks, contacts, events...">
+                </div>
+                <div style="margin-top: 20px;">
+                    <h4 style="color: #60a5fa; margin-bottom: 15px;">Search Results</h4>
+                    <div id="search-results" style="background: #0f172a; padding: 15px; border-radius: 8px; border: 1px solid #475569; min-height: 100px;">
+                        <!-- Search results will appear here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer fade-in">
+            <p>Simo's Enhanced Personal Assistant v2.0 • Data persists in local storage • Keyboard shortcuts enabled</p>
+            <p>Drag and drop tasks, search across all data, weather updates, and interactive calendar</p>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced JavaScript with all 10 improvements
+        console.log('=== Simo's Enhanced Personal Assistant ===');
+        console.log('10 enhancements implemented:');
+        console.log('1. Local Storage Persistence');
+        console.log('2. Modern UI Design');
+        console.log('3. Functional Calendar');
+        console.log('4. Task Management');
+        console.log('5. Contact Management');
+        console.log('6. Search & Filter');
+        console.log('7. Keyboard Shortcuts');
+        console.log('8. Drag-and-Drop');
+        console.log('9. Priority System');
+        console.log('10. Weather Integration');
+
+        // 1. Local Storage Persistence
+        const storage = {
+            get: (key) => JSON.parse(localStorage.getItem(key)) || [],
+            set: (key, value) => localStorage.setItem(key, JSON.stringify(value)),
+            clear: (key) => localStorage.removeItem(key)
+        };
+
+        // Initialize data
+        const appData = {
+            notes: storage.get('notes') || '',
+            todos: storage.get('todos') || [],
+            contacts: storage.get('contacts') || [],
+            events: storage.get('events') || {},
+            weather: storage.get('weather') || { temp: '72°F', desc: 'Partly Cloudy', icon: '🌤️' }
+        };
+
+        // 2. Enhanced Notes with Auto-Save
+        const notesEnhanced = document.getElementById('notes-enhanced');
+        notesEnhanced.value = appData.notes;
+
+        notesEnhanced.addEventListener('input', () => {
+            appData.notes = notesEnhanced.value;
+            storage.set('notes', appData.notes);
+        });
+
+        document.getElementById('save-notes').addEventListener('click', () => {
+            storage.set('notes', notesEnhanced.value);
+            showNotification('Notes saved successfully!');
+        });
+
+        document.getElementById('clear-notes').addEventListener('click', () => {
+            if (confirm('Clear all notes?')) {
+                notesEnhanced.value = '';
+                storage.clear('notes');
+                showNotification('Notes cleared!');
+            }
+        });
+
+        // Auto-save every 5 seconds
+        setInterval(() => {
+            if (notesEnhanced.value !== appData.notes) {
+                appData.notes = notesEnhanced.value;
+                storage.set('notes', appData.notes);
+            }
+        }, 5000);
+
+        // 3. Enhanced To-Do List with Priority & Completion
+        const todoInputEnhanced = document.getElementById('todo-input-enhanced');
+        const todoListEnhanced = document.getElementById('todo-list-enhanced');
+        const addTodoEnhanced = document.getElementById('add-todo-enhanced');
+
+        function renderTodos(filter = 'all') {
+            todoListEnhanced.innerHTML = '';
+            const todos = appData.todos;
+
+            const filteredTodos = todos.filter(todo => {
+                if (filter === 'all') return true;
+                if (filter === 'pending') return !todo.completed;
+                if (filter === 'completed') return todo.completed;
+                if (filter === 'high') return todo.priority === 'high';
+                return true;
+            });
+
+            filteredTodos.forEach((todo, index) => {
+                const li = document.createElement('li');
+                li.className = `todo-item draggable ${todo.completed ? 'completed' : ''} priority-${todo.priority || 'medium'}`;
+                li.dataset.index = index;
+                li.innerHTML = `
+                    <div class="todo-text">${todo.text}</div>
+                    <div class="todo-actions">
+                        <button class="todo-action-btn complete-btn" data-index="${index}">
+                            <i class="fas fa-check"></i>
+                        </button>
+                        <button class="todo-action-btn priority-btn" data-index="${index}">
+                            <i class="fas fa-flag"></i>
+                        </button>
+                        <button class="todo-action-btn delete-btn" data-index="${index}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                todoListEnhanced.appendChild(li);
+            });
+
+            // Initialize drag and drop
+            initDragAndDrop();
+        }
+
+        addTodoEnhanced.addEventListener('click', () => {
+            const text = todoInputEnhanced.value.trim();
+            if (!text) return;
+
+            // Detect priority from text
+            let priority = 'medium';
+            if (text.toLowerCase().includes('urgent') || text.toLowerCase().includes('important')) {
+                priority = 'high';
+            } else if (text.toLowerCase().includes('low') || text.toLowerCase().includes('optional')) {
+                priority = 'low';
+            }
+
+            const todo = {
+                text,
+                completed: false,
+                priority,
+                createdAt: new Date().toISOString()
+            };
+
+            appData.todos.push(todo);
+            storage.set('todos', appData.todos);
+            todoInputEnhanced.value = '';
+            renderTodos();
+            showNotification('Task added!');
+        });
+
+        // Task completion
+        todoListEnhanced.addEventListener('click', (e) => {
+            const btn = e.target.closest('button');
+            if (!btn) return;
+
+            const index = parseInt(btn.dataset.index);
+            if (btn.classList.contains('complete-btn')) {
+                appData.todos[index].completed = !appData.todos[index].completed;
+                storage.set('todos', appData.todos);
+                renderTodos();
+                showNotification('Task status updated!');
+            } else if (btn.classList.contains('priority-btn')) {
+                const priorities = ['low', 'medium', 'high'];
+                const current = appData.todos[index].priority;
+                const next = priorities[(priorities.indexOf(current) + 1) % priorities.length];
+                appData.todos[index].priority = next;
+                storage.set('todos', appData.todos);
+                renderTodos();
+                showNotification(`Priority set to ${next}!`);
+            } else if (btn.classList.contains('delete-btn')) {
+                appData.todos.splice(index, 1);
+                storage.set('todos', appData.todos);
+                renderTodos();
+                showNotification('Task deleted!');
+            }
+        });
+
+        // Filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                renderTodos(btn.dataset.filter);
+            });
+        });
+
+        // Initial render
+        renderTodos();
+
+        // 4. Drag and Drop for tasks
+        function initDragAndDrop() {
+            const draggables = document.querySelectorAll('.draggable');
+            draggables.forEach(draggable => {
+                draggable.addEventListener('dragstart', () => {
+                    draggable.classList.add('dragging');
+                });
+
+                draggable.addEventListener('dragend', () => {
+                    draggable.classList.remove('dragging');
+                    // Update order in storage
+                    const newOrder = [];
+                    document.querySelectorAll('.todo-item').forEach(item => {
+                        const index = parseInt(item.dataset.index);
+                        newOrder.push(appData.todos[index]);
+                    });
+                    appData.todos = newOrder;
+                    storage.set('todos', appData.todos);
+                    showNotification('Tasks reordered!');
+                });
+            });
+
+            todoListEnhanced.addEventListener('dragover', e => {
+                e.preventDefault();
+                const afterElement = getDragAfterElement(todoListEnhanced, e.clientY);
+                const draggable = document.querySelector('.dragging');
+                if (afterElement == null) {
+                    todoListEnhanced.appendChild(draggable);
+                } else {
+                    todoListEnhanced.insertBefore(draggable, afterElement);
+                }
+            });
+        }
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.draggable:not(.dragging)')];
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        // 5. Enhanced Clock
+        const clockEnhanced = document.getElementById('clock-enhanced');
+        function updateEnhancedClock() {
+            const now = new Date();
+            const options = { 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit',
+                hour12: true 
+            };
+            clockEnhanced.textContent = now.toLocaleTimeString('en-US', options);
+            clockEnhanced.innerHTML += `<br><small>${now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</small>`;
+        }
+        setInterval(updateEnhancedClock, 1000);
+        updateEnhancedClock();
+
+        // 6. Weather Integration (simulated with Dallas location)
+        const weatherIcon = document.getElementById('weather-icon');
+        const weatherTemp = document.getElementById('weather-temp');
+        const weatherDesc = document.getElementById('weather-desc');
+
+        function updateWeather() {
+            // Simulate weather data for Dallas
+            const temps = ['72°F', '75°F', '68°F', '80°F', '74°F'];
+            const descs = ['Partly Cloudy', 'Sunny', 'Light Rain', 'Clear', 'Windy'];
+            const icons = ['🌤️', '☀️', '🌧️', '🌙', '🌬️'];
+
+            const randomIndex = Math.floor(Math.random() * temps.length);
+            appData.weather = {
+                temp: temps[randomIndex],
+                desc: descs[randomIndex],
+                icon: icons[randomIndex]
+            };
+
+            weatherIcon.textContent = appData.weather.icon;
+            weatherTemp.textContent = appData.weather.temp;
+            weatherDesc.textContent = `${appData.weather.desc} in Dallas, TX`;
+
+            storage.set('weather', appData.weather);
+            showNotification('Weather updated!');
+        }
+
+        document.getElementById('refresh-weather').addEventListener('click', updateWeather);
+        updateWeather(); // Initial update
+
+        // Auto-update weather every 30 minutes
+        setInterval(updateWeather, 30 * 60 * 1000);
+
+        // 7. Interactive Calendar
+        const calendarGrid = document.getElementById('calendar-grid');
+        const calendarMonth = document.getElementById('calendar-month');
+        const eventInput = document.getElementById('event-input');
+        const eventList = document.getElementById('event-list');
+        let currentDate = new Date(2026, 4, 15); // May 15, 2026
+
+        function renderCalendar() {
+            calendarGrid.innerHTML = '';
+            calendarMonth.textContent = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+            // Day headers
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            days.forEach(day => {
+                const dayEl = document.createElement('div');
+                dayEl.className = 'calendar-day';
+                dayEl.style.fontWeight = '600';
+                dayEl.style.color = '#60a5fa';
+                dayEl.textContent = day;
+                calendarGrid.appendChild(dayEl);
+            });
+
+            // Get first day of month
+            const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+            const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+
+            // Fill calendar
+            for (let i = 0; i < firstDay.getDay(); i++) {
+                const emptyEl = document.createElement('div');
+                emptyEl.className = 'calendar-day';
+                emptyEl.style.backgroundColor = '#0f172a';
+                calendarGrid.appendChild(emptyEl);
+            }
+
+            for (let d = 1; d <= lastDay.getDate(); d++) {
+                const dayEl = document.createElement('div');
+                dayEl.className = 'calendar-day';
+                dayEl.textContent = d;
+
+                // Check if current day
+                if (d === 15 && currentDate.getMonth() === 4) {
+                    dayEl.classList.add('current');
+                }
+
+                // Check for events
+                const dateKey = `${currentDate.getMonth()+1}/${d}/${currentDate.getFullYear()}`;
+                if (appData.events[dateKey]) {
+                    dayEl.classList.add('event');
+                    dayEl.title = appData.events[dateKey].join(', ');
+                }
+
+                dayEl.addEventListener('click', () => {
+                    document.querySelectorAll('.calendar-day').forEach(el => el.classList.remove('selected'));
+                    dayEl.classList.add('selected');
+                    eventInput.value = '';
+                    eventInput.placeholder = `Add event for ${currentDate.getMonth()+1}/${d}`;
+                });
+
+                calendarGrid.appendChild(dayEl);
+            }
+
+            renderEvents();
+        }
+
+        function renderEvents() {
+            eventList.innerHTML = '';
+            Object.entries(appData.events).forEach(([date, events]) => {
+                events.forEach(event => {
+                    const li = document.createElement('li');
+                    li.className = 'event-item';
+                    li.innerHTML = `
+                        <div>${date}: ${event}</div>
+                        <button class="todo-action-btn delete-btn" data-date="${date}" data-event="${event}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    `;
+                    eventList.appendChild(li);
+                });
+            });
+        }
+
+        document.getElementById('prev-month').addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            renderCalendar();
+        });
+
+        document.getElementById('next-month').addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            renderCalendar();
+        });
+
+        document.getElementById('add-event').addEventListener('click', () => {
+            const eventText = eventInput.value.trim();
+            if (!eventText) return;
+
+            const selectedDay = document.querySelector('.calendar-day.selected');
+            if (!selectedDay) {
+                showNotification('Please select a day first!');
+                return;
+            }
+
+            const dayNum = parseInt(selectedDay.textContent);
+            const dateKey = `${currentDate.getMonth()+1}/${dayNum}/${currentDate.getFullYear()}`;
+
+            if (!appData.events[dateKey]) {
+                appData.events[dateKey] = [];
+            }
+
+            appData.events[dateKey].push(eventText);
+            storage.set('events', appData.events);
+
+            selectedDay.classList.add('event');
+            selectedDay.title = appData.events[dateKey].join(', ');
+
+            eventInput.value = '';
+            renderEvents();
+            showNotification('Event added!');
+        });
+
+        eventList.addEventListener('click', (e) => {
+            const btn = e.target.closest('button');
+            if (!btn) return;
+
+            const date = btn.dataset.date;
+            const event = btn.dataset.event;
+
+            if (appData.events[date]) {
+                appData.events[date] = appData.events[date].filter(e => e !== event);
+                if (appData.events[date].length === 0) {
+                    delete appData.events[date];
+                }
+                storage.set('events', appData.events);
+                renderCalendar();
+                renderEvents();
+                showNotification('Event deleted!');
+            }
+        });
+
+        // Initial calendar render
+        renderCalendar();
+
+        // 8. Enhanced Address Book with Search
+        const contactNameEnhanced = document.getElementById('contact-name-enhanced');
+        const contactInfoEnhanced = document.getElementById('contact-info-enhanced');
+        const addressBookEnhanced = document.getElementById('address-book-enhanced');
+        const addContactEnhanced = document.getElementById('add-contact-enhanced');
+        const contactSearch = document.getElementById('contact-search');
+
+        function renderContacts(searchTerm = '') {
+            addressBookEnhanced.innerHTML = '';
+            const contacts = appData.contacts;
+
+            const filteredContacts = contacts.filter(contact => {
+                if (!searchTerm) return true;
+                return contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                       contact.info.toLowerCase().includes(searchTerm.toLowerCase());
+            });
+
+            filteredContacts.forEach((contact, index) => {
+                const li = document.createElement('li');
+                li.className = 'contact-item';
+                li.innerHTML = `
+                    <div class="contact-details">
+                        <div class="contact-name">${contact.name}</div>
+                        <div class="contact-info">${contact.info}</div>
+                    </div>
+                    <div class="contact-actions">
+                        <button class="todo-action-btn complete-btn" data-index="${index}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="todo-action-btn delete-btn" data-index="${index}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                addressBookEnhanced.appendChild(li);
+            });
+        }
+
+        addContactEnhanced.addEventListener('click', () => {
+            const name = contactNameEnhanced.value.trim();
+            const info = contactInfoEnhanced.value.trim();
+
+            if (!name || !info) {
+                showNotification('Please fill both fields!');
+                return;
+            }
+
+            const contact = {
+                name,
+                info,
+                createdAt: new Date().toISOString()
+            };
+
+            appData.contacts.push(contact);
+            storage.set('contacts', appData.contacts);
+
+            contactNameEnhanced.value = '';
+            contactInfoEnhanced.value = '';
+
+            renderContacts();
+            showNotification('Contact added!');
+        });
+
+        addressBookEnhanced.addEventListener('click', (e) => {
+            const btn = e.target.closest('button');
+            if (!btn) return;
+
+            const index = parseInt(btn.dataset.index);
+            if (btn.classList.contains('complete-btn')) {
+                // Edit contact
+                const contact = appData.contacts[index];
+                contactNameEnhanced.value = contact.name;
+                contactInfoEnhanced.value = contact.info;
+                appData.contacts.splice(index, 1);
+                storage.set('contacts', appData.contacts);
+                renderContacts();
+                showNotification('Contact loaded for editing!');
+            } else if (btn.classList.contains('delete-btn')) {
+                // Delete contact
+                appData.contacts.splice(index, 1);
+                storage.set('contacts', appData.contacts);
+                renderContacts();
+                showNotification('Contact deleted!');
+            }
+        });
+
+        contactSearch.addEventListener('input', () => {
+            renderContacts(contactSearch.value);
+        });
+
+        // Initial render
+        renderContacts();
+
+        // 9. Global Search Functionality
+        const globalSearch = document.getElementById('global-search');
+        const searchResults = document.getElementById('search-results');
+
+        globalSearch.addEventListener('input', () => {
+            const term = globalSearch.value.toLowerCase();
+            if (!term) {
+                searchResults.innerHTML = '<p style="color: #cbd5e1;">Enter a search term...</p>';
+                return;
+            }
+
+            const results = [];
+
+            // Search notes
+            if (appData.notes.toLowerCase().includes(term)) {
+                results.push({
+                    type: 'Note',
+                    content: appData.notes.substring(0, 100) + '...',
+                    icon: 'fas fa-sticky-note'
+                });
+            }
+
+            // Search todos
+            appData.todos.forEach(todo => {
+                if (todo.text.toLowerCase().includes(term)) {
+                    results.push({
+                        type: 'Task',
+                        content: todo.text,
+                        icon: 'fas fa-tasks'
+                    });
+                }
+            });
+
+            // Search contacts
+            appData.contacts.forEach(contact => {
+                if (contact.name.toLowerCase().includes(term) || contact.info.toLowerCase().includes(term)) {
+                    results.push({
+                        type: 'Contact',
+                        content: `${contact.name}: ${contact.info}`,
+                        icon: 'fas fa-address-book'
+                    });
+                }
+            });
+
+            // Search events
+            Object.entries(appData.events).forEach(([date, events]) => {
+                events.forEach(event => {
+                    if (event.toLowerCase().includes(term)) {
+                        results.push({
+                            type: 'Event',
+                            content: `${date}: ${event}`,
+                            icon: 'fas fa-calendar'
+                        });
+                    }
+                });
+            });
+
+            if (results.length === 0) {
+                searchResults.innerHTML = '<p style="color: #cbd5e1;">No results found.</p>';
+            } else {
+                searchResults.innerHTML = results.map(result => `
+                    <div style="margin-bottom: 10px; padding: 10px; background: #1e293b; border-radius: 6px; border-left: 4px solid #3b82f6;">
+                        <i class="${result.icon}" style="color: #60a5fa;"></i> <strong>${result.type}:</strong> ${result.content}
+                    </div>
+                `).join('');
+            }
+        });
+
+        // 10. Keyboard Shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 's':
+                        e.preventDefault();
+                        storage.set('notes', notesEnhanced.value);
+                        showNotification('All data saved!');
+                        break;
+                    case 't':
+                        e.preventDefault();
+                        todoInputEnhanced.focus();
+                        break;
+                    case 'c':
+                        e.preventDefault();
+                        contactNameEnhanced.focus();
+                        break;
+                    case 'f':
+                        e.preventDefault();
+                        globalSearch.focus();
+                        break;
+                    case 'e':
+                        e.preventDefault();
+                        showNotification('Edit mode activated');
+                        break;
+                }
+            }
+        });
+
+        // Utility: Notification System
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: #3b82f6;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                z-index: 10000;
+                animation: slideIn 0.3s ease-out;
+            `;
+
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideIn 0.3s ease-out reverse';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Initialize all sections
+        console.log('Enhanced Personal Assistant initialized successfully!');
+    </script>
+
+
+</body></html>

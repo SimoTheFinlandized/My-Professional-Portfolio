@@ -1,0 +1,255 @@
+ <!DOCTYPE html>
+ <html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cerebrus Spreadsheet</title>
+  <style>
+   /* Basic CSS Reset */
+   body, html {
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+   }
+
+   /* Spreadsheet container */
+   #spreadsheet-container {
+    width: 100%;
+    overflow-x: auto; /* Enable horizontal scrolling on smaller screens */
+   }
+
+   /* Table styles */
+   #spreadsheet {
+    border-collapse: collapse;
+    width: 100%; /* Adjust as needed */
+   }
+
+   #spreadsheet th, #spreadsheet td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+    min-width: 100px; /* Minimum column width */
+   }
+
+   #spreadsheet th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+   }
+
+   /* Input styles for cells */
+   #spreadsheet td input {
+    width: 100%;
+    padding: 5px;
+    border: none;
+    outline: none;
+    box-sizing: border-box; /* Important to include padding in width */
+   }
+
+   /* Toolbar styles */
+   #toolbar {
+    padding: 10px;
+    background-color: #eee;
+    margin-bottom: 10px;
+   }
+
+   #toolbar button {
+    padding: 8px 12px;
+    margin-right: 5px;
+    cursor: pointer;
+   }
+
+   /* File input styling (hide the default input) */
+   #file-input {
+    display: none;
+   }
+
+   .custom-file-upload {
+    border: 1px solid #ccc;
+    display: inline-block;
+    padding: 8px 12px;
+    cursor: pointer;
+    background-color: #fff;
+   }
+
+   /* Responsive adjustments */
+   @media (max-width: 600px) {
+    #spreadsheet th, #spreadsheet td {
+     padding: 5px;
+     min-width: 80px;
+    }
+   }
+  </style>
+ </head>
+ <body>
+
+  <div id="toolbar">
+   <button onclick="addRows()">Add Row</button>
+   <button onclick="addColumns()">Add Column</button>
+   <button onclick="saveData()">Save</button>
+   <button onclick="loadData()">Load</button>
+
+   <label for="file-input" class="custom-file-upload">Import</label>
+   <input type="file" id="file-input" accept=".csv, .json">
+
+   <button onclick="exportCSV()">Export CSV</button>
+   <button onclick="exportJSON()">Export JSON</button>
+  </div>
+
+  <div id="spreadsheet-container">
+   <table id="spreadsheet"></table>
+  </div>
+
+  <script>
+   // Configuration
+   const DEFAULT_ROWS = 10;
+   const DEFAULT_COLS = 10;
+   const STORAGE_KEY = 'spreadsheetData';
+
+   // Get spreadsheet table element
+   const spreadsheet = document.getElementById('spreadsheet');
+
+   // Initialize spreadsheet data (2D array)
+   let data = [];
+
+   // Function to initialize the spreadsheet
+   function initSpreadsheet(rows = DEFAULT_ROWS, cols = DEFAULT_COLS) {
+    data = Array(rows).fill(null).map(() => Array(cols).fill('')); // Initialize with empty strings
+
+    // Create header row
+    let headerRow = '<tr><th></th>'; // Empty cell for row numbers
+    for (let i = 0; i < cols; i++) {
+     headerRow += `<th>${String.fromCharCode(65 + i)}</th>`; // A, B, C...
+    }
+    headerRow += '</tr>';
+    spreadsheet.innerHTML = headerRow;
+
+    // Create data rows
+    for (let i = 0; i < rows; i++) {
+     let row = `<tr><th>${i + 1}</th>`; // Row number
+     for (let j = 0; j < cols; j++) {
+      row += `<td><input type="text" data-row="${i}" data-col="${j}" value="${data[i][j]}"></td>`;
+     }
+     row += '</tr>';
+     spreadsheet.innerHTML += row;
+    }
+
+    // Add event listeners to input fields for data updates
+    const inputFields = spreadsheet.querySelectorAll('input');
+    inputFields.forEach(input => {
+     input.addEventListener('change', updateData);
+    });
+   }
+
+   // Function to update data array when cell value changes
+   function updateData(event) {
+    const row = parseInt(event.target.dataset.row);
+    const col = parseInt(event.target.dataset.col);
+    data[row][col] = event.target.value;
+   }
+
+   // Function to add a row
+   function addRows() {
+    const newRow = Array(data[0].length).fill('');
+    data.push(newRow);
+    initSpreadsheet(data.length, data[0].length); // Re-render the spreadsheet
+   }
+
+   // Function to add a column
+   function addColumns() {
+    data.forEach(row => row.push(''));
+    initSpreadsheet(data.length, data[0].length); // Re-render the spreadsheet
+   }
+
+   // Function to save data to local storage
+   function saveData() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    alert('Spreadsheet saved!');
+   }
+
+   // Function to load data from local storage
+   function loadData() {
+    const storedData = localStorage.getItem(STORAGE_KEY);
+    if (storedData) {
+     data = JSON.parse(storedData);
+     initSpreadsheet(data.length, data[0].length); // Re-render the spreadsheet
+     alert('Spreadsheet loaded!');
+    } else {
+     alert('No saved data found.');
+    }
+   }
+
+   // Function to export data to CSV
+   function exportCSV() {
+    let csvContent = "data:text/csv;charset=utf-8,";
+
+    data.forEach(function(rowArray) {
+     let row = rowArray.join(",");
+     csvContent += row + "\r\n";
+    });
+
+    let encodedUri = encodeURI(csvContent);
+    let link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "spreadsheet.csv");
+    document.body.appendChild(link); // Required for FF
+
+    link.click(); // This will download the CSV file
+    document.body.removeChild(link); // Clean up
+   }
+
+   // Function to export data to JSON
+   function exportJSON() {
+    const jsonData = JSON.stringify(data);
+    const dataUri = "data:application/json;charset=utf-8," + encodeURIComponent(jsonData);
+
+    let link = document.createElement("a");
+    link.setAttribute("href", dataUri);
+    link.setAttribute("download", "spreadsheet.json");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+   }
+
+   // Function to handle file import (CSV and JSON)
+   document.getElementById('file-input').addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+     const contents = e.target.result;
+     const fileType = file.name.split('.').pop().toLowerCase();
+
+     try {
+      if (fileType === 'csv') {
+       data = parseCSV(contents);
+      } else if (fileType === 'json') {
+       data = JSON.parse(contents);
+      } else {
+       alert('Unsupported file type. Please import a CSV or JSON file.');
+       return;
+      }
+
+      initSpreadsheet(data.length, data[0].length);
+      alert('File imported successfully!');
+
+     } catch (error) {
+      console.error('Error parsing file:', error);
+      alert('Error parsing file. Please check the file format.');
+     }
+    };
+
+    reader.readAsText(file);
+   });
+
+   // Function to parse CSV data
+   function parseCSV(csvText) {
+    const rows = csvText.split('\r\n'); // Split into rows
+    return rows.map(row => row.split(',')); // Split each row into columns
+   }
+
+   // Initialize spreadsheet on page load
+   initSpreadsheet();
+  </script>
+
+ </body>
+ </html>

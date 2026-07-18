@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cerebrus Slideshow Maker</title>
+    <style>
+        /* Basic CSS Reset */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: sans-serif;
+            overflow: hidden; /* Prevent scrollbars */
+        }
+
+        /* App Container */
+        #app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        /* Top Bar (Menu/Controls) */
+        #top-bar {
+            background-color: #f0f0f0;
+            padding: 10px;
+            text-align: right; /* Aligns buttons to the right */
+        }
+
+        #top-bar button {
+            margin-left: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        /* Presentation Area */
+        #presentation-area {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #fff;
+            overflow: hidden; /* Hide content that overflows */
+        }
+
+        /* Slide Container */
+        #slide-container {
+            width: 80%;
+            height: 80%;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box; /* Include padding in width/height */
+            overflow: auto; /* Enable scrolling within the slide */
+        }
+
+        #slide-content {
+            font-size: 20px;
+        }
+
+        /* Navigation Buttons */
+        #navigation {
+            text-align: center;
+            padding: 10px;
+        }
+
+        #navigation button {
+            padding: 5px 10px;
+            margin: 0 5px;
+            cursor: pointer;
+        }
+
+        /* Hidden File Input */
+        #file-input {
+            display: none;
+        }
+
+        /* Modal Styling */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto; /* 15% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%; /* Could be more or less, depending on screen size */
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Text Editor Styling */
+        #editor {
+            width: 100%;
+            height: 300px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+        }
+
+        /* Responsive Design (Example - Adjust as needed) */
+        @media (max-width: 600px) {
+            #slide-container {
+                width: 95%;
+                height: 70%;
+            }
+            #slide-content {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app-container">
+        <div id="top-bar">
+            <button onclick="newPresentation()">New</button>
+            <button onclick="openImportModal()">Import</button>
+            <button onclick="exportPresentation()">Export</button>
+            <button onclick="editSlide()">Edit</button>
+            <input type="file" id="file-input" accept=".json" style="display:none;">
+        </div>
+
+        <div id="presentation-area">
+            <div id="slide-container">
+                <div id="slide-content">
+                    <h1>Welcome to Your Presentation!</h1>
+                    <p>Click "Edit" to add content.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="navigation">
+            <button onclick="previousSlide()">Previous</button>
+            <button onclick="nextSlide()">Next</button>
+        </div>
+
+        <!-- Import Modal -->
+        <div id="importModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeImportModal()">&times;</span>
+                <p>Import Presentation Data:</p>
+                <input type="file" id="importFileInput" accept=".json">
+                <button onclick="importPresentation()">Import</button>
+            </div>
+        </div>
+
+        <!-- Edit Modal -->
+        <div id="editModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeEditModal()">&times;</span>
+                <h2>Edit Slide Content</h2>
+                <textarea id="editor"></textarea>
+                <button onclick="saveSlideContent()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let slides = [{ content: "<h1>Welcome to Your Presentation!</h1><p>Click 'Edit' to add content.</p>" }];
+        let currentSlideIndex = 0;
+
+        // Function to update the slide content
+        function updateSlide() {
+            document.getElementById("slide-content").innerHTML = slides[currentSlideIndex].content;
+        }
+
+        // Navigation functions
+        function nextSlide() {
+            if (currentSlideIndex < slides.length - 1) {
+                currentSlideIndex++;
+                updateSlide();
+            }
+        }
+
+        function previousSlide() {
+            if (currentSlideIndex > 0) {
+                currentSlideIndex--;
+                updateSlide();
+            }
+        }
+
+        // Import/Export functions
+        function exportPresentation() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(slides));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "presentation.json");
+            document.body.appendChild(downloadAnchorNode); // required for firefox
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        function importPresentation() {
+            const fileInput = document.getElementById('importFileInput');
+            const file = fileInput.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    try {
+                        slides = JSON.parse(event.target.result);
+                        currentSlideIndex = 0;
+                        updateSlide();
+                        closeImportModal();
+                    } catch (error) {
+                        alert("Error parsing JSON file.");
+                    }
+                };
+                reader.readAsText(file);
+            } else {
+                alert("Please select a file.");
+            }
+        }
+
+        // New Presentation Function
+        function newPresentation() {
+            slides = [{ content: "<h1>New Presentation</h1><p>Start adding content!</p>" }];
+            currentSlideIndex = 0;
+            updateSlide();
+        }
+
+        // Edit Functionality
+        function editSlide() {
+            const editor = document.getElementById("editor");
+            editor.value = slides[currentSlideIndex].content;
+            openEditModal();
+        }
+
+        function saveSlideContent() {
+            const editor = document.getElementById("editor");
+            slides[currentSlideIndex].content = editor.value;
+            updateSlide();
+            closeEditModal();
+        }
+
+        // Modal Functions
+        function openImportModal() {
+            document.getElementById("importModal").style.display = "block";
+        }
+
+        function closeImportModal() {
+            document.getElementById("importModal").style.display = "none";
+        }
+
+        function openEditModal() {
+            document.getElementById("editModal").style.display = "block";
+        }
+
+        function closeEditModal() {
+            document.getElementById("editModal").style.display = "none";
+        }
+
+        // Initial slide update
+        updateSlide();
+
+        // Close modals if clicked outside the content
+        window.onclick = function(event) {
+            let importModal = document.getElementById("importModal");
+            let editModal = document.getElementById("editModal");
+
+            if (event.target == importModal) {
+                closeImportModal();
+            }
+
+            if (event.target == editModal) {
+                closeEditModal();
+            }
+        }
+    </script>
+</body>
+</html>
