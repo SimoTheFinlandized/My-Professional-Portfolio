@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>SIMOS — Personal AI Operating System</title>
+<style>
+  :root{
+    --bg:#04070a; --bg2:#080c0f; --panel:#0b1210; --panel2:#0e1613;
+    --border:#1b2b23; --border-lit:#2c4536;
+    --text:#b9ffd0; --text-dim:#5f8a72; --text-faint:#33473b;
+    --accent:#39ff88; --accent-dim:#1f8a4d; --amber:#ffb020; --red:#ff4d4d;
+    --mono: ui-monospace, 'SFMono-Regular', 'JetBrains Mono', Consolas, 'Courier New', monospace;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    margin:0; background:var(--bg); color:var(--text); font-family:var(--mono);
+    overflow:hidden; user-select:none; -webkit-user-select:none;
+  }
+  ::selection{background:var(--accent-dim); color:#04070a;}
+  input,textarea{user-select:text; -webkit-user-select:text;}
+  button{font-family:var(--mono); cursor:pointer;}
+
+  /* CRT scanline overlay */
+  #scanlines{
+    position:fixed; inset:0; pointer-events:none; z-index:9999; mix-blend-mode:overlay; opacity:.35;
+    background:repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px, rgba(0,255,150,.06) 3px);
+  }
+  #vignette{position:fixed; inset:0; pointer-events:none; z-index:9998;
+    box-shadow: inset 0 0 160px rgba(0,0,0,.75);
+  }
+
+  /* ---------- BOOT ---------- */
+  #boot{
+    position:fixed; inset:0; background:#000; color:var(--accent); z-index:100;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    font-size:13px; letter-spacing:.5px; cursor:pointer;
+  }
+  #boot pre{margin:0 0 18px; color:var(--accent); text-shadow:0 0 8px rgba(57,255,136,.5); font-size:11px; line-height:1.15;}
+  #boot-log{width:min(560px,86vw); font-size:12px; color:var(--text-dim); min-height:170px;}
+  #boot-log div{opacity:0; animation:fadeIn .15s forwards;}
+  #boot-log .ok{color:var(--accent);}
+  @keyframes fadeIn{to{opacity:1;}}
+  #boot-bar-wrap{width:min(560px,86vw); height:6px; background:#0e1613; border:1px solid var(--border-lit); margin-top:14px;}
+  #boot-bar{height:100%; width:0%; background:var(--accent); box-shadow:0 0 8px var(--accent); transition:width .12s linear;}
+  #boot-skip{position:absolute; bottom:22px; font-size:10px; color:var(--text-faint); letter-spacing:1px;}
+
+  /* ---------- LOGIN ---------- */
+  #login{
+    position:fixed; inset:0; background:#000; z-index:90; display:none;
+    align-items:center; justify-content:center; flex-direction:column;
+  }
+  #login.show{display:flex;}
+  .login-box{border:1px solid var(--border-lit); background:var(--panel); padding:32px 36px; width:min(420px,88vw); text-align:center;}
+  .login-box h1{margin:0 0 4px; font-size:20px; letter-spacing:3px; color:var(--accent); text-shadow:0 0 10px rgba(57,255,136,.4);}
+  .login-box p{margin:0 0 22px; font-size:11px; color:var(--text-dim); letter-spacing:1px;}
+  .login-box input{
+    width:100%; background:#04070a; border:1px solid var(--border-lit); color:var(--accent);
+    font-family:var(--mono); font-size:14px; padding:10px 12px; letter-spacing:2px; text-align:center; outline:none;
+  }
+  .login-box input:focus{border-color:var(--accent);}
+  .login-box button{
+    margin-top:14px; width:100%; background:var(--accent-dim); border:1px solid var(--accent); color:#02140a;
+    font-weight:bold; padding:10px; letter-spacing:2px; font-size:12px;
+  }
+  .login-box button:hover{background:var(--accent);}
+  .login-hint{margin-top:14px; font-size:10px; color:var(--text-faint);}
+
+  /* ---------- DESKTOP ---------- */
+  #desktop{
+    position:fixed; inset:0 0 44px 0; background:
+      radial-gradient(ellipse at 20% 0%, rgba(57,255,136,.05), transparent 60%),
+      var(--bg);
+    overflow:hidden;
+  }
+  #topbar{
+    position:absolute; top:0; left:0; right:0; height:40px; display:flex; align-items:center; justify-content:space-between;
+    padding:0 16px; border-bottom:1px solid var(--border); background:rgba(8,12,15,.7); backdrop-filter:blur(2px); z-index:5;
+  }
+  #topbar .brand{color:var(--accent); font-weight:bold; letter-spacing:3px; font-size:13px;}
+  #topbar .brand span{color:var(--text-dim); font-weight:normal; letter-spacing:1px; font-size:10px; margin-left:8px;}
+  #topbar .clock{font-size:12px; color:var(--text-dim); letter-spacing:1px;}
+  #topbar .clock b{color:var(--text);}
+
+  #icons{
+    position:absolute; top:52px; left:14px; right:260px; bottom:12px; overflow-y:auto;
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(84px,1fr)); gap:6px; align-content:start;
+  }
+  .dicon{
+    display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:6px;
+    padding:10px 4px; border:1px solid transparent; border-radius:3px; text-align:center;
+  }
+  .dicon:hover{border-color:var(--border-lit); background:rgba(57,255,136,.05);}
+  .dicon .glyph{font-size:26px; width:48px; height:48px; display:flex; align-items:center; justify-content:center;
+    border:1px solid var(--border-lit); border-radius:4px; background:var(--panel);}
+  .dicon .label{font-size:9.5px; color:var(--text-dim); letter-spacing:.5px; line-height:1.2; word-break:break-word;}
+
+  #sidebar{
+    position:absolute; top:52px; right:12px; bottom:12px; width:236px; display:flex; flex-direction:column; gap:12px;
+  }
+  .widget{border:1px solid var(--border); background:rgba(11,18,16,.85); border-radius:4px; overflow:hidden;}
+  .widget h3{margin:0; padding:8px 10px; font-size:10px; letter-spacing:2px; color:var(--accent); border-bottom:1px solid var(--border); background:var(--panel2);}
+  .widget .body{padding:10px;}
+  #notes-area{width:100%; height:130px; resize:none; background:#04070a; border:1px solid var(--border-lit); color:var(--text);
+    font-family:var(--mono); font-size:11px; padding:8px; outline:none;}
+  #notes-area:focus{border-color:var(--accent-dim);}
+  .stat-row{display:flex; justify-content:space-between; font-size:11px; color:var(--text-dim); padding:3px 0;}
+  .stat-row b{color:var(--text);}
+  .status-dot{display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--accent); box-shadow:0 0 6px var(--accent); margin-right:6px;}
+
+  /* ---------- START MENU ---------- */
+  #startmenu{
+    position:absolute; left:8px; bottom:52px; width:520px; max-width:92vw; max-height:70vh;
+    background:var(--panel); border:1px solid var(--border-lit); border-radius:4px; box-shadow:0 10px 40px rgba(0,0,0,.6);
+    display:none; flex-direction:column; z-index:80;
+  }
+  #startmenu.show{display:flex;}
+  #startmenu .search{padding:10px; border-bottom:1px solid var(--border);}
+  #startmenu .search input{width:100%; background:#04070a; border:1px solid var(--border-lit); color:var(--text);
+    font-family:var(--mono); padding:8px 10px; outline:none; font-size:12px;}
+  #startmenu .search input:focus{border-color:var(--accent-dim);}
+  #startlist{overflow-y:auto; padding:8px 6px;}
+  .cat-head{font-size:10px; letter-spacing:2px; color:var(--amber); padding:8px 8px 4px;}
+  .app-row{display:flex; align-items:center; gap:10px; padding:7px 8px; border-radius:3px;}
+  .app-row:hover{background:rgba(57,255,136,.08);}
+  .app-row .glyph{width:26px; text-align:center; font-size:15px;}
+  .app-row .meta{flex:1; min-width:0;}
+  .app-row .meta .t{font-size:12px; color:var(--text);}
+  .app-row .meta .d{font-size:10px; color:var(--text-faint);}
+  .app-row .pin{background:none; border:none; color:var(--text-faint); font-size:13px; padding:4px;}
+  .app-row .pin.active{color:var(--amber);}
+  .app-row .ext-badge{font-size:9px; color:var(--text-faint); border:1px solid var(--border-lit); padding:1px 4px; border-radius:2px;}
+
+  /* ---------- COMMAND PALETTE ---------- */
+  #palette-overlay{position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:95; display:none; align-items:flex-start; justify-content:center; padding-top:12vh;}
+  #palette-overlay.show{display:flex;}
+  #palette{width:min(560px,90vw); background:var(--panel); border:1px solid var(--accent-dim); border-radius:4px; box-shadow:0 10px 60px rgba(0,0,0,.7); overflow:hidden;}
+  #palette input{width:100%; background:#04070a; border:none; border-bottom:1px solid var(--border-lit); color:var(--accent);
+    font-family:var(--mono); font-size:14px; padding:14px 14px; outline:none;}
+  #palette-list{max-height:44vh; overflow-y:auto;}
+  #palette-list .app-row{margin:2px 6px;}
+  #palette-list .app-row.sel{background:rgba(57,255,136,.12); outline:1px solid var(--accent-dim);}
+
+  /* ---------- WINDOWS ---------- */
+  .os-window{
+    position:absolute; min-width:260px; min-height:180px; background:var(--panel); border:1px solid var(--border-lit);
+    border-radius:4px; box-shadow:0 12px 40px rgba(0,0,0,.55); display:flex; flex-direction:column; overflow:hidden;
+  }
+  .os-window .win-head{
+    height:32px; flex:0 0 auto; background:var(--panel2); border-bottom:1px solid var(--border); display:flex; align-items:center;
+    padding:0 8px; gap:8px; cursor:move;
+  }
+  .os-window .win-head .t{flex:1; font-size:11px; color:var(--text); letter-spacing:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .os-window.active .win-head{background:#132019;}
+  .os-window.active{border-color:var(--accent-dim);}
+  .winbtn{width:20px; height:20px; display:flex; align-items:center; justify-content:center; background:transparent; border:1px solid var(--border-lit);
+    color:var(--text-dim); font-size:10px; border-radius:2px;}
+  .winbtn:hover{color:var(--text); border-color:var(--text-dim);}
+  .winbtn.close:hover{color:#fff; background:var(--red); border-color:var(--red);}
+  .win-body{flex:1; position:relative; background:#000;}
+  .win-body iframe{width:100%; height:100%; border:0; background:#fff;}
+  .win-empty{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:10px; color:var(--text-dim); text-align:center; padding:20px;}
+  .win-empty a{color:var(--accent);}
+  .resize-handle{position:absolute; right:0; bottom:0; width:16px; height:16px; cursor:nwse-resize;}
+  .resize-handle::after{content:''; position:absolute; right:3px; bottom:3px; width:8px; height:8px; border-right:2px solid var(--text-faint); border-bottom:2px solid var(--text-faint);}
+  .native-body{padding:18px 22px; overflow-y:auto; height:100%; font-size:12px; line-height:1.7; color:var(--text-dim);}
+  .native-body h2{color:var(--accent); font-size:14px; letter-spacing:1px; margin-top:0;}
+  .native-body h3{color:var(--amber); font-size:12px; letter-spacing:1px;}
+  .native-body code{color:var(--accent);}
+  .native-body label{display:block; margin:12px 0 4px; color:var(--text);}
+  .native-body input[type=text]{width:100%; background:#04070a; border:1px solid var(--border-lit); color:var(--text); padding:8px; font-family:var(--mono);}
+  .native-body button.action{margin-top:14px; background:var(--accent-dim); border:1px solid var(--accent); color:#02140a; padding:8px 14px; font-weight:bold; letter-spacing:1px;}
+  .native-body button.danger{background:#3a1414; border-color:var(--red); color:#ffbdbd;}
+
+  /* ---------- TASKBAR ---------- */
+  #taskbar{
+    position:fixed; left:0; right:0; bottom:0; height:44px; background:var(--panel2); border-top:1px solid var(--border-lit);
+    display:flex; align-items:center; padding:0 8px; gap:8px; z-index:70;
+  }
+  #start-btn{
+    display:flex; align-items:center; gap:6px; background:var(--accent-dim); border:1px solid var(--accent); color:#02140a;
+    font-weight:bold; padding:7px 12px; border-radius:3px; font-size:11px; letter-spacing:1px;
+  }
+  #start-btn:hover{background:var(--accent);}
+  #cmd-btn{background:transparent; border:1px solid var(--border-lit); color:var(--text-dim); padding:7px 10px; border-radius:3px; font-size:11px;}
+  #cmd-btn:hover{color:var(--text); border-color:var(--text-dim);}
+  #dock{display:flex; gap:4px; padding-left:6px; border-left:1px solid var(--border);}
+  .dock-btn{width:30px; height:30px; display:flex; align-items:center; justify-content:center; background:var(--panel); border:1px solid var(--border-lit); border-radius:3px; font-size:14px;}
+  .dock-btn:hover{border-color:var(--accent-dim);}
+  #taskbar-windows{flex:1; display:flex; gap:6px; overflow-x:auto; height:100%; align-items:center;}
+  .task-chip{display:flex; align-items:center; gap:6px; background:var(--panel); border:1px solid var(--border-lit); color:var(--text-dim);
+    padding:6px 10px; border-radius:3px; font-size:10.5px; white-space:nowrap; max-width:160px;}
+  .task-chip .lbl{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .task-chip.active{border-color:var(--accent); color:var(--text);}
+  #tray{font-size:11px; color:var(--text-dim); padding:0 10px; letter-spacing:.5px;}
+  #tray b{color:var(--text);}
+
+  /* scrollbars */
+  ::-webkit-scrollbar{width:8px; height:8px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:var(--border-lit); border-radius:4px;}
+
+  @media (max-width:760px){
+    #sidebar{display:none;}
+    #icons{right:14px;}
+    #startmenu{width:96vw; left:2vw;}
+  }
+</style>
+</head>
+<body>
+
+<div id="scanlines"></div>
+<div id="vignette"></div>
+
+<!-- BOOT -->
+<div id="boot">
+  <pre id="boot-ascii"></pre>
+  <div id="boot-log"></div>
+  <div id="boot-bar-wrap"><div id="boot-bar"></div></div>
+  <div id="boot-skip">CLICK OR PRESS ANY KEY TO SKIP</div>
+</div>
+
+<!-- LOGIN -->
+<div id="login">
+  <div class="login-box">
+    <h1>⊡ SIMOS</h1>
+    <p>SELF-INTEGRATED MACHINE OPERATING SYSTEM</p>
+    <input id="callsign-input" type="text" maxlength="24" placeholder="ENTER CALLSIGN" autocomplete="off">
+    <button id="login-btn">▸ AUTHENTICATE</button>
+    <div class="login-hint">local identity only — nothing leaves this device</div>
+  </div>
+</div>
+
+<!-- DESKTOP -->
+<div id="desktop" style="display:none">
+  <div id="topbar">
+    <div class="brand">⊡ SIMOS <span>PERSONAL AI OPERATING SYSTEM // v1.0.0</span></div>
+    <div class="clock"><b id="clock-time">--:--:--</b> &nbsp;<span id="clock-date">----</span></div>
+  </div>
+
+  <div id="icons"></div>
+
+  <div id="sidebar">
+    <div class="widget">
+      <h3>◈ OPERATOR STATUS</h3>
+      <div class="body">
+        <div class="stat-row"><span><span class="status-dot"></span>SYSTEM</span><b>OPERATIONAL</b></div>
+        <div class="stat-row"><span>OPERATOR</span><b id="w-callsign">—</b></div>
+        <div class="stat-row"><span>SESSION UPTIME</span><b id="w-uptime">00:00:00</b></div>
+        <div class="stat-row"><span>MODULES INSTALLED</span><b id="w-modcount">0</b></div>
+        <div class="stat-row"><span>PINNED</span><b id="w-pincount">0</b></div>
+      </div>
+    </div>
+    <div class="widget" style="flex:1; display:flex; flex-direction:column;">
+      <h3>◈ QUICK NOTES</h3>
+      <div class="body" style="flex:1;">
+        <textarea id="notes-area" placeholder="jot something down... autosaves locally"></textarea>
+      </div>
+    </div>
+    <div class="widget">
+      <h3>◈ SYSTEM</h3>
+      <div class="body" style="display:flex; gap:6px; flex-wrap:wrap;">
+        <button class="winbtn" style="width:auto; padding:6px 8px;" id="open-sysinfo">ABOUT</button>
+        <button class="winbtn" style="width:auto; padding:6px 8px;" id="open-settings">SETTINGS</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- START MENU -->
+  <div id="startmenu">
+    <div class="search"><input id="start-search" type="text" placeholder="Search modules..." autocomplete="off"></div>
+    <div id="startlist"></div>
+  </div>
+
+  <!-- windows mount here -->
+  <div id="windows-layer" style="position:absolute; inset:0; pointer-events:none;"></div>
+</div>
+
+<!-- COMMAND PALETTE -->
+<div id="palette-overlay">
+  <div id="palette">
+    <input id="palette-input" type="text" placeholder="Type a module name and press Enter…" autocomplete="off">
+    <div id="palette-list"></div>
+  </div>
+</div>
+
+<!-- TASKBAR -->
+<div id="taskbar" style="display:none">
+  <button id="start-btn">⊡ START</button>
+  <button id="cmd-btn" title="Command Palette (Ctrl+K)">⌘ RUN</button>
+  <div id="dock"></div>
+  <div id="taskbar-windows"></div>
+  <div id="tray"><b id="tray-time">--:--</b></div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============ APP REGISTRY ============ */
+const CATS = {
+  prod:     {label:"PRODUCTIVITY & PLANNING", icon:"🗂"},
+  vault:    {label:"VAULT & JOURNAL",          icon:"🔒"},
+  field:    {label:"FIELD & FINANCE",          icon:"🧭"},
+  creative: {label:"CREATIVE & CONTENT",       icon:"🎨"},
+  util:     {label:"SYSTEM UTILITIES",         icon:"⚙"}
+};
+
+const APPS = [
+  {id:"assistant",   title:"PERSONAL ASSISTANT", cat:"prod", glyph:"🧭", path:"Apps/Simo's-Personal-Assistant.html", desc:"Daily task & schedule assistant"},
+  {id:"ascend",       title:"ASCEND",             cat:"prod", glyph:"🚀", path:"Apps/ASCEND (Self-Improvement PDA).html", desc:"Self-improvement PDA & habit engine"},
+  {id:"nddash",       title:"ND DASHBOARD",       cat:"prod", glyph:"🧠", path:"Apps/Neurodivergent Productivity Dashboard.html", desc:"Neurodivergent-friendly productivity system"},
+  {id:"lifeplanner",  title:"LIFE PLANNER",       cat:"prod", glyph:"📅", path:"Apps/Ultimate Life-Planner.html", desc:"Ultimate life planning system"},
+  {id:"studentplan",  title:"STUDENT PLANNER",    cat:"prod", glyph:"🎓", path:"Apps/Student Planner.html", desc:"Coursework & study planner"},
+  {id:"aurelios",     title:"AURELIOS",           cat:"prod", glyph:"💪", path:"Apps/Aurelios (Personal Fitness Assistant).html", desc:"Personal fitness assistant"},
+
+  {id:"digitalbrain", title:"DIGITAL BRAIN",      cat:"vault", glyph:"🧩", path:"Apps/Digital Brain.mht", desc:"Full personal knowledge base", ext:true},
+  {id:"kenji",        title:"KENJI",              cat:"vault", glyph:"🐾", path:"Apps/Kenji - Protogen Digital Brain.mht", desc:"Protogen-flavored digital brain", ext:true},
+  {id:"diary",        title:"DIARY",              cat:"vault", glyph:"📔", path:"Apps/Diary.html", desc:"Private daily journal"},
+  {id:"ironvault",    title:"IRONVAULT",          cat:"vault", glyph:"⊡", path:"Apps/IRONVAULT.html", desc:"Encrypted field-ops vault (AES-256)"},
+  {id:"braindump",    title:"BRAIN-DUMP",         cat:"vault", glyph:"🌀", path:"Apps/Brain-Dump Organizer.html", desc:"Capture & sort scattered thoughts"},
+
+  {id:"survivalv2",   title:"SURVIVAL MANUAL v2", cat:"field", glyph:"⚠", path:"Apps/Simos_Survival_Manual_V2.html", desc:"Field survival reference, v2"},
+  {id:"survivalv1",   title:"SURVIVAL MANUAL v1", cat:"field", glyph:"⚠", path:"Apps/Simo's Survival Manual (V1).html", desc:"Field survival reference, v1"},
+  {id:"fieldguide",   title:"PREPPER'S FIELD-GUIDE", cat:"field", glyph:"🗺", path:"Projects/Prepper's Field-Guide.html", desc:"Prepper field-guide reference"},
+  {id:"homemaint",    title:"HOME MAINTENANCE",   cat:"field", glyph:"🔧", path:"Apps/Home_Maintenance_Assistant.html", desc:"Home maintenance tracker"},
+  {id:"finance",      title:"FINANCE DASHBOARD",  cat:"field", glyph:"💰", path:"Apps/Personal Finance Dashboard.html", desc:"Personal finance overview"},
+  {id:"securebudget", title:"SECUREBUDGET PRO",   cat:"field", glyph:"🛡", path:"Apps/SecureBudget Pro (Personal-Finance App).html", desc:"Privacy-first budgeting app"},
+
+  {id:"gaius",        title:"GAIUS",              cat:"creative", glyph:"🤖", path:"AI/GAIUS (AI Chatbot).html", desc:"AI chatbot"},
+  {id:"giggles",       title:"GIGGLES",           cat:"creative", glyph:"😂", path:"AI/GIGGLES (AI Meme-Generator).html", desc:"AI meme generator"},
+  {id:"educontent",    title:"EDUCONTENT AI",     cat:"creative", glyph:"📚", path:"AI/EduContent_AI.html", desc:"Educational content generator"},
+  {id:"videogen",      title:"VIDEO GENERATOR",   cat:"creative", glyph:"🎬", path:"AI/FFMPEG Video Generator.html", desc:"FFMPEG-powered video generator"},
+  {id:"offlineai",     title:"OFFLINE AI",        cat:"creative", glyph:"🧠", path:"AI/Offline_AI.html", desc:"Offline AI toolkit"},
+  {id:"mdforge",       title:"MD-FORGE",          cat:"creative", glyph:"📝", path:"Apps/MD-Forge.html", desc:"Markdown forge & renderer"},
+  {id:"memegen",       title:"MEME GENERATOR",    cat:"creative", glyph:"🖼", path:"Apps/Meme-&-GIF-Generator.html", desc:"Meme & GIF generator"},
+  {id:"contenthub",    title:"CONTENT HUB",       cat:"creative", glyph:"🗓", path:"Apps/Content-Planning Hub.html", desc:"Content planning hub"},
+  {id:"ytplanner",     title:"YT PLANNER",        cat:"creative", glyph:"▶", path:"Apps/YouTube Content-Planner.html", desc:"YouTube content planner"},
+  {id:"viralvid",      title:"VIRAL VIDEO GEN",   cat:"creative", glyph:"🎞", path:"Apps/Viral Short Video Generator.mht", desc:"Short-form viral video generator", ext:true},
+
+  {id:"cerebrus",      title:"CEREBRUS SUITE",    cat:"util", glyph:"🖥", path:"Apps/CEREBRUS - Offline Office Suite.html", desc:"Offline office suite"},
+  {id:"cereword",      title:"WORD PROCESSOR",    cat:"util", glyph:"📄", path:"Apps/Cerebrus Word-Processor.html", desc:"Cerebrus word processor"},
+  {id:"ceresheet",     title:"SPREADSHEET",       cat:"util", glyph:"📊", path:"Apps/Cerebrus Spreadsheet.html", desc:"Cerebrus spreadsheet"},
+  {id:"cereslides",    title:"SLIDESHOW MAKER",   cat:"util", glyph:"📽", path:"Apps/Cerebrus Slideshow Maker.html", desc:"Cerebrus slideshow maker"},
+  {id:"persephone",    title:"PERSEPHONE",        cat:"util", glyph:"🕸", path:"Apps/Persephone (Privacy-First Web Browser).html", desc:"Privacy-first web browser"},
+  {id:"archiver",      title:"WEB ARCHIVER",      cat:"util", glyph:"🗃", path:"Apps/Simo's Website Archiver.html", desc:"Website archiver"},
+  {id:"boredom",       title:"BOREDOM BUSTER",    cat:"util", glyph:"🎲", path:"Apps/Boredom Buster.html", desc:"Boredom buster toolkit"},
+  {id:"jsonscraper",   title:"WEB SCRAPER",       cat:"util", glyph:"🕷", path:"Apps/JSON Website-Scraper And Offline-Reader.mht", desc:"JSON website scraper & offline reader", ext:true}
+];
+const DEFAULT_PINS = ["assistant","digitalbrain","ironvault","gaius","diary","lifeplanner"];
+
+/* ============ STORAGE ============ */
+const LS = {
+  get(k,d){ try{ const v=localStorage.getItem("simos_"+k); return v===null? d : JSON.parse(v); }catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem("simos_"+k, JSON.stringify(v)); }catch(e){} }
+};
+
+/* ============ BOOT SEQUENCE ============ */
+const bootAscii = `
+ ███████╗██╗███╗   ███╗ ██████╗ ███████╗
+ ██╔════╝██║████╗ ████║██╔═══██╗██╔════╝
+ ███████╗██║██╔████╔██║██║   ██║███████╗
+ ╚════██║██║██║╚██╔╝██║██║   ██║╚════██║
+ ███████║██║██║ ╚═╝ ██║╚██████╔╝███████║
+ ╚══════╝╚═╝╚═╝     ╚═╝ ╚═════╝ ╚══════╝
+      SELF-INTEGRATED MACHINE OS
+`;
+document.getElementById("boot-ascii").textContent = bootAscii;
+
+const bootLines = [
+  "INITIALIZING SIMOS KERNEL...",
+  "MOUNTING LOCAL FILESYSTEM... OK",
+  "NETWORK INTERFACES... DISABLED (BY DESIGN)",
+  "LOADING MODULE REGISTRY... "+APPS.length+" MODULES FOUND",
+  "VERIFYING LOCAL STORAGE... OK",
+  "DECRYPTING OPERATOR PROFILE... OK",
+  "SPAWNING WINDOW MANAGER... OK",
+  "ALL SYSTEMS NOMINAL."
+];
+const bootLog = document.getElementById("boot-log");
+const bootBar = document.getElementById("boot-bar");
+let bootDone=false, bootTimers=[];
+
+function runBoot(){
+  bootLines.forEach((line,i)=>{
+    const t = setTimeout(()=>{
+      const div=document.createElement("div");
+      div.className = (i===bootLines.length-1) ? "ok" : "";
+      div.textContent = "["+String(i+1).padStart(2,"0")+"] "+line;
+      bootLog.appendChild(div);
+      bootBar.style.width = Math.round(((i+1)/bootLines.length)*100)+"%";
+      if(i===bootLines.length-1){
+        const t2=setTimeout(finishBoot, 500);
+        bootTimers.push(t2);
+      }
+    }, i*230);
+    bootTimers.push(t);
+  });
+}
+function finishBoot(){
+  if(bootDone) return;
+  bootDone = true;
+  bootTimers.forEach(clearTimeout);
+  document.getElementById("boot").style.display="none";
+  showLogin();
+}
+document.getElementById("boot").addEventListener("click", finishBoot);
+document.addEventListener("keydown", function skipOnce(e){ if(!bootDone){ finishBoot(); } }, {once:true});
+runBoot();
+
+/* ============ LOGIN ============ */
+function showLogin(){
+  const login = document.getElementById("login");
+  login.classList.add("show");
+  const saved = LS.get("callsign","");
+  const input = document.getElementById("callsign-input");
+  if(saved) input.value = saved;
+  input.focus();
+  function go(){
+    const name = (input.value||"OPERATOR").trim().toUpperCase().slice(0,24) || "OPERATOR";
+    LS.set("callsign", name);
+    login.classList.remove("show");
+    bootDesktop(name);
+  }
+  document.getElementById("login-btn").onclick = go;
+  input.addEventListener("keydown", e=>{ if(e.key==="Enter") go(); });
+}
+
+/* ============ DESKTOP / WINDOW MANAGER ============ */
+let zTop = 10;
+const openWins = new Map(); // id -> {el, appId, minimized, maximized, restoreRect}
+let pins = LS.get("pins", DEFAULT_PINS.slice());
+let sessionStart = Date.now();
+
+function bootDesktop(callsign){
+  document.getElementById("desktop").style.display="block";
+  document.getElementById("taskbar").style.display="flex";
+  document.getElementById("w-callsign").textContent = callsign;
+  document.getElementById("w-modcount").textContent = APPS.length;
+  renderIcons();
+  renderStartList();
+  renderDock();
+  initNotes();
+  initClock();
+  initUptime();
+  bindGlobalUI();
+}
+
+function renderIcons(){
+  const wrap = document.getElementById("icons");
+  wrap.innerHTML = "";
+  const pinnedApps = pins.map(id=>APPS.find(a=>a.id===id)).filter(Boolean);
+  document.getElementById("w-pincount").textContent = pinnedApps.length;
+  pinnedApps.forEach(app=>{
+    const el = document.createElement("div");
+    el.className = "dicon";
+    el.innerHTML = '<div class="glyph">'+app.glyph+'</div><div class="label">'+app.title+'</div>';
+    el.title = app.desc;
+    el.addEventListener("click", ()=>launch(app.id));
+    wrap.appendChild(el);
+  });
+}
+
+function renderDock(){
+  const dock = document.getElementById("dock");
+  dock.innerHTML = "";
+  ["assistant","gaius","ironvault"].forEach(id=>{
+    const app = APPS.find(a=>a.id===id);
+    if(!app) return;
+    const b = document.createElement("button");
+    b.className = "dock-btn";
+    b.textContent = app.glyph;
+    b.title = app.title;
+    b.onclick = ()=>launch(app.id);
+    dock.appendChild(b);
+  });
+}
+
+function renderStartList(filter){
+  const list = document.getElementById("startlist");
+  list.innerHTML = "";
+  const f = (filter||"").trim().toLowerCase();
+  Object.keys(CATS).forEach(catKey=>{
+    const items = APPS.filter(a=>a.cat===catKey && (!f || a.title.toLowerCase().includes(f) || a.desc.toLowerCase().includes(f)));
+    if(!items.length) return;
+    const head = document.createElement("div");
+    head.className = "cat-head";
+    head.textContent = CATS[catKey].icon+"  "+CATS[catKey].label;
+    list.appendChild(head);
+    items.forEach(app=>list.appendChild(makeAppRow(app)));
+  });
+  if(!list.children.length){
+    const none = document.createElement("div");
+    none.style.cssText="padding:20px;text-align:center;color:var(--text-faint);font-size:11px;";
+    none.textContent = "NO MODULES MATCH";
+    list.appendChild(none);
+  }
+}
+
+function makeAppRow(app){
+  const row = document.createElement("div");
+  row.className = "app-row";
+  const isPinned = pins.includes(app.id);
+  row.innerHTML =
+    '<div class="glyph">'+app.glyph+'</div>'+
+    '<div class="meta"><div class="t">'+app.title+(app.ext?' <span class="ext-badge">EXT</span>':'')+'</div><div class="d">'+app.desc+'</div></div>'+
+    '<button class="pin'+(isPinned?' active':'')+'" title="Pin/unpin">'+(isPinned?"★":"☆")+'</button>';
+  row.querySelector(".meta").addEventListener("click", ()=>{ launch(app.id); closeStart(); });
+  row.querySelector(".glyph").addEventListener("click", ()=>{ launch(app.id); closeStart(); });
+  row.querySelector(".pin").addEventListener("click", (e)=>{
+    e.stopPropagation();
+    togglePin(app.id);
+    renderStartList(document.getElementById("start-search").value);
+  });
+  return row;
+}
+
+function togglePin(id){
+  const idx = pins.indexOf(id);
+  if(idx>=0) pins.splice(idx,1); else pins.push(id);
+  LS.set("pins", pins);
+  renderIcons();
+}
+
+/* ---- launching ---- */
+function launch(appId){
+  const app = APPS.find(a=>a.id===appId);
+  if(!app) return;
+  if(app.ext){
+    window.open(encodeURI(app.path), "_blank");
+    return;
+  }
+  if(openWins.has(appId)){
+    const w = openWins.get(appId);
+    w.minimized = false;
+    w.el.style.display="flex";
+    focusWindow(appId);
+    return;
+  }
+  createWindow(app);
+}
+
+function createWindow(app, opts){
+  opts = opts||{};
+  const layer = document.getElementById("windows-layer");
+  const el = document.createElement("div");
+  el.className = "os-window";
+  el.style.pointerEvents = "auto";
+  const count = openWins.size;
+  const w = opts.w || Math.min(760, window.innerWidth-120);
+  const h = opts.h || Math.min(560, window.innerHeight-160);
+  el.style.width = w+"px";
+  el.style.height = h+"px";
+  el.style.left = (40 + (count*26)%220)+"px";
+  el.style.top = (60 + (count*22)%160)+"px";
+
+  const bodyHtml = app.native ? '<div class="native-body">'+app.native()+'</div>'
+    : '<iframe src="'+encodeURI(app.path)+'" title="'+app.title+'"></iframe>'
+      + '<div class="win-empty" style="display:none" id="fallback-'+app.id+'">'
+      + '<div>If this module does not render inline,</div>'
+      + '<a href="'+encodeURI(app.path)+'" target="_blank">▸ open it in a new tab</a></div>';
+
+  el.innerHTML =
+    '<div class="win-head">'+
+      '<div class="t">'+app.glyph+' '+app.title+'</div>'+
+      (app.native ? '' : '<button class="winbtn" data-act="ext" title="Open in new tab">↗</button>')+
+      '<button class="winbtn" data-act="min" title="Minimize">–</button>'+
+      '<button class="winbtn" data-act="max" title="Maximize">▢</button>'+
+      '<button class="winbtn close" data-act="close" title="Close">×</button>'+
+    '</div>'+
+    '<div class="win-body">'+bodyHtml+'</div>'+
+    (app.native ? '' : '<div class="resize-handle"></div>');
+
+  layer.appendChild(el);
+  openWins.set(app.id, {el, appId:app.id, minimized:false, maximized:false, restoreRect:null});
+
+  // drag
+  const head = el.querySelector(".win-head");
+  head.addEventListener("pointerdown", (e)=>{
+    if(e.target.closest(".winbtn")) return;
+    focusWindow(app.id);
+    const startX=e.clientX, startY=e.clientY;
+    const rect = el.getBoundingClientRect();
+    const parentRect = layer.getBoundingClientRect();
+    const origLeft = rect.left-parentRect.left, origTop = rect.top-parentRect.top;
+    function onMove(ev){
+      el.style.left = (origLeft + (ev.clientX-startX))+"px";
+      el.style.top = Math.max(0, origTop + (ev.clientY-startY))+"px";
+    }
+    function onUp(){ document.removeEventListener("pointermove",onMove); document.removeEventListener("pointerup",onUp); }
+    document.addEventListener("pointermove",onMove);
+    document.addEventListener("pointerup",onUp);
+  });
+
+  // resize
+  const handle = el.querySelector(".resize-handle");
+  if(handle){
+    handle.addEventListener("pointerdown",(e)=>{
+      e.stopPropagation();
+      focusWindow(app.id);
+      const startX=e.clientX, startY=e.clientY;
+      const startW=el.offsetWidth, startH=el.offsetHeight;
+      function onMove(ev){
+        el.style.width = Math.max(280, startW+(ev.clientX-startX))+"px";
+        el.style.height = Math.max(200, startH+(ev.clientY-startY))+"px";
+      }
+      function onUp(){ document.removeEventListener("pointermove",onMove); document.removeEventListener("pointerup",onUp); }
+      document.addEventListener("pointermove",onMove);
+      document.addEventListener("pointerup",onUp);
+    });
+  }
+
+  el.addEventListener("pointerdown", ()=>focusWindow(app.id));
+
+  el.querySelectorAll(".winbtn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const act = btn.dataset.act;
+      if(act==="close") closeWindow(app.id);
+      else if(act==="min") minimizeWindow(app.id);
+      else if(act==="max") maximizeWindow(app.id);
+      else if(act==="ext") window.open(encodeURI(app.path), "_blank");
+    });
+  });
+
+  focusWindow(app.id);
+  addTaskbarChip(app);
+}
+
+function focusWindow(appId){
+  document.querySelectorAll(".os-window").forEach(w=>w.classList.remove("active"));
+  const w = openWins.get(appId);
+  if(!w) return;
+  w.el.style.zIndex = ++zTop;
+  w.el.classList.add("active");
+  document.querySelectorAll(".task-chip").forEach(c=>c.classList.toggle("active", c.dataset.app===appId && !w.minimized));
+}
+
+function minimizeWindow(appId){
+  const w = openWins.get(appId);
+  if(!w) return;
+  w.minimized = true;
+  w.el.style.display = "none";
+  document.querySelectorAll(".task-chip").forEach(c=>c.classList.remove("active"));
+}
+
+function maximizeWindow(appId){
+  const w = openWins.get(appId);
+  if(!w) return;
+  const layer = document.getElementById("windows-layer");
+  if(!w.maximized){
+    w.restoreRect = {left:w.el.style.left, top:w.el.style.top, width:w.el.style.width, height:w.el.style.height};
+    w.el.style.left="4px"; w.el.style.top="4px";
+    w.el.style.width = (layer.clientWidth-8)+"px";
+    w.el.style.height = (layer.clientHeight-8)+"px";
+    w.maximized = true;
+  } else {
+    Object.assign(w.el.style, w.restoreRect);
+    w.maximized = false;
+  }
+  focusWindow(appId);
+}
+
+function closeWindow(appId){
+  const w = openWins.get(appId);
+  if(!w) return;
+  w.el.remove();
+  openWins.delete(appId);
+  const chip = document.querySelector('.task-chip[data-app="'+appId+'"]');
+  if(chip) chip.remove();
+}
+
+function addTaskbarChip(app){
+  const wrap = document.getElementById("taskbar-windows");
+  const chip = document.createElement("div");
+  chip.className = "task-chip active";
+  chip.dataset.app = app.id;
+  chip.innerHTML = '<span>'+app.glyph+'</span><span class="lbl">'+app.title+'</span>';
+  chip.addEventListener("click", ()=>{
+    const w = openWins.get(app.id);
+    if(!w) return;
+    if(w.minimized){ w.minimized=false; w.el.style.display="flex"; focusWindow(app.id); }
+    else if(w.el.classList.contains("active")){ minimizeWindow(app.id); }
+    else { focusWindow(app.id); }
+  });
+  document.getElementById("taskbar-windows").appendChild(chip);
+}
+
+/* ============ NATIVE APPS ============ */
+function sysInfoBody(){
+  return '<h2>⊡ ABOUT SIMOS</h2>'
+    + '<p>SIMOS (Self-Integrated Machine Operating System) is a single-file, offline-first launcher that unifies every tool in this portfolio into one desktop. It is a window manager, not a rewrite — each module below is the original app, opened in its own window.</p>'
+    + '<h3>PRINCIPLES</h3>'
+    + '<ul><li>Zero network calls. Nothing here phones home.</li>'
+    + '<li>Zero external dependencies — one HTML file, works offline forever.</li>'
+    + '<li>All state (pins, notes, callsign) lives in this browser\'s localStorage only.</li>'
+    + '<li>Modules marked <code>EXT</code> are <code>.mht</code> archives — browsers render these unreliably inside an iframe, so they open in a new tab instead.</li></ul>'
+    + '<h3>SHORTCUTS</h3>'
+    + '<ul><li><code>Ctrl/Cmd + K</code> — command palette</li>'
+    + '<li>Drag a window\'s header to move it, its bottom-right corner to resize</li>'
+    + '<li>Click a taskbar chip to restore/minimize; click again to minimize an active window</li></ul>'
+    + '<h3>MODULE COUNT</h3><p>'+APPS.length+' modules across '+Object.keys(CATS).length+' categories.</p>';
+}
+
+function settingsBody(){
+  const cur = LS.get("callsign","OPERATOR");
+  setTimeout(()=>{
+    const input = document.getElementById("settings-callsign");
+    if(input) input.addEventListener("keydown", e=>{
+      if(e.key==="Enter"){
+        const v=(input.value||"OPERATOR").trim().toUpperCase().slice(0,24)||"OPERATOR";
+        LS.set("callsign", v);
+        document.getElementById("w-callsign").textContent = v;
+      }
+    });
+    const resetBtn = document.getElementById("settings-reset-pins");
+    if(resetBtn) resetBtn.addEventListener("click", ()=>{
+      pins = DEFAULT_PINS.slice();
+      LS.set("pins", pins);
+      renderIcons();
+      renderStartList(document.getElementById("start-search").value);
+    });
+    const wipeBtn = document.getElementById("settings-wipe");
+    if(wipeBtn) wipeBtn.addEventListener("click", ()=>{
+      if(confirm("Clear all SIMOS local data (callsign, pins, notes)? This does not touch any module's own data.")){
+        Object.keys(localStorage).filter(k=>k.startsWith("simos_")).forEach(k=>localStorage.removeItem(k));
+        location.reload();
+      }
+    });
+  },0);
+  return '<h2>⚙ SETTINGS</h2>'
+    + '<label>OPERATOR CALLSIGN</label>'
+    + '<input type="text" id="settings-callsign" value="'+cur+'" placeholder="Press Enter to save">'
+    + '<button class="action" id="settings-reset-pins">RESET PINNED MODULES TO DEFAULT</button><br>'
+    + '<button class="action danger" id="settings-wipe">WIPE SIMOS LOCAL DATA</button>';
+}
+
+document.getElementById("open-sysinfo").addEventListener("click", ()=>{
+  openNative({id:"sysinfo", title:"SYSTEM INFO", glyph:"◈", native:sysInfoBody});
+});
+document.getElementById("open-settings").addEventListener("click", ()=>{
+  openNative({id:"settings", title:"SETTINGS", glyph:"⚙", native:settingsBody});
+});
+function openNative(app){
+  if(openWins.has(app.id)){ focusWindow(app.id); const w=openWins.get(app.id); w.minimized=false; w.el.style.display="flex"; return; }
+  createWindow(app, {w:480, h:420});
+}
+
+/* ============ START MENU / PALETTE / GLOBAL UI ============ */
+function bindGlobalUI(){
+  const startBtn = document.getElementById("start-btn");
+  const startMenu = document.getElementById("startmenu");
+  startBtn.addEventListener("click", (e)=>{ e.stopPropagation(); startMenu.classList.toggle("show"); if(startMenu.classList.contains("show")) document.getElementById("start-search").focus(); });
+  document.addEventListener("click", (e)=>{ if(!startMenu.contains(e.target) && e.target!==startBtn) closeStart(); });
+  document.getElementById("start-search").addEventListener("input", (e)=>renderStartList(e.target.value));
+
+  document.getElementById("cmd-btn").addEventListener("click", openPalette);
+  document.addEventListener("keydown", (e)=>{
+    if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==="k"){ e.preventDefault(); openPalette(); }
+    if(e.key==="Escape"){ closePalette(); closeStart(); }
+  });
+
+  const pinput = document.getElementById("palette-input");
+  pinput.addEventListener("input", ()=>renderPalette(pinput.value));
+  pinput.addEventListener("keydown", (e)=>{
+    const items = document.querySelectorAll("#palette-list .app-row");
+    let sel = document.querySelector("#palette-list .app-row.sel");
+    let idx = Array.from(items).indexOf(sel);
+    if(e.key==="ArrowDown"){ e.preventDefault(); idx=Math.min(items.length-1, idx+1); setSel(items, idx); }
+    else if(e.key==="ArrowUp"){ e.preventDefault(); idx=Math.max(0, idx-1); setSel(items, idx); }
+    else if(e.key==="Enter"){ if(sel) sel.querySelector(".meta").click(); else if(items[0]) items[0].querySelector(".meta").click(); }
+  });
+  document.getElementById("palette-overlay").addEventListener("click", (e)=>{ if(e.target.id==="palette-overlay") closePalette(); });
+
+  window.addEventListener("resize", ()=>{});
+}
+function setSel(items, idx){ items.forEach(i=>i.classList.remove("sel")); if(items[idx]) items[idx].classList.add("sel"); }
+function closeStart(){ document.getElementById("startmenu").classList.remove("show"); }
+
+function openPalette(){
+  const overlay = document.getElementById("palette-overlay");
+  overlay.classList.add("show");
+  const input = document.getElementById("palette-input");
+  input.value=""; input.focus();
+  renderPalette("");
+}
+function closePalette(){ document.getElementById("palette-overlay").classList.remove("show"); }
+function renderPalette(q){
+  const list = document.getElementById("palette-list");
+  list.innerHTML="";
+  const f = q.trim().toLowerCase();
+  const matches = APPS.filter(a=> !f || a.title.toLowerCase().includes(f) || a.desc.toLowerCase().includes(f)).slice(0,10);
+  matches.forEach((app,i)=>{
+    const row = makeAppRow(app);
+    row.querySelector(".meta").addEventListener("click", closePalette);
+    row.querySelector(".glyph").addEventListener("click", closePalette);
+    if(i===0) row.classList.add("sel");
+    list.appendChild(row);
+  });
+  if(!matches.length){
+    const none=document.createElement("div");
+    none.style.cssText="padding:16px;color:var(--text-faint);font-size:11px;text-align:center;";
+    none.textContent="NO MATCHES";
+    list.appendChild(none);
+  }
+}
+
+/* ============ WIDGETS ============ */
+function initNotes(){
+  const area = document.getElementById("notes-area");
+  area.value = LS.get("notes","");
+  let t;
+  area.addEventListener("input", ()=>{
+    clearTimeout(t);
+    t = setTimeout(()=>LS.set("notes", area.value), 400);
+  });
+}
+function initClock(){
+  function tick(){
+    const now = new Date();
+    const time = now.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false});
+    const date = now.toLocaleDateString([], {weekday:"short", year:"numeric", month:"short", day:"numeric"});
+    document.getElementById("clock-time").textContent = time;
+    document.getElementById("clock-date").textContent = date;
+    document.getElementById("tray-time").textContent = time;
+  }
+  tick(); setInterval(tick, 1000);
+}
+function initUptime(){
+  function tick(){
+    const s = Math.floor((Date.now()-sessionStart)/1000);
+    const hh = String(Math.floor(s/3600)).padStart(2,"0");
+    const mm = String(Math.floor((s%3600)/60)).padStart(2,"0");
+    const ss = String(s%60).padStart(2,"0");
+    document.getElementById("w-uptime").textContent = hh+":"+mm+":"+ss;
+  }
+  tick(); setInterval(tick, 1000);
+}
+
+})();
+</script>
+</body>
+</html>
